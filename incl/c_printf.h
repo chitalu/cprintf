@@ -1,5 +1,5 @@
 #include "common.h"
-
+#include <tuple>//tmp
 #include <type_traits>
 
 template<class T> 
@@ -78,7 +78,7 @@ void _c_printf_(COUNTPRED c_pred,
 
 template<class COUNTPRED, typename ...TN>
 void _c_printf_(COUNTPRED c_pred,
-			FILE* stream,
+			stream_t stream,
 			meta_format_t &meta,
 			meta_format_t::iterator &meta_iter, 
 			std::string &ostr, 
@@ -130,7 +130,7 @@ void _c_printf_(COUNTPRED c_pred,
 }
 
 template<typename... TN> 
-int c_printf(FILE* stream, const char* format, TN... args)
+int c_printf(stream_t stream, const char* format, TN... args)
 { 
 	auto count = [=](const std::string & obj, const std::string & str) -> std::size_t
 	{

@@ -88,3 +88,8 @@ meta_format_t _parse_formatter(const char* _formatter)
 
 	return meta;
 }
+
+int c_printf(FILE* stream, const char* format)
+{
+	return 0;
+}
