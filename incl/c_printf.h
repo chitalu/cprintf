@@ -1,29 +1,6 @@
 #include "common.h"
-#include <tuple>//tmp
-#include <type_traits>
-
-template<class T> 
-typename std::enable_if<std::is_integral<T>::value, long>::type
-normalize_arg(T arg) 
-{
-	return arg;
-}
-
-template<class T> 
-typename std::enable_if<std::is_floating_point<T>::value, double>::type
-normalize_arg(T arg) 
-{
-	return arg;
-}
-
-template<class T> 
-typename std::enable_if<std::is_pointer<T>::value, T>::type
-normalize_arg(T arg) 
-{
-	return arg;
-}
-
-extern const char* normalize_arg(const std::string& arg);
+#include "type_norm.h"
+#include <stdexcept>
 
 extern void check_printf(const char* format);
 
@@ -67,17 +44,51 @@ check_printf(const char* format, const T& farg, const Ts&... args)
 
 extern meta_format_t _parse_formatter(const char* _formatter);
 
+/*@stores the current system console text colour*/
+extern "C" void _save_sys_default_colour_(void);
+
+extern "C" void _reload_sys_default_colour_(void);
+
+#ifdef _WIN32
+extern void _set_text_colour_(stream_t stream, const std::string& repr);
+#else
+extern std::string _set_text_colour_(const std::string& repr);
+#endif
+
+#ifdef _WIN32
+extern void config_set_colour(stream_t stream, const std::string &c_repr);
+#else
+extern void config_set_colour(stream_t stream, const std::string &c_repr);
+#endif
+
 template<class COUNTPRED>
-void _c_printf_(COUNTPRED c_pred,
+int _c_printf_(COUNTPRED c_pred,
 	stream_t stream,
 	meta_format_t &meta,
 	meta_format_t::iterator &meta_iter,
 	std::string &ostr,
 	std::size_t &pos)
-{	}
+{	
+	/*
+		this function is executed last when processing arguments to printf
+		so in order to get access to the last element of "meta" to get 
+		the last set colour i use (std::end(meta) - 1)
+	*/
+	config_set_colour(stream, (std::end(meta) - 1)->first);
+
+	int err = 0;
+	if (!ostr.empty())
+	{
+		err = fprintf(stream, ostr.c_str());
+	}
+
+	_reload_sys_default_colour_();
+
+	return err;
+}
 
 template<class COUNTPRED, typename T0, typename ...TN>
-void _c_printf_(COUNTPRED c_pred,
+int _c_printf_(COUNTPRED c_pred,
 			stream_t stream,
 			meta_format_t &meta,
 			meta_format_t::iterator &meta_iter, 
@@ -86,11 +97,10 @@ void _c_printf_(COUNTPRED c_pred,
 			T0 arg0,
 			TN... args)
 {
+	
+	config_set_colour(stream, meta_iter->first);
+
 	int err = 0;
-	if (meta_iter == meta.end())
-	{
-		return;
-	}
 
 	std::string _ostr = ostr.size() > 0 ? ostr : "";
 
@@ -117,23 +127,28 @@ void _c_printf_(COUNTPRED c_pred,
 		{
 			pos = 0;
 			meta_iter++;
+
 		}
 
-		_c_printf_(c_pred, stream, meta, meta_iter, (!more) ? meta_iter->second : _ostr, pos, args...);
+		err = _c_printf_(c_pred, stream, meta, meta_iter, (!more) ? meta_iter->second : _ostr, pos, args...);
 	}
 	else
 	{
 		pos = 0;
 		meta_iter++;
 		fprintf(stream, ostr.c_str());
-		_c_printf_(c_pred, stream, meta, meta_iter, _ostr, pos, args...);
+		err = _c_printf_(c_pred, stream, meta, meta_iter, _ostr, pos, args...);
 	}
+
+	return err;
 }
 
 template<typename... TN> 
 int c_printf(stream_t stream, const char* format, TN... args)
 { 
-	auto count = [=](const std::string & obj, const std::string & str) -> std::size_t
+	if (stream == nullptr){ throw std::runtime_error("output stream undefined");	}
+
+	auto arg_count_pred = [=](const std::string & obj, const std::string & str) -> std::size_t
 	{
 		std::size_t n = 0;
 		std::string::size_type pos = 0;
@@ -148,8 +163,8 @@ int c_printf(stream_t stream, const char* format, TN... args)
 #if defined(NDEBUG) || defined(_DEBUG)
 
 	assert(
-		(count(format, "%") > 0 && sizeof...(args) > 0) ||
-		(count(format, "%") == 0 && sizeof...(args) == 0)
+		(arg_count_pred(format, "%") > 0 && sizeof...(args) > 0) ||
+		(arg_count_pred(format, "%") == 0 && sizeof...(args) == 0)
 		);
 
 	//check_printf(format, normalize_arg(args)...);
@@ -158,12 +173,15 @@ int c_printf(stream_t stream, const char* format, TN... args)
 #endif
 
 	auto meta = _parse_formatter(format);
-	const auto total_argc = count(format, "%");
 	std::size_t start_pos = 0;
-
-	_c_printf_(count, stream, meta, meta.begin(), meta.begin()->second, start_pos, normalize_arg(args)...);
 	
-	return 0;// _c_printf_(stream, format, normalize_arg(args)...);
+	return _c_printf_(	arg_count_pred, 
+						stream, 
+						meta, 
+						meta.begin(), 
+						meta.begin()->second, 
+						start_pos, 
+						normalize_arg(args)...);
 }
 
 extern int c_printf(FILE* stream, const char* format);
