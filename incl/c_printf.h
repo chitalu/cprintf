@@ -67,22 +67,23 @@ check_printf(const char* format, const T& farg, const Ts&... args)
 
 extern meta_format_t _parse_formatter(const char* _formatter);
 
-template<class COUNTPRED, typename ...TN>
+template<class COUNTPRED>
 void _c_printf_(COUNTPRED c_pred,
-				FILE* stream,
-				std::vector<std::pair<std::string, std::string>> &meta,
-				std::vector<std::pair<std::string, std::string>>::iterator &meta_iter,
-				std::string &ostr,
-				std::size_t &pos)
+	stream_t stream,
+	meta_format_t &meta,
+	meta_format_t::iterator &meta_iter,
+	std::string &ostr,
+	std::size_t &pos)
 {	}
 
-template<class COUNTPRED, typename ...TN>
+template<class COUNTPRED, typename T0, typename ...TN>
 void _c_printf_(COUNTPRED c_pred,
 			stream_t stream,
 			meta_format_t &meta,
 			meta_format_t::iterator &meta_iter, 
 			std::string &ostr, 
 			std::size_t &pos, 
+			T0 arg0,
 			TN... args)
 {
 	int err = 0;
@@ -106,8 +107,8 @@ void _c_printf_(COUNTPRED c_pred,
 		auto fstr = ostr.substr(pos, pos + 1);
 		pos++;
 
-		auto argval = std::get<0>(std::make_tuple(args...));
-		err = fprintf(stream, fstr.c_str(), argval);
+		//auto argval = std::get<0>(std::make_tuple(args...));
+		err = fprintf(stream, fstr.c_str(), arg0);
 
 		_ostr = ostr.substr(pos);
 
