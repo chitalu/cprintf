@@ -1,20 +1,34 @@
 #include "c_printf.h"
 #include <map>
 
+const std::vector<std::string> _g_col_reprs = {
+"r", "g", "b", 
+"rb", "gb", "br", "bg", "gb", "gr",
+"r!b", "g!b", "b!r", "b!g", "g!b", "g!r",
+"r!b!", "g!b!", "b!r!", "b!g!", "g!b!", "g!r!",
+"r!", "g!", "b!", 
+"!" 
+};
+
 #ifdef _WIN32
 
 auto console_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 
 std::map<std::string, colour_t> g_colour_repr{ 
-	{	"r",	(FOREGROUND_RED		| FOREGROUND_INTENSITY) },
-	{	"g",	(FOREGROUND_GREEN	| FOREGROUND_INTENSITY) },
-	{	"b",	(FOREGROUND_BLUE	| FOREGROUND_INTENSITY) },
-	{	"a",	(FOREGROUND_BLUE	| FOREGROUND_GREEN) },
-	{	"y",	(FOREGROUND_RED		| FOREGROUND_GREEN	| FOREGROUND_INTENSITY) },
+	{	"r",	(FOREGROUND_RED)	},
+	{	"rb",	(FOREGROUND_RED | BACKGROUND_BLUE) },
+	{	"r!b",	((FOREGROUND_RED | FOREGROUND_INTENSITY) | BACKGROUND_BLUE) },
+	{	"r!b!", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | (BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
+	{	"g",	(FOREGROUND_GREEN)	},
+	{	"b",	(FOREGROUND_BLUE)	},
+	{	"r!",	(FOREGROUND_RED		| FOREGROUND_INTENSITY) },
+	{	"g!",	(FOREGROUND_GREEN	| FOREGROUND_INTENSITY) },
+	{	"b!",	(FOREGROUND_BLUE	| FOREGROUND_INTENSITY) },
+	/*{	"y",	(FOREGROUND_RED		| FOREGROUND_GREEN	| FOREGROUND_INTENSITY) },
 	{	"m",	(FOREGROUND_RED		| FOREGROUND_BLUE	| FOREGROUND_INTENSITY) },
 	{	"c",	(FOREGROUND_GREEN	| FOREGROUND_BLUE	| FOREGROUND_INTENSITY)	},
-	{	"w",	(FOREGROUND_RED		| FOREGROUND_GREEN	| FOREGROUND_BLUE | FOREGROUND_INTENSITY) },
+	{	"w",	(FOREGROUND_RED		| FOREGROUND_GREEN	| FOREGROUND_BLUE | FOREGROUND_INTENSITY) },*/
 	{	"!",	[&]()->colour_t
 				{
 					CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -29,16 +43,21 @@ const colour_t SYS_TxCOL_UNDEFINED = 666;
 colour_t g_sys_text_colour = SYS_TxCOL_UNDEFINED;
 
 #else //_WIN32
-
+//http://www.linuxhomenetworking.com/forums/showthread.php/1095-Linux-console-Colors-And-Other-Trick-s
+//http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
+//http://linuxgazette.net/issue65/padala.html
 std::map<std::string, colour_t> g_colour_repr{ 
 	{	"r",	"\033[31m" },
 	{	"g",	"\033[32m" },
 	{	"b",	"\033[34m" },
-	{	"a",	"\033[37m" },//TODO 
-	{	"y",	"\033[33m" },
-	{	"m",	"\033[35m" },
-	{	"c",	"\033[36m" },
-	{	"w",	"\033[37m" },
+	{	"r!",	"\033[31m" },
+	{	"g!",	"\033[32m" },
+	{	"b!",	"\033[34m" },
+	//{	"a",	"\033[37m" },//TODO 
+	//{	"y",	"\033[33m" },
+	//{	"m",	"\033[35m" },
+	//{	"c",	"\033[36m" },
+	//{	"w",	"\033[37m" },
 	{	"!",	"\033[37m" }//TODO
 };
 
@@ -73,59 +92,40 @@ meta_format_t _parse_formatter(const char* _formatter)
 	};
 	
 	meta_format_t meta;
-	std::size_t pos;
-	std::string subseq_colored_str, 
-				color_repr, 
-				formatter, 
+	
+	std::string formatter, 
 				tag;
 
 	formatter = _formatter;
-	tag = "${";
-
-	pos = formatter.find(tag, 0);
-
-	if (pos == formatter.npos)
+	tag = "|";
+	auto first_c_frmt_pos = formatter.find(tag);
+	if (first_c_frmt_pos != 0)
 	{
-		meta.push_back(std::make_pair(std::string("!"), formatter));
-		return meta;
-	}
-	else
-	{
-		meta.push_back(std::make_pair(std::string("!"), formatter.substr(0, pos)));
+		meta.insert(
+			std::make_pair(0, std::make_pair("!", formatter.substr(0, first_c_frmt_pos)))
+			);
 	}
 
-	color_repr = extract_color_repr(formatter, pos);
-	/*plus 1 is for ")", to complete the symbolic color tag's size i.e ${s}*/
-	pos += (tag.size() + (color_repr.size()) + 1);
-
-	auto _p = formatter.find(tag, pos);
-	if (_p != formatter.npos){	_p -= pos;	}
-
-	auto offpos_insert_meta = [&](std::size_t count)->void
+	for (auto &c_repr : _g_col_reprs)
 	{
-		subseq_colored_str = formatter.substr(pos, count);
-		meta.push_back(std::make_pair(color_repr, subseq_colored_str));
-	};
+		auto c_frmt = tag + c_repr + tag;
+		auto pos = formatter.find(c_frmt);
 
-	offpos_insert_meta(_p);
-
-	while (pos != std::string::npos)
-	{
-		pos = formatter.find(tag, pos + 1);
-		color_repr = extract_color_repr(formatter, pos);
-		pos += (tag.size() + (color_repr.size()) + 1);
-
-		_p = formatter.find(tag, pos);
-
-		if (_p >= formatter.npos)
+		while (pos != formatter.npos)
 		{
-			offpos_insert_meta(formatter.npos);		
-			break;
+			auto p_ = pos;
+			auto p_offset = p_ + c_frmt.length();
+			pos = formatter.find("|", p_offset);
+			auto cf = formatter.substr(p_, c_frmt.length());
+			if (cf == c_frmt)
+			{
+				meta.insert(
+					std::make_pair(p_offset, std::make_pair(c_repr, formatter.substr(p_offset, (pos - p_offset))))
+					);
+				pos = formatter.find(c_frmt, p_offset);
+			}
+			
 		}
-
-		if (_p != formatter.npos){	_p -= pos;	}
-
-		offpos_insert_meta(_p);
 	}
 
 	return meta;

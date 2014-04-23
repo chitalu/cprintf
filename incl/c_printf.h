@@ -2,6 +2,8 @@
 #include "type_norm.h"
 #include <stdexcept>
 
+extern const std::vector<std::string> _g_col_reprs;
+
 extern void check_printf(const char* format);
 
 template<class T, typename... Ts> void
@@ -74,17 +76,17 @@ int _c_printf_(COUNTPRED c_pred,
 		so in order to get access to the last element of "meta" to get 
 		the last set colour i use (std::end(meta) - 1)
 	*/
-	config_set_colour(stream, (std::end(meta) - 1)->first);
+	//config_set_colour(stream, (std::end(meta) - 1)->second.first);
 
-	int err = 0;
+	/*int err = 0;
 	if (!ostr.empty())
 	{
 		err = fprintf(stream, ostr.c_str());
-	}
+	}*/
 
 	_reload_sys_default_colour_();
 
-	return err;
+	return 0;
 }
 
 template<class COUNTPRED, typename T0, typename ...TN>
@@ -98,14 +100,16 @@ int _c_printf_(COUNTPRED c_pred,
 			TN... args)
 {
 	
-	config_set_colour(stream, meta_iter->first);
+	config_set_colour(stream, meta_iter->second.first);
 
 	int err = 0;
 
 	std::string _ostr = ostr.size() > 0 ? ostr : "";
 
 	const auto argc = c_pred(ostr, "%");
-
+	//more printf args to print in current meta format
+	bool more_args = false;
+	bool printed_arg0 = false;
 	if (argc >= 1)
 	{
 		pos = ostr.find_first_of("%", pos);
@@ -114,33 +118,46 @@ int _c_printf_(COUNTPRED c_pred,
 			err = fprintf(stream, ostr.substr(0, pos).c_str());
 		}
 
-		auto fstr = ostr.substr(pos, pos + 1);
-		pos++;
+		auto offset = 2;
+		auto fstr = ostr.substr(pos, offset);
+		pos += offset;
 
-		//auto argval = std::get<0>(std::make_tuple(args...));
 		err = fprintf(stream, fstr.c_str(), arg0);
+		printed_arg0 = true;
 
-		_ostr = ostr.substr(pos);
+		ostr = ostr.substr(pos);
+		pos = 0;
 
-		bool more = c_pred(_ostr, "%") > 0;
-		if (!more)
+		more_args = c_pred(ostr, "%") > 0;
+		if (!more_args)
 		{
-			pos = 0;
+			if (!ostr.empty())
+			{
+				fprintf(stream, ostr.c_str());
+				ostr.clear();
+			}
 			meta_iter++;
-
 		}
-
-		err = _c_printf_(c_pred, stream, meta, meta_iter, (!more) ? meta_iter->second : _ostr, pos, args...);
 	}
 	else
 	{
 		pos = 0;
-		meta_iter++;
 		fprintf(stream, ostr.c_str());
-		err = _c_printf_(c_pred, stream, meta, meta_iter, _ostr, pos, args...);
+		meta_iter++;
+		while (c_pred(meta_iter->second.second, "%") == 0)
+		{
+			config_set_colour(stream, meta_iter->second.first);
+			fprintf(stream, meta_iter->second.second.c_str());
+			meta_iter++;
+		}
 	}
 
-	return err;
+	bool meta_iter_is_valid = meta_iter != meta.end();
+
+	if (printed_arg0)
+		return _c_printf_(c_pred, stream, meta, meta_iter, (!more_args && meta_iter_is_valid) ? meta_iter->second.second : ostr, pos, args...);
+	else
+		return _c_printf_(c_pred, stream, meta, meta_iter, (!more_args && meta_iter_is_valid) ? meta_iter->second.second : ostr, pos, arg0, args...);
 }
 
 template<typename... TN> 
@@ -179,7 +196,7 @@ int c_printf(stream_t stream, const char* format, TN... args)
 						stream, 
 						meta, 
 						meta.begin(), 
-						meta.begin()->second, 
+						meta.begin()->second.second, 
 						start_pos, 
 						normalize_arg(args)...);
 }

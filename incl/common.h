@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdio>
 #include <assert.h>
+#include <map>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -11,6 +12,7 @@ typedef WORD colour_t;
 typedef std::string colour_t;
 #endif
 
+typedef std::pair<std::string, std::string> str_pair;
 /*meta format string type*/
-typedef std::vector<std::pair<std::string, std::string>> meta_format_t;
+typedef std::map<std::size_t, str_pair> meta_format_t;
 typedef FILE* stream_t;
