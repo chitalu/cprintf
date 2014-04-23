@@ -2,12 +2,27 @@
 #include <map>
 
 const std::vector<std::string> _g_col_reprs = {
-"r", "g", "b", 
-"rb", "gb", "br", "bg", "gb", "gr",
-"r!b", "g!b", "b!r", "b!g", "g!b", "g!r",
-"r!b!", "g!b!", "b!r!", "b!g!", "g!b!", "g!r!",
-"r!", "g!", "b!", 
-"!" 
+	/*dim text colour no background*/
+	"r", "g", "b", 
+	/*bright text colour no background*/
+	"r!", "g!", "b!",
+	/*dim text and background colour*/
+	"rr", "rb", "rg",	/*red*/
+	"gg", "gb", "gr",	/*green*/
+	"bb", "br", "bg",	/*blue*/
+	
+	/*bright text colour and dim background colour*/
+	"r!r", "r!b", "r!g", /*red*/
+	"g!g", "g!b", "g!r", /*green*/
+	"b!b", "b!r", "b!g", /*blue*/
+	
+	/*bright text and background colour*/
+	"r!r!", "r!b!", "r!g!", /*red*/
+	"g!g!", "g!b!", "g!r!", /*green*/
+	"b!b!", "b!r!", "b!g!", /*blue*/
+	
+	/*system console text colour prior to c_printf call (default)*/
+	"!" 
 };
 
 #ifdef _WIN32
