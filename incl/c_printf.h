@@ -2,7 +2,7 @@
 #include "type_norm.h"
 #include <stdexcept>
 
-extern const std::vector<std::string> _g_col_reprs;
+extern const std::vector<std::string> _cpf_colour_tokens;
 
 extern void check_printf(const char* format);
 
@@ -44,12 +44,14 @@ check_printf(const char* format, const T& farg, const Ts&... args)
 	throw std::invalid_argument("Too few format specifiers.");
 }
 
-extern meta_format_t _parse_formatter(const char* _formatter);
+extern std::string _cpf_perform_block_space_parse(std::string src_format);
+
+extern meta_format_t _cpf_perform_colour_token_parse(const char* _formatter);
 
 /*@stores the current system console text colour*/
-extern "C" void _save_sys_default_colour_(void);
+extern "C" void _preserve_sys_attribs(void);
 
-extern "C" void _reload_sys_default_colour_(void);
+extern "C" void _recover_sys_attribs(void);
 
 #ifdef _WIN32
 extern void _set_text_colour_(stream_t stream, const std::string& repr);
@@ -84,7 +86,7 @@ int _c_printf_(COUNTPRED c_pred,
 		err = fprintf(stream, ostr.c_str());
 	}*/
 
-	_reload_sys_default_colour_();
+	_recover_sys_attribs();
 
 	return 0;
 }
@@ -189,7 +191,8 @@ int c_printf(stream_t stream, const char* format, TN... args)
 
 #endif
 
-	auto meta = _parse_formatter(format);
+	auto g = _cpf_perform_block_space_parse(format);
+	auto meta = _cpf_perform_colour_token_parse(g.c_str());
 	std::size_t start_pos = 0;
 	
 	return _c_printf_(	arg_count_pred, 

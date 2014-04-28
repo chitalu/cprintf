@@ -1,67 +1,19 @@
 #include "c_printf.h"
-#include <map>
+#include <stdlib.h>     /* atoi */
+#include <algorithm>
 
-const std::vector<std::string> _g_col_reprs = {
-	/*dim text colour no background*/
-	"r", "g", "b", 
-	/*bright text colour no background*/
-	"r!", "g!", "b!",
-	/*dim text and background colour*/
-	"rr", "rb", "rg",	/*red*/
-	"gg", "gb", "gr",	/*green*/
-	"bb", "br", "bg",	/*blue*/
-	
-	/*bright text colour and dim background colour*/
-	"r!r", "r!b", "r!g", /*red*/
-	"g!g", "g!b", "g!r", /*green*/
-	"b!b", "b!r", "b!g", /*blue*/
-	
-	/*bright text and background colour*/
-	"r!r!", "r!b!", "r!g!", /*red*/
-	"g!g!", "g!b!", "g!r!", /*green*/
-	"b!b!", "b!r!", "b!g!", /*blue*/
-	
-	/*system console text colour prior to c_printf call (default)*/
-	"!" 
-};
+colour_t _cpf_sys_attribs = S_T_A_UNDEF;
 
 #ifdef _WIN32
 
 auto console_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 
-std::map<std::string, colour_t> g_colour_repr{ 
-	{	"r",	(FOREGROUND_RED)	},
-	{	"rb",	(FOREGROUND_RED | BACKGROUND_BLUE) },
-	{	"r!b",	((FOREGROUND_RED | FOREGROUND_INTENSITY) | BACKGROUND_BLUE) },
-	{	"r!b!", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | (BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
-	{	"g",	(FOREGROUND_GREEN)	},
-	{	"b",	(FOREGROUND_BLUE)	},
-	{	"r!",	(FOREGROUND_RED		| FOREGROUND_INTENSITY) },
-	{	"g!",	(FOREGROUND_GREEN	| FOREGROUND_INTENSITY) },
-	{	"b!",	(FOREGROUND_BLUE	| FOREGROUND_INTENSITY) },
-	/*{	"y",	(FOREGROUND_RED		| FOREGROUND_GREEN	| FOREGROUND_INTENSITY) },
-	{	"m",	(FOREGROUND_RED		| FOREGROUND_BLUE	| FOREGROUND_INTENSITY) },
-	{	"c",	(FOREGROUND_GREEN	| FOREGROUND_BLUE	| FOREGROUND_INTENSITY)	},
-	{	"w",	(FOREGROUND_RED		| FOREGROUND_GREEN	| FOREGROUND_BLUE | FOREGROUND_INTENSITY) },*/
-	{	"!",	[&]()->colour_t
-				{
-					CONSOLE_SCREEN_BUFFER_INFO csbi;
-					GetConsoleScreenBufferInfo(console_stdout, &csbi);
-					auto a = csbi.wAttributes;
-					return static_cast<colour_t>(a % 16);
-				}() 
-	}
-};
-
-const colour_t SYS_TxCOL_UNDEFINED = 666;
-colour_t g_sys_text_colour = SYS_TxCOL_UNDEFINED;
-
 #else //_WIN32
 //http://www.linuxhomenetworking.com/forums/showthread.php/1095-Linux-console-Colors-And-Other-Trick-s
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
-std::map<std::string, colour_t> g_colour_repr{ 
+std::map<std::string, colour_t> _cpf_colour_token_vals{ 
 	{	"r",	"\033[31m" },
 	{	"g",	"\033[32m" },
 	{	"b",	"\033[34m" },
@@ -75,9 +27,6 @@ std::map<std::string, colour_t> g_colour_repr{
 	//{	"w",	"\033[37m" },
 	{	"!",	"\033[37m" }//TODO
 };
-
-const colour_t SYS_TxCOL_UNDEFINED = "UNDEFINED";
-colour_t g_sys_text_colour = SYS_TxCOL_UNDEFINED;
 
 #endif //_WIN32
 
@@ -93,27 +42,82 @@ void check_printf(const char* format)
 	}
 }
 
-meta_format_t _parse_formatter(const char* _formatter)
+std::string _cpf_perform_block_space_parse(std::string src_format)
 {
-	auto extract_color_repr = [&](std::string fstr, std::size_t start_pos)->std::string
+	std::string output;
+	std::string bs_tag = "${|";
+	auto x = 0;
+	std::string::size_type pos = 0;
+	bool first_iter = true;
+	while ((pos = src_format.find(bs_tag, x)) != src_format.npos)
 	{
-		std::size_t offset, base;
+		if (pos != 0 && first_iter)
+		{	
+			first_iter = false;
+			output.append(src_format.substr(0, pos));
+		}
 
-		offset = base = (start_pos + 2);
-		while (fstr[offset] != '}')	{	offset++; }
-		assert(offset != fstr.npos);
+		x = src_format.find_first_of('}', pos);
+		int i = pos + bs_tag.size();
+		std::string blk_size, s;
+		s = src_format.substr(i, x - i);
+		bool bright = false;
+		int _p = 1;
+		std::string lst{ *(s.end() - _p) };
+		std::string colour = lst;
+		colour.resize(2, colour[0]);
+		if (lst == "!")
+		{
+			_p = 2;
+			bright = true;
+			colour = *(s.end() - _p) ;
+			colour.append("!");
 
-		return fstr.substr(base, (offset - base));
-	};
-	
+			colour += colour;
+		}
+
+		blk_size = src_format.substr(
+			i,
+			std::distance(s.begin(), (s.end() - _p))
+			);
+			
+		auto rblk_sze = atoi(blk_size.c_str());
+		std::string s_;
+		s_.resize(rblk_sze, '-');
+		output.append("${" + colour + "}" + s_ + "${!}");
+
+		auto t = src_format.find(bs_tag, x + 1);
+		auto t_ = src_format.substr(x + 1, t);
+		output.append(t_);
+	}
+	return output;
+}
+
+meta_format_t _cpf_perform_colour_token_parse(const char* _formatter)
+{
 	meta_format_t meta;
 	
 	std::string formatter, 
-				tag;
+		_c_prefix, _c_suffix;
 
-	formatter = _formatter;
-	tag = "|";
-	auto first_c_frmt_pos = formatter.find(tag);
+	formatter = _formatter,
+	_c_prefix = "${",
+	_c_suffix = "}";
+
+	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
+	{
+		std::size_t occurrences = 0;
+		std::string::size_type start = 0;
+
+		while ((start = formatter.find(_c_prefix, start)) != std::string::npos) 
+		{
+			++occurrences;
+			start += _c_prefix.length();
+		}
+		return occurrences;
+	}();
+
+	auto first_c_frmt_pos = formatter.find(_c_prefix);
 	if (first_c_frmt_pos != 0)
 	{
 		meta.insert(
@@ -121,25 +125,31 @@ meta_format_t _parse_formatter(const char* _formatter)
 			);
 	}
 
-	for (auto &c_repr : _g_col_reprs)
+	std::size_t counter = 0;
+	for (auto &c_repr : _cpf_colour_tokens)
 	{
-		auto c_frmt = tag + c_repr + tag;
+		if (counter > NUM_C_TAGS)
+		{
+			break;
+		}
+		auto c_frmt = _c_prefix + c_repr + _c_suffix;
 		auto pos = formatter.find(c_frmt);
 
 		while (pos != formatter.npos)
 		{
 			auto p_ = pos;
 			auto p_offset = p_ + c_frmt.length();
-			pos = formatter.find("|", p_offset);
+			pos = formatter.find(_c_prefix, p_offset);
 			auto cf = formatter.substr(p_, c_frmt.length());
+
 			if (cf == c_frmt)
 			{
 				meta.insert(
 					std::make_pair(p_offset, std::make_pair(c_repr, formatter.substr(p_offset, (pos - p_offset))))
 					);
 				pos = formatter.find(c_frmt, p_offset);
+				++counter;
 			}
-			
 		}
 	}
 
@@ -151,27 +161,27 @@ int c_printf(stream_t stream, const char* format)
 	return 0;
 }
 
-void _save_sys_default_colour_(void)
+void _preserve_sys_attribs(void)
 {
-	if (g_sys_text_colour == SYS_TxCOL_UNDEFINED)
+	if (_cpf_sys_attribs == S_T_A_UNDEF)
 	{
 #ifdef _WIN32
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(console_stdout, &csbi);
 		auto a = csbi.wAttributes;
-		g_sys_text_colour = static_cast<colour_t>(a % 16);
+		_cpf_sys_attribs = static_cast<colour_t>(a % 16);
 #else
 		/*TODO:*/
 #endif
 	}
 }
 
-void _reload_sys_default_colour_(void)
+void _recover_sys_attribs(void)
 {
 #ifdef _WIN32
 	for (auto &handle : {console_stdout, console_stderr})
 	{
-		SetConsoleTextAttribute(handle, g_sys_text_colour);
+		SetConsoleTextAttribute(handle, _cpf_sys_attribs);
 	}
 #else
 
@@ -181,14 +191,17 @@ void _reload_sys_default_colour_(void)
 #ifdef _WIN32
 extern void _set_text_colour_(stream_t stream, const std::string& repr)
 {
+	HANDLE h;//test this for mem leaks
 	if (stream == stdout)
 	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), g_colour_repr[repr]);
+		h = GetStdHandle(STD_OUTPUT_HANDLE);
 	}
 	else if (stream == stderr)
 	{
-		SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), g_colour_repr[repr]);
+		h = GetStdHandle(STD_ERROR_HANDLE);
 	}
+
+	SetConsoleTextAttribute(h, _cpf_colour_token_vals.find(repr)->second);
 }
 
 std::string g_current_colour_repr = "666";
