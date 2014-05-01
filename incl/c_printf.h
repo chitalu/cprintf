@@ -69,22 +69,10 @@ template<class COUNTPRED>
 int _c_printf_(COUNTPRED c_pred,
 	stream_t stream,
 	meta_format_t &meta,
-	meta_format_t::iterator &meta_iter,
-	std::string &ostr,
-	std::size_t &pos)
+	meta_format_t::iterator meta_iter,
+	const std::string ostr,
+	const std::size_t pos)
 {	
-	/*
-		this function is executed last when processing arguments to printf
-		so in order to get access to the last element of "meta" to get 
-		the last set colour i use (std::end(meta) - 1)
-	*/
-	//config_set_colour(stream, (std::end(meta) - 1)->second.first);
-
-	/*int err = 0;
-	if (!ostr.empty())
-	{
-		err = fprintf(stream, ostr.c_str());
-	}*/
 
 	_recover_sys_attribs();
 
@@ -95,61 +83,63 @@ template<class COUNTPRED, typename T0, typename ...TN>
 int _c_printf_(COUNTPRED c_pred,
 			stream_t stream,
 			meta_format_t &meta,
-			meta_format_t::iterator &meta_iter, 
-			std::string &ostr, 
-			std::size_t &pos, 
-			T0 arg0,
-			TN... args)
+			meta_format_t::iterator meta_iter, 
+		    const std::string ostr, 
+			const std::size_t pos, 
+			const T0 arg0,
+		    const TN... args)
 {
 	
 	config_set_colour(stream, meta_iter->second.first);
 
 	int err = 0;
 
-	std::string _ostr = ostr.size() > 0 ? ostr : "";
+	std::string _ostr = ostr;
 
 	const auto argc = c_pred(ostr, "%");
 	//more printf args to print in current meta format
 	bool more_args = false;
 	bool printed_arg0 = false;
+    auto p_ = pos;
+
 	if (argc >= 1)
 	{
-		pos = ostr.find_first_of("%", pos);
-		if (pos != 0)
+		p_ = _ostr.find_first_of("%", p_);
+		if (p_ != 0)
 		{
-			err = fprintf(stream, ostr.substr(0, pos).c_str());
+			err = fprintf(stream, "%s", _ostr.substr(0, p_).c_str());
 		}
 
 		auto offset = 2;
-		auto fstr = ostr.substr(pos, offset);
-		pos += offset;
+		auto fstr = _ostr.substr(p_, offset);
+		p_ += offset;
 
 		err = fprintf(stream, fstr.c_str(), arg0);
 		printed_arg0 = true;
 
-		ostr = ostr.substr(pos);
-		pos = 0;
+		_ostr = _ostr.substr(p_);
+		p_ = 0;
 
-		more_args = c_pred(ostr, "%") > 0;
+		more_args = c_pred(_ostr, "%") > 0;
 		if (!more_args)
 		{
-			if (!ostr.empty())
+			if (!_ostr.empty())
 			{
-				fprintf(stream, ostr.c_str());
-				ostr.clear();
+				fprintf(stream, "%s", _ostr.c_str());
+				_ostr.clear();
 			}
 			meta_iter++;
 		}
 	}
 	else
 	{
-		pos = 0;
-		fprintf(stream, ostr.c_str());
+		p_ = 0;
+		fprintf(stream, "%s", _ostr.c_str());
 		meta_iter++;
 		while (c_pred(meta_iter->second.second, "%") == 0)
 		{
 			config_set_colour(stream, meta_iter->second.first);
-			fprintf(stream, meta_iter->second.second.c_str());
+			fprintf(stream, "%s", meta_iter->second.second.c_str());
 			meta_iter++;
 		}
 	}
@@ -157,13 +147,23 @@ int _c_printf_(COUNTPRED c_pred,
 	bool meta_iter_is_valid = meta_iter != meta.end();
 
 	if (printed_arg0)
-		return _c_printf_(c_pred, stream, meta, meta_iter, (!more_args && meta_iter_is_valid) ? meta_iter->second.second : ostr, pos, args...);
+    {
+		return  _c_printf_(  
+                c_pred, stream, meta, meta_iter, 
+                (!more_args && meta_iter_is_valid) ? meta_iter->second.second : _ostr, 
+                p_, args...);
+    }
 	else
-		return _c_printf_(c_pred, stream, meta, meta_iter, (!more_args && meta_iter_is_valid) ? meta_iter->second.second : ostr, pos, arg0, args...);
+    {
+		return  _c_printf_(
+                c_pred, stream, meta, meta_iter, 
+                (!more_args && meta_iter_is_valid) ? meta_iter->second.second : _ostr, 
+                p_, arg0, args...);
+    }
 }
 
 template<typename... TN> 
-int c_printf(stream_t stream, const char* format, TN... args)
+int c_printf(stream_t stream, const char* format, const TN... args)
 { 
 	if (stream == nullptr){ throw std::runtime_error("output stream undefined");	}
 
@@ -192,15 +192,15 @@ int c_printf(stream_t stream, const char* format, TN... args)
 #endif
 
 	auto g = _cpf_perform_block_space_parse(format);
-	auto meta = _cpf_perform_colour_token_parse(g.c_str());
-	std::size_t start_pos = 0;
-	
+    auto meta = _cpf_perform_colour_token_parse(g.c_str());
+	//const std::size_t start_pos = 0;
+    	
 	return _c_printf_(	arg_count_pred, 
 						stream, 
 						meta, 
 						meta.begin(), 
 						meta.begin()->second.second, 
-						start_pos, 
+						0, 
 						normalize_arg(args)...);
 }
 

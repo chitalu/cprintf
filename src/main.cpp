@@ -36,12 +36,11 @@ ${b!}int${!} main(${b!}int${!} argc, ${b!}char${!} argv**)
 
 ${|60y!}
 
-${w!m!}this is a demo string: %s${!}
+${w!m!}this is a demo string: ${!}
 
 )test_foo";
-
-	auto x = static_cast<unsigned char>(ext_ASCII::latin_lcase_f);
-	c_printf(stdout, test_str, 21, "LOOK MA' IT WORKS!");
+    
+	c_printf(stdout, test_str, 21);
 
 	return 0;
 }

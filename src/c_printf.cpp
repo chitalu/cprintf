@@ -13,7 +13,7 @@ auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 //http://www.linuxhomenetworking.com/forums/showthread.php/1095-Linux-console-Colors-And-Other-Trick-s
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
-std::map<std::string, colour_t> _cpf_colour_token_vals{ 
+/*const std::map<const std::string, colour_t> _cpf_colour_token_vals{ 
 	{	"r",	"\033[31m" },
 	{	"g",	"\033[32m" },
 	{	"b",	"\033[34m" },
@@ -26,7 +26,7 @@ std::map<std::string, colour_t> _cpf_colour_token_vals{
 	//{	"c",	"\033[36m" },
 	//{	"w",	"\033[37m" },
 	{	"!",	"\033[37m" }//TODO
-};
+};*/
 
 #endif //_WIN32
 
@@ -219,7 +219,7 @@ void config_set_colour(stream_t stream, const std::string &c_repr)
 #else
 extern std::string _set_text_colour_(const std::string& repr)
 {
-	
+	return std::string();
 }
 
 void config_set_colour(stream_t stream, const std::string &c_repr)

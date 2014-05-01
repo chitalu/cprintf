@@ -270,7 +270,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "m!w", ((FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED) },
 
 	{ "mr!", ((FOREGROUND_RED | FOREGROUND_BLUE) | (BACKGROUND_RED | BACKGROUND_INTENSITY)) },
-	{ "mb!", ((FOREGROUND_RED | FOREGROUND_BLUE) | (BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
+ET (CMAKE_CXX_FLAGS                "-Wall") 
 	{ "mg!", (FOREGROUND_RED | FOREGROUND_BLUE | (BACKGROUND_GREEN | BACKGROUND_INTENSITY)) },
 	{ "my!", (FOREGROUND_RED | FOREGROUND_BLUE | (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY)) },
 	{ "mm!", (FOREGROUND_RED | FOREGROUND_BLUE | (BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
@@ -365,30 +365,37 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 //http://www.linuxhomenetworking.com/forums/showthread.php/1095-Linux-console-Colors-And-Other-Trick-s
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
-{	"r",	"\033[31m" },
+/*{	"r",	"\033[31m" },
 {	"g",	"\033[32m" },
 {	"b",	"\033[34m" },
 {	"r!",	"\033[31m" },
 {	"g!",	"\033[32m" },
 {	"b!",	"\033[34m" },
-
+*/
 const std::map<const std::string, colour_t> _cpf_colour_token_vals{
-	/*default*/
-	{ "!", },
+	{	"r",	"\033[31m" },
+    //{	"g",	"\033[32m" },
+    //{	"b",	"\033[34m" },
+    //{	"r!",	"\033[31m" },
+    //{	"g!",	"\033[32m" },
+    //{	"b!",	"\033[34m" },
 
+    /*default*/
+	{ "!", "foo"}
+};
 	/*black*/
 
-	{ "0",  },
+	/*{ "0",  },
 	{ "0!",  },
 
 	{ "0r",  },
 	{ "0b",  },
 	{ "0g",  },
-	{ "0y", (FOREGROUND_RED | BACKGROUND_RED | BACKGROUND_GREEN) },
-	{ "0m", (FOREGROUND_RED | BACKGROUND_RED | BACKGROUND_BLUE) },
-	{ "0c", (FOREGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE) },
-	{ "0w", (FOREGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED) },
-
+	{ "0y",  },
+	{ "0m",  },
+	{ "0c",  },
+	{ "0w",  },*/
+    /*
 	{ "0!r", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | BACKGROUND_RED) },
 	{ "0!b", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | BACKGROUND_BLUE) },
 	{ "0!g", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | BACKGROUND_GREEN) },
@@ -413,7 +420,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "0!c!", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "0!w!", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*red*/
+	//red
 	{ "r", (FOREGROUND_RED) },
 	{ "r!", (FOREGROUND_RED | FOREGROUND_INTENSITY) },
 
@@ -449,7 +456,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "r!c!", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "r!w!", ((FOREGROUND_RED | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*green*/
+	//green
 
 	{ "g", (FOREGROUND_GREEN) },
 	{ "g!", (FOREGROUND_GREEN | FOREGROUND_INTENSITY) },
@@ -486,7 +493,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "g!c!", ((FOREGROUND_GREEN | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "g!w!", ((FOREGROUND_GREEN | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*blue*/
+	//blue
 
 	{ "b", (FOREGROUND_BLUE) },
 	{ "b!", (FOREGROUND_BLUE | FOREGROUND_INTENSITY) },
@@ -523,7 +530,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "b!c!", ((FOREGROUND_BLUE | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "b!w!", ((FOREGROUND_BLUE | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*yellow*/
+	//yellow
 
 	{ "y", (FOREGROUND_RED | FOREGROUND_GREEN) },
 	{ "y!", ((FOREGROUND_RED | FOREGROUND_GREEN) | FOREGROUND_INTENSITY) },
@@ -560,7 +567,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "y!c!", (((FOREGROUND_RED | FOREGROUND_GREEN) | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "y!w!", (((FOREGROUND_RED | FOREGROUND_GREEN) | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*magenta*/
+	//magenta
 
 	{ "m", (FOREGROUND_RED | FOREGROUND_BLUE) },
 	{ "m!", (FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY) },
@@ -597,7 +604,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "m!c!", ((FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "m!w!", ((FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*cyan*/
+	//cyan
 
 	{ "c", (FOREGROUND_GREEN | FOREGROUND_BLUE) },
 	{ "c!", (FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) },
@@ -634,7 +641,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "c!c!", ((FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "c!w!", ((FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) },
 
-	/*white*/
+	//white
 
 	{ "w", ((FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) },
 	{ "w!", ((FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | FOREGROUND_INTENSITY) },
@@ -670,7 +677,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "w!m!", (((FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | FOREGROUND_INTENSITY) | (BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "w!c!", (((FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
 	{ "w!w!", (((FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | FOREGROUND_INTENSITY) | (BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY)) }
-
-};
+*/
+//};
 
 #endif //_WIN32
