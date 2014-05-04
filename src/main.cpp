@@ -60,7 +60,7 @@ print string %s
 	/* test code */
 	c_printf(stdout, test_str1, 10, 10.0, "hello world!");
 
-	c_printf(stdout, "hello world in /r!]red\n");
+	c_printf(stdout, "writing in /r!]red\n");
 	
 	auto test_str2 = 
 R"test_foo(
@@ -94,7 +94,21 @@ Sample code:
 /_60r!]
 
 )test_foo";
+
+	c_printf(stdout, test_str2, 7);
+
+auto test_str3 = 
+R"test_foo(
+    .----.    .----.
+     /w!]</b!](o)/!]/w!]>/!]|  |/w!]</b!](o)/!]/w!]>/!] 
+  {       |  |       }
+         _|  |_
+        (_    _)
+     ,    `--`    ,
+      '-.______.-'
+
+	)test_foo";
     
-	c_printf(stdout, test_str2, 21);
+	c_printf(stdout, test_str3);
 	return 0;
 }
