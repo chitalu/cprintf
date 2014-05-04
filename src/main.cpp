@@ -2,14 +2,12 @@
 
 int main(int argc, char const *argv[])
 {
-	auto format = 
+	auto test_str1 = 
 R"test_string(
 
 print integer %d
 print float %f
 print string %s
-
-/0]dim black/!]
 
 /r]dim red/!]
 /rr]dim red on dim red/!]
@@ -60,15 +58,16 @@ print string %s
 )test_string";
 
 	/* test code */
-	//c_printf(stdout, format, 10, 10.0, "hello world!");
+	c_printf(stdout, test_str1, 10, 10.0, "hello world!");
 
 	c_printf(stdout, "hello world in /r!]red\n");
 	
-/*
-	auto test_str = 
+	auto test_str2 = 
 R"test_foo(
 
-/_60w!]
+/_60r!]
+
+Sample code:
 
 /b!]#include/c!]<iostream>/!]
 
@@ -92,13 +91,10 @@ R"test_foo(
     /b!]return/!] 0;
 }
 
-/_60y!]
-
-/w!m!]this is a demo string: /!]
+/_60r!]
 
 )test_foo";
     
-	c_printf(stdout, test_str, 21);
-*/
+	c_printf(stdout, test_str2, 21);
 	return 0;
 }
