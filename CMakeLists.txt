@@ -38,7 +38,7 @@ ENDIF()
 
 SET (CMAKE_C_FLAGS "-Wall -std=c99")
 
-project (c_printf)
+PROJECT (c_printf)
 
 message(STATUS "Beginning project setup...")
 
