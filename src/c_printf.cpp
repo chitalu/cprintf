@@ -3,6 +3,7 @@
 #include <algorithm>
 
 colour_t _cpf_sys_attribs = S_T_A_UNDEF;
+std::string g_current_colour_repr = S_T_A_UNDEF;
 
 #ifdef _WIN32
 
@@ -13,14 +14,14 @@ auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 //http://www.linuxhomenetworking.com/forums/showthread.php/1095-Linux-console-Colors-And-Other-Trick-s
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
-/*const std::map<const std::string, colour_t> _cpf_colour_token_vals{ 
+/*const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{	"r",	"\033[31m" },
 	{	"g",	"\033[32m" },
 	{	"b",	"\033[34m" },
 	{	"r!",	"\033[31m" },
 	{	"g!",	"\033[32m" },
 	{	"b!",	"\033[34m" },
-	//{	"a",	"\033[37m" },//TODO 
+	//{	"a",	"\033[37m" },//TODO
 	//{	"y",	"\033[33m" },
 	//{	"m",	"\033[35m" },
 	//{	"c",	"\033[36m" },
@@ -30,9 +31,9 @@ auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 
 #endif //_WIN32
 
-void check_printf(const char* format) 
+void check_printf(const char* format)
 {
-	for	(; *format; ++format) 
+	for	(; *format; ++format)
 	{
 		if (*format != '%' || *++format == '%')
 		{
@@ -42,22 +43,22 @@ void check_printf(const char* format)
 	}
 }
 
-std::string _cpf_perform_block_space_parse(std::string src_format)
+std::string _cpf_perform_block_space_parse(const std::string &src_format)
 {
-	std::string output;
-	std::string bs_tag = "${|";
+	std::string output("");
+	std::string bs_tag = "^_";
 	auto x = 0;
-	std::string::size_type pos = 0;
+	std::size_t pos = 0;
 	bool first_iter = true;
 	while ((pos = src_format.find(bs_tag, x)) != src_format.npos)
 	{
 		if (pos != 0 && first_iter)
-		{	
+		{
 			first_iter = false;
 			output.append(src_format.substr(0, pos));
 		}
 
-		x = src_format.find_first_of('}', pos);
+		x = src_format.find_first_of('|', pos);
 		int i = pos + bs_tag.size();
 		std::string blk_size, s;
 		s = src_format.substr(i, x - i);
@@ -80,36 +81,32 @@ std::string _cpf_perform_block_space_parse(std::string src_format)
 			i,
 			std::distance(s.begin(), (s.end() - _p))
 			);
-			
+
 		auto rblk_sze = atoi(blk_size.c_str());
 		std::string s_;
 		s_.resize(rblk_sze, '-');
-		output.append("${" + colour + "}" + s_ + "${!}");
+		output.append("^" + colour + "|" + s_ + "^!|");
 
 		auto t = src_format.find(bs_tag, x + 1);
 		auto t_ = src_format.substr(x + 1, t);
 		output.append(t_);
 	}
-	return output;
+
+	return output.size() != 0 ? output : src_format;;
 }
 
-meta_format_t _cpf_perform_colour_token_parse(const char* _formatter)
+meta_format_t _cpf_perform_colour_token_parse(const std::string &formatter)
 {
 	meta_format_t meta;
-	
-	std::string formatter, 
-		_c_prefix, _c_suffix;
 
-	formatter = _formatter,
-	_c_prefix = "${",
-	_c_suffix = "}";
+	std::string _c_prefix = "^", _c_suffix = "|";
 
 	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
 	{
 		std::size_t occurrences = 0;
 		std::string::size_type start = 0;
 
-		while ((start = formatter.find(_c_prefix, start)) != std::string::npos) 
+		while ((start = formatter.find(_c_prefix, start)) != std::string::npos)
 		{
 			++occurrences;
 			start += _c_prefix.length();
@@ -156,7 +153,7 @@ meta_format_t _cpf_perform_colour_token_parse(const char* _formatter)
 	return meta;
 }
 
-int c_printf(stream_t stream, const char* format)
+_cpf_err_t c_printf(stream_t stream, const char* format)
 {
 	return 0;
 }
@@ -184,14 +181,21 @@ void _recover_sys_attribs(void)
 		SetConsoleTextAttribute(handle, _cpf_sys_attribs);
 	}
 #else
-
+	for (auto s : {stderr, stdout})
+		fprintf(s, "\x1B[0m");
+	
 #endif
 }
 
 #ifdef _WIN32
-extern void _set_text_colour_(stream_t stream, const std::string& repr)
+void config_set_colour(stream_t stream, const std::string c_repr)
 {
-	HANDLE h;//test this for mem leaks
+	if (g_current_colour_repr.compare(c_repr) != 0)
+	{
+		g_current_colour_repr = c_repr;
+	}
+
+	HANDLE h;//TODO: test this for mem leaks
 	if (stream == stdout)
 	{
 		h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -201,29 +205,17 @@ extern void _set_text_colour_(stream_t stream, const std::string& repr)
 		h = GetStdHandle(STD_ERROR_HANDLE);
 	}
 
-	SetConsoleTextAttribute(h, _cpf_colour_token_vals.find(repr)->second);
+	SetConsoleTextAttribute(h, _cpf_colour_token_vals.find(c_repr)->second);
 }
 
-std::string g_current_colour_repr = "666";
+#else
 
-void config_set_colour(stream_t stream, const std::string &c_repr)
+std::string config_set_colour(const std::string c_repr)
 {
 	if (g_current_colour_repr.compare(c_repr) != 0)
 	{
 		g_current_colour_repr = c_repr;
 	}
-
-	_set_text_colour_(stream, g_current_colour_repr);
-}
-
-#else
-extern std::string _set_text_colour_(const std::string& repr)
-{
-	return std::string();
-}
-
-void config_set_colour(stream_t stream, const std::string &c_repr)
-{
-	
+	return _cpf_colour_token_vals.find(g_current_colour_repr)->second;
 }
 #endif

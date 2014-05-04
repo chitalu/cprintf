@@ -16,7 +16,11 @@ typedef WORD colour_t;
 typedef std::string colour_t;
 #endif
 
-#define BLOCK_SPACE_TOKEN "${|6r!}"
+typedef int _cpf_err_t;
+
+#define BLOCK_SPACE_TOKEN "^_6r!|"
+/*http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm*/
+#define CURSOR_POS_TOKEN "^#10-20|"
 
 extern const std::map<const std::string, colour_t> _cpf_colour_token_vals;
 extern const std::vector<std::string> _cpf_colour_tokens;

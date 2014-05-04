@@ -270,7 +270,7 @@ const std::map<const std::string, colour_t> _cpf_colour_token_vals{
 	{ "m!w", ((FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY) | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED) },
 
 	{ "mr!", ((FOREGROUND_RED | FOREGROUND_BLUE) | (BACKGROUND_RED | BACKGROUND_INTENSITY)) },
-ET (CMAKE_CXX_FLAGS                "-Wall") 
+ET (CMAKE_CXX_FLAGS                "-Wall")
 	{ "mg!", (FOREGROUND_RED | FOREGROUND_BLUE | (BACKGROUND_GREEN | BACKGROUND_INTENSITY)) },
 	{ "my!", (FOREGROUND_RED | FOREGROUND_BLUE | (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY)) },
 	{ "mm!", (FOREGROUND_RED | FOREGROUND_BLUE | (BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY)) },
@@ -365,23 +365,17 @@ ET (CMAKE_CXX_FLAGS                "-Wall")
 //http://www.linuxhomenetworking.com/forums/showthread.php/1095-Linux-console-Colors-And-Other-Trick-s
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
-/*{	"r",	"\033[31m" },
-{	"g",	"\033[32m" },
-{	"b",	"\033[34m" },
-{	"r!",	"\033[31m" },
-{	"g!",	"\033[32m" },
-{	"b!",	"\033[34m" },
-*/
-const std::map<const std::string, colour_t> _cpf_colour_token_vals{
-	{	"r",	"\033[31m" },
-    //{	"g",	"\033[32m" },
-    //{	"b",	"\033[34m" },
-    //{	"r!",	"\033[31m" },
-    //{	"g!",	"\033[32m" },
-    //{	"b!",	"\033[34m" },
+
+extern const std::map<const std::string, colour_t> _cpf_colour_token_vals{
+	{	"r",	"\x1B[31m" },
+    {	"g",	"\x1B[32m" },
+    {	"b",	"\x1B[34m" },
+    {	"r!",	"\x1B[31m" },
+    {	"g!",	"\x1B[32m" },
+    {	"b!",	"\x1B[34m" },
 
     /*default*/
-	{ "!", "foo"}
+	{ "!", "\x1B[0m"}
 };
 	/*black*/
 
