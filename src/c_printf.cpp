@@ -3,7 +3,7 @@
 #include <algorithm>
 
 _cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
-_cpf_types::_string_type_ g_current_colour_repr = S_T_A_UNDEF;
+_cpf_types::_string_type_ g_current_colour_repr = "S_T_A_UNDEF";
 
 #ifdef _WIN32
 
@@ -158,7 +158,7 @@ void _preserve_sys_attribs(void)
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(console_stdout, &csbi);
 		auto a = csbi.wAttributes;
-		_cpf_sys_attribs = static_cast<colour_t>(a % 16);
+		_cpf_sys_attribs = static_cast<_cpf_types::colour>(a % 16);
 #else
 		/*TODO:*/
 #endif
