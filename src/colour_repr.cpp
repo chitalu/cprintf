@@ -53,7 +53,7 @@ extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
 
 #ifdef _WIN32
 
-const std::map<const _cpf_string_type, _cpf_types::colour> _cpf__cpf_types::colour_token_vals{
+const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_token_vals{
 	/*default*/
 	{ "!", [&]()->_cpf_types::colour
 	{

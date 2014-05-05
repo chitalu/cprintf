@@ -171,7 +171,7 @@ extern "C" void _cpf_store_attribs(void)
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(console_stdout, &csbi);
 		auto a = csbi.wAttributes;
-		_cpf_sys_attribs = static_cast<colour_t>(a % 16);
+		_cpf_sys_attribs = static_cast<_cpf_types::colour>(a % 16);
 #else
 		/*TODO:*/
 #endif
