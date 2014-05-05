@@ -2,8 +2,8 @@
 #include <stdlib.h>     /* atoi */
 #include <algorithm>
 
-_cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
-_cpf_types::_string_type_ g_current_colour_repr = S_T_A_UNDEF;
+extern "C" _cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
+extern "C" _cpf_types::_string_type_ g_current_colour_repr = S_T_A_UNDEF;
 
 #ifdef _WIN32
 
@@ -14,7 +14,7 @@ auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 
 #endif /*	#ifdef _WIN32	*/
 
-void _cpf_authenticate_format_string(const char* format)
+extern "C" void _cpf_authenticate_format_string(const char* format)
 {
 	for	(; *format; ++format)
 	{
@@ -79,7 +79,8 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 	return output.size() != 0 ? output : src_format;;
 }
 
-_cpf_types::meta_format_type _cpf_do_colour_token_parse(const _cpf_types::_string_type_ &formatter)
+_cpf_types::meta_format_type _cpf_do_colour_token_parse(
+	const _cpf_types::_string_type_ &formatter)
 {
 	_cpf_types::meta_format_type meta;
 
@@ -126,7 +127,12 @@ _cpf_types::meta_format_type _cpf_do_colour_token_parse(const _cpf_types::_strin
 			if (cf == c_frmt)
 			{
 				meta.insert(
-					std::make_pair(p_offset, std::make_pair(c_repr, formatter.substr(p_offset, (pos - p_offset))))
+					std::make_pair(	p_offset, //first
+									std::make_pair(	c_repr, //second (first)
+													formatter.substr(p_offset, //(second) 
+																	(pos - p_offset))
+													)
+								)
 					);
 				pos = formatter.find(c_frmt, p_offset);
 				++counter;
@@ -137,8 +143,15 @@ _cpf_types::meta_format_type _cpf_do_colour_token_parse(const _cpf_types::_strin
 	return meta;
 }
 
-std::size_t _cpf_get_num_arg_specifiers(const _cpf_types::_string_type_ & obj, 
-										const _cpf_types::_string_type_ & target)
+_cpf_types::meta_format_type _cpf_do_cursor_position_parse(
+	const _cpf_types::_string_type_ &formatter )
+{
+	return _cpf_types::meta_format_type();
+}
+
+extern "C" std::size_t _cpf_get_num_arg_specifiers(
+	const _cpf_types::_string_type_ & obj, 
+	const _cpf_types::_string_type_ & target)
 {
 	std::size_t n = 0;
 	_cpf_types::_string_type_::size_type pos = 0;
@@ -150,7 +163,7 @@ std::size_t _cpf_get_num_arg_specifiers(const _cpf_types::_string_type_ & obj,
 	return n;
 }
 
-void _preserve_sys_attribs(void)
+extern "C" void _cpf_store_attribs(void)
 {
 	if (_cpf_sys_attribs == S_T_A_UNDEF)
 	{
@@ -165,7 +178,7 @@ void _preserve_sys_attribs(void)
 	}
 }
 
-void _recover_sys_attribs(void)
+extern "C" void _cpf_load_attribs(void)
 {
 #ifdef _WIN32
 	for (auto &handle : {console_stdout, console_stderr})
@@ -181,8 +194,8 @@ void _recover_sys_attribs(void)
 #endif
 }
 
-void config_set_colour(	_cpf_types::stream strm, 
-						const _cpf_types::_string_type_ c_repr)
+extern "C" void _cpf_config_terminal(	_cpf_types::stream strm, 
+										const _cpf_types::_string_type_ c_repr)
 {
 	if (g_current_colour_repr.compare(c_repr) != 0)
 	{
@@ -208,20 +221,22 @@ void config_set_colour(	_cpf_types::stream strm,
 #endif
 }
 
-_cpf_types::error _cpf_call_(	_cpf_types::stream strm,
-								const _cpf_types::meta_format_type::iterator &end_point_comparator,
-								meta_format_t::iterator &meta_iter,
-								const _cpf_types::_string_type_ ostr,
-								const std::size_t pos)
+_cpf_types::error _cpf_call_(	
+	_cpf_types::stream strm,
+	const _cpf_types::meta_format_type::const_iterator &end_point_comparator,
+	_cpf_types::meta_format_type::const_iterator &meta_iter,
+	const _cpf_types::_string_type_ printed_string,
+	const std::size_t search_start_pos)
 {
     int err = 0;
     while(meta_iter != end_point_comparator)
     {
-        config_set_colour(strm, meta_iter->second.first);
+        _cpf_config_terminal(strm, meta_iter->second.first);
         err = fprintf(strm, "%s", meta_iter->second.second.c_str());
         meta_iter++;
     }
-	_recover_sys_attribs();
+
+	_cpf_load_attribs();
 
 	return 0;
 }

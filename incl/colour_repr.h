@@ -14,7 +14,13 @@ namespace _cpf_types
 
 #ifdef _WIN32
 
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+
 #include <Windows.h>
+
+#undef VC_EXTRALEAN
+#undef WIN32_LEAN_AND_MEAN
 
 namespace _cpf_types
 {
@@ -65,24 +71,25 @@ namespace _cpf_types
 	typedef std::string colour;
 }
 
-#endif /*#ifdef _WIN32*/
+#endif /*	#ifdef _WIN32	*/
 
 namespace _cpf_types
 {
-	typedef int error;
-	typedef std::pair<_cpf_types::_string_type_, _cpf_types::_string_type_> str_pair;
-	typedef std::map<std::size_t, str_pair> meta_format_type;
-	typedef FILE* stream;
 	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
 	typedef std::vector<_cpf_types::_string_type_> string_vector;
 }
-
-#define BLOCK_SPACE_TOKEN "^_6r!|"
-/*http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm*/
-#define CURSOR_POS_TOKEN "^@10-20|"
 
 extern const _cpf_types::colour_token_map _cpf_colour_token_vals;
 extern const _cpf_types::string_vector _cpf_colour_tokens;
 extern const _cpf_types::string_vector _cpf_blockspace_tokens;
 
 #endif /*	#ifndef _CPF_COLOUR_REPR_H	*/
+
+
+/*
+
+#define BLOCK_SPACE_TOKEN "^_6r!|"
+//http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
+#define CURSOR_POS_TOKEN "^@10-20|"
+
+*/

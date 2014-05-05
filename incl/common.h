@@ -3,11 +3,15 @@
 #include <assert.h>
 
 #include "colour_repr.h"
+#include "type_norm.h"
 
-typedef std::pair<std::string, std::string> str_pair;
-/*meta format string type*/
-typedef std::map<std::size_t, str_pair> meta_format_t;
-typedef FILE* stream_t;
+namespace _cpf_types
+{
+	typedef int error;
+	typedef std::pair<_cpf_types::_string_type_, _cpf_types::_string_type_> str_pair;
+	typedef std::map<std::size_t, str_pair> meta_format_type;
+	typedef FILE* stream;
+}
 
 enum class ext_ASCII : unsigned char
 {

@@ -1,6 +1,6 @@
 #include "colour_repr.h"
 
-const _cpf_types::string_vector _cpf_colour_tokens= {
+extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
 	/*default*/
 	"!",
 
