@@ -6,7 +6,7 @@ IF(WIN32)
         #
 
         MESSAGE(STATUS "setting up windows compiler")
-        SET (CMAKE_CXX_FLAGS                "-Wall -Wno-error")
+        SET (CMAKE_CXX_FLAGS                "-Wall")
 
 ELSEIF(UNIX)
     
