@@ -5,6 +5,7 @@ int main(int argc, char const *argv[])
 	auto test_str1 = 
 R"test_string(
 
+%%
 print integer %d
 print float %f
 print string %s
@@ -58,7 +59,7 @@ print string %s
 )test_string";
 
 	/* test code */
-	c_printf(stdout, test_str1, 10, 10.0, "hello world!");
+	c_printf(stdout, test_str1, 10u, 10.0f, "hello world!");
 
 	c_printf(stdout, "writing in /r!]red\n");
 	
@@ -85,7 +86,7 @@ Sample code:
     {
         factorial = factorial * a;
     }
-
+%%
 	cout << /r!]"Factorial of Given Number is = "/!] << factorial <<endl;
 
     /b!]return/!] 0;

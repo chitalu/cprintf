@@ -14,7 +14,7 @@ auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
 
 #endif /*	#ifdef _WIN32	*/
 
-extern "C" void _cpf_authenticate_format_string(const char* format)
+extern void _cpf_authenticate_format_string(const char* format)
 {
 	for	(; *format; ++format)
 	{
@@ -194,49 +194,120 @@ extern "C" void _cpf_load_attribs(void)
 #endif
 }
 
-extern "C" void _cpf_config_terminal(	_cpf_types::stream strm, 
-										const _cpf_types::_string_type_ c_repr)
+bool _cpf_is_fstream(_cpf_types::stream strm)
 {
+	bool is_fstream = true;
+	for (auto s : { stdout, stderr })
+	{
+		if (strm == s)
+		{
+			is_fstream = false;
+			break;
+		}
+	}
+	return is_fstream;
+}
+
+extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
+	const _cpf_types::_string_type_ c_repr)
+{
+	if (_cpf_is_fstream(strm))
+	{
+		return;
+	}
+
 	if (g_current_colour_repr.compare(c_repr) != 0)
 	{
 		g_current_colour_repr = c_repr;
 	}
 
 #ifdef _WIN32
-	HANDLE h;//TODO: test this for mem leaks
+	HANDLE hnd = nullptr;//TODO: test this for mem leaks
 	if (strm == stdout)
 	{
-		h = GetStdHandle(STD_OUTPUT_HANDLE);
+		hnd = GetStdHandle(STD_OUTPUT_HANDLE);
 	}
 	else if (strm == stderr)
 	{
-		h = GetStdHandle(STD_ERROR_HANDLE);
+		hnd = GetStdHandle(STD_ERROR_HANDLE);
 	}
-
-	SetConsoleTextAttribute(h, _cpf_colour_token_vals.find(c_repr)->second);
+	assert(hnd != nullptr);
+	SetConsoleTextAttribute(hnd, _cpf_colour_token_vals.find(c_repr)->second);
 #else
 	fprintf(strm, 
 			"%s", 
 			_cpf_colour_token_vals.find(g_current_colour_repr)->second.c_str());
+	
 #endif
 }
 
-_cpf_types::error _cpf_call_(	
+_cpf_types::_string_type_ _cpf_print_pre_arg_str(	_cpf_types::stream strm,
+													_cpf_types::_string_type_& printed_string_,
+													std::size_t& ssp_)
+{
+	ssp_ = printed_string_.find_first_of("%", ssp_);
+	if (ssp_ != 0)
+	{
+		fprintf(strm, "%s", printed_string_.substr(0, ssp_).c_str());
+	}
+
+	auto offset = 2;
+	auto fstr = printed_string_.substr(ssp_, offset);
+	ssp_ += offset;
+	return fstr;
+}
+
+void _cpf_print_post_arg_str(	_cpf_types::stream strm,
+								_cpf_types::_string_type_& printed_string_,
+								std::size_t& ssp_,
+								bool &more_args_on_iter,
+								_cpf_types::meta_format_type::const_iterator &msd_iter)
+{
+	printed_string_ = printed_string_.substr(ssp_);
+	ssp_ = 0;
+
+	more_args_on_iter = _cpf_get_num_arg_specifiers(printed_string_, "%") > 0;
+	if (!more_args_on_iter)
+	{
+		if (!printed_string_.empty())
+		{
+			fprintf(strm, "%s", printed_string_.c_str());
+			printed_string_.clear();
+		}
+		std::advance(msd_iter, 1);
+	}
+}
+
+void _cpf_print_non_arg_str(_cpf_types::stream strm,
+							_cpf_types::_string_type_& printed_string_,
+							std::size_t& ssp_,
+							_cpf_types::meta_format_type::const_iterator &msd_iter)
+{
+	ssp_ = 0;
+	fprintf(strm, "%s", printed_string_.c_str());
+	std::advance(msd_iter, 1);
+
+	while (_cpf_get_num_arg_specifiers(msd_iter->second.second, "%") == 0)
+	{
+		_cpf_config_terminal(strm, msd_iter->second.first);
+		fprintf(strm, "%s", msd_iter->second.second.c_str());
+		std::advance(msd_iter, 1);
+	}
+}
+
+void _cpf_call_(	
 	_cpf_types::stream strm,
 	const _cpf_types::meta_format_type::const_iterator &end_point_comparator,
-	_cpf_types::meta_format_type::const_iterator &meta_iter,
-	const _cpf_types::_string_type_ printed_string,
-	const std::size_t search_start_pos)
+	_cpf_types::meta_format_type::const_iterator &msd_iter,
+	const _cpf_types::_string_type_ printed_string="",
+	const std::size_t search_start_pos=0)
 {
-    int err = 0;
-    while(meta_iter != end_point_comparator)
+	while (msd_iter != end_point_comparator)
     {
-        _cpf_config_terminal(strm, meta_iter->second.first);
-        err = fprintf(strm, "%s", meta_iter->second.second.c_str());
-        meta_iter++;
+		_cpf_config_terminal(strm, msd_iter->second.first);
+		fprintf(strm, "%s", msd_iter->second.second.c_str());
+		std::advance(msd_iter, 1);
     }
 
 	_cpf_load_attribs();
-
-	return 0;
 }

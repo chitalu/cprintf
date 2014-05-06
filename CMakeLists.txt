@@ -6,7 +6,7 @@ IF(WIN32)
         #
 
         MESSAGE(STATUS "setting up windows compiler")
-        SET (CMAKE_CXX_FLAGS                "-Wall")
+        #SET (CMAKE_CXX_FLAGS                "-Wall")
 
 ELSEIF(UNIX)
     
@@ -26,7 +26,7 @@ ELSEIF(UNIX)
         SET (CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g")
 
         SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
-        SET (CMAKE_CXX_FLAGS                "-std=c++11 -Wall -Wno-error")
+        SET (CMAKE_CXX_FLAGS                "-std=c++11 -Wno-error")
         SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
         SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
         SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
