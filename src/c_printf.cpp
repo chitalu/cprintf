@@ -26,53 +26,98 @@ extern void _cpf_authenticate_format_string(const char* format)
 	}
 }
 
+void _cpf_except_on_condition(bool condition, std::string _err_msg)
+{
+	if (condition == true)
+	{
+		throw std::invalid_argument(_err_msg);
+	}
+}
+
+/*
+
+*/
 _cpf_types::_string_type_ _cpf_do_block_space_parse(
 	const _cpf_types::_string_type_ &src_format)
 {
-	_cpf_types::_string_type_ output("");
-	_cpf_types::_string_type_ bs_tag = "/_";
-	auto x = 0;
+	_cpf_types::_string_type_ output;
+	_cpf_types::_string_type_ bs_tag = "/¬";
+	std::size_t delimiter_pos = 0;
 	std::size_t pos = 0;
-	bool first_iter = true;
-	while ((pos = src_format.find(bs_tag, x)) != src_format.npos)
+	bool on_first_iteration = true;
+	while ((pos = src_format.find(bs_tag, delimiter_pos)) != src_format.npos)
 	{
-		if (pos != 0 && first_iter)
+		if (pos != 0 && on_first_iteration)
 		{
-			first_iter = false;
+			on_first_iteration = false;
 			output.append(src_format.substr(0, pos));
 		}
 
-		x = src_format.find_first_of(']', pos);
-		int i = pos + bs_tag.size();
-		_cpf_types::_string_type_ blk_size, s;
-		s = src_format.substr(i, x - i);
-		bool bright = false;
-		int _p = 1;
-		_cpf_types::_string_type_ lst{ *(s.end() - _p) };
-		_cpf_types::_string_type_ colour = lst;
-		colour.resize(2, colour[0]);
-		if (lst == "!")
-		{
-			_p = 2;
-			bright = true;
-			colour = *(s.end() - _p) ;
-			colour.append("!");
+		/*position of block space token delimiter*/
+		delimiter_pos = src_format.find_first_of(']', pos);
+		/*
+		"i" -> (n + length("/¬"))  where n is "pos"
+		*/
+		std::size_t detail_spos = pos + bs_tag.size();
 
-			colour += colour;
+		auto err_msg = "syntax error: " + src_format.substr(detail_spos, (delimiter_pos - detail_spos));
+
+		std::string repl_str_start_mark,
+					repl_str_end_mark,
+					/*	"/¬35<...>=..]"
+					       ^^		*/
+					repetition_counter,
+					/*	"/¬...<foo>=...]"
+					           ^^^		*/
+					replacement_str, 
+					/*	"/¬...<...>=r]"
+					                ^
+					colour and/or format string */
+					text_format_string;
+
+		repl_str_start_mark = "<";
+		repl_str_end_mark = ">";
+
+		// "<"
+		auto bssm_pos = src_format.find_first_of(repl_str_start_mark, pos);
+		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
+
+		auto bsem_pos = src_format.find_first_of(repl_str_end_mark, pos);
+		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
+		_cpf_except_on_condition(((bsem_pos - bssm_pos) < 1), err_msg + "\nkey string undefined.");
+		
+		auto c_token_start_pos = src_format.find_first_of(">=", pos);
+		_cpf_except_on_condition(c_token_start_pos == std::string::npos, err_msg);
+		c_token_start_pos += 2; //length of ">="
+
+		auto sub_parse = [&](const std::size_t start, const std::size_t end, std::string& out)->void
+		{
+			auto index = start;
+			while (index < end)
+			{
+				out.append({ src_format[index++] });
+			}
+		};
+
+		sub_parse(detail_spos, bssm_pos, repetition_counter);
+
+		sub_parse(bssm_pos + 1, bsem_pos, replacement_str);
+		
+		sub_parse(c_token_start_pos, delimiter_pos, text_format_string);
+									
+		auto rblk_sze = atol(repetition_counter.c_str());
+		_cpf_except_on_condition((rblk_sze <= 0) , err_msg + "\nillegal replacement-string repetition counter.");
+		_cpf_types::_string_type_ s_;
+
+		for (auto i(0); i < rblk_sze; ++i)
+		{
+			s_.append(replacement_str);
 		}
 
-		blk_size = src_format.substr(
-			i,
-			std::distance(s.begin(), (s.end() - _p))
-			);
-
-		auto rblk_sze = atoi(blk_size.c_str());
-		_cpf_types::_string_type_ s_;
-		s_.resize(rblk_sze, '-');
-		output.append("/" + colour + "]" + s_ + "/!]");
-
-		auto t = src_format.find(bs_tag, x + 1);
-		auto t_ = src_format.substr(x + 1, t);
+		output.append("/" + text_format_string + "]" + s_ + "/!]");
+		auto offs = delimiter_pos + 1;
+		auto t = src_format.find(bs_tag, offs);
+		auto t_ = src_format.substr(offs, t);
 		output.append(t_);
 	}
 

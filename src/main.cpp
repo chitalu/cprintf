@@ -14,6 +14,13 @@ int main(int argc, char const *argv[])
         }
     }*/
 
+	/*
+		block space token tests
+	*/
+
+	c_printf(stdout, "block space: /¬3<foo>=r!r!]");
+	int i = 1;
+#ifdef __gnu_linux__
     c_printf(stdout, "random text\n");
     //sleep(2);
     c_printf(stdout, "/cs]text erased clearing screen\n");
@@ -23,7 +30,7 @@ int main(int argc, char const *argv[])
     c_printf(stdout, "normal : /blk]blink/!]\n");
     c_printf(stdout, "normal : /rvs]reverse/!]\n");
     c_printf(stdout, "normal : /hid]hidden/!]\n");
-
+#endif
 	/*auto test_str1 = 
 R"test_string(
 

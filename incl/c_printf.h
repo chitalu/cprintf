@@ -91,6 +91,11 @@ extern _cpf_types::meta_format_type _cpf_do_cursor_position_parse(
 	const _cpf_types::_string_type_ &formatter );
 
 /*
+
+*/
+extern void _cpf_except_on_condition(bool condition, std::string _err_msg);
+
+/*
 	descr
 	*\
 
