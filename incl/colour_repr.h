@@ -97,20 +97,20 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 */
 
 #define BLOCK_SPACE_TOKEN \
-"/¬6<->=r]"\
-"/¬24<foo>=r]"\
-"/¬9<bar>=#94f]"\
-"/¬10<bar>=rvs;#94b]"\
-"/¬10<bar>=rvs;#94f65b]"
+	"/¬6<->=r¬]"\
+	"/¬24<foo>=r¬]"\
+	"/¬9<bar>=#94f¬]"\
+	"/¬10<bar>=rvs;#94b¬]"\
+	"/¬10<bar>=rvs;#94;65b¬]"
 
 //http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
 #define CURSOR_POS_TOKEN "/@10-20]"
 
 #define FULL_SPECTRUM_COLOUR_TOKEN \
-"/#252b]"\
-"/#128f]"\
-"/#64f|24b]"\
-"/#2b|28f]"
+	"/#252b]"\
+	"/#128f]"\
+	"/#64f;24b]"\
+	"/#2b;28f]"
 
 #define ATTRIBUTE_TOKEN \
 /*bold*/ "/bld]"\
@@ -131,7 +131,7 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 /*
 parsing steps
 1. block space parse
-2. full spectrm colour token parse (#34f28b)
+2. full spectrm colour token parse (#34f;28b)
 3. attibs-fsc parse
 
 for linux implementation a vector hould now be used to hold the

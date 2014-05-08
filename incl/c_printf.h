@@ -248,7 +248,7 @@ void _cpf_call_(
 	}
 
 	bool iter_reached_end = (msd_iter == end_point_comparator);
-	auto i_raw_str = msd_iter->second.second;
+	auto i_raw_str = iter_reached_end ? "" : msd_iter->second.second;
 	if (printed_arg0)
     {
 		_cpf_call_(

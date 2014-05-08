@@ -54,7 +54,7 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 		}
 
 		/*position of block space token delimiter*/
-		delimiter_pos = src_format.find_first_of(']', pos);
+		delimiter_pos = src_format.find("¬]", pos);
 		/*
 		"i" -> (n + length("/¬"))  where n is "pos"
 		*/
@@ -64,13 +64,13 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 
 		std::string repl_str_start_mark,
 					repl_str_end_mark,
-					/*	"/¬35<...>=..]"
+					/*	"/¬35<...>=..¬]"
 					       ^^		*/
 					repetition_counter,
-					/*	"/¬...<foo>=...]"
+					/*	"/¬...<foo>=...¬]"
 					           ^^^		*/
 					replacement_str, 
-					/*	"/¬...<...>=r]"
+					/*	"/¬...<...>=r¬]"
 					                ^
 					colour and/or format string */
 					text_format_string;
@@ -107,18 +107,23 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 									
 		auto rblk_sze = atol(repetition_counter.c_str());
 		_cpf_except_on_condition((rblk_sze <= 0) , err_msg + "\nillegal replacement-string repetition counter.");
-		_cpf_types::_string_type_ s_;
-
+		_cpf_types::_string_type_ s_, col_str;
+		col_str = "/" + text_format_string + "]";
 		for (auto i(0); i < rblk_sze; ++i)
 		{
-			s_.append(replacement_str);
+			s_.append(col_str + replacement_str);
 		}
 
-		output.append("/" + text_format_string + "]" + s_ + "/!]");
+		/* /!] is used used reset any formatting options set by the block space format string*/
+		output.append(col_str + s_ + "/!]");
 		auto offs = delimiter_pos + 1;
+		
 		auto t = src_format.find(bs_tag, offs);
 		auto t_ = src_format.substr(offs, t);
-		output.append(t_);
+		if (t != std::string::npos)
+		{
+			output.append(t_);
+		}
 	}
 
 	return output.size() != 0 ? output : src_format;;
