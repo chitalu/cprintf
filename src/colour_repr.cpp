@@ -52,6 +52,7 @@ extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
 	"0!0!", "0!r!", "0!g!", "0!y!", "0!m!", "0!c!", "0!b!", "0!w!",/*black*/
 
 #ifndef _WIN32
+	"cs", /*clear screen*/
 	"bld", "dim", "uln", "blk",	"rvs",	"hid",	
 	"!bld",	"!dim",	"!uln",	"!blk",	"!rvs",	"!hid",
 #endif /*#ifndef _WIN32*/
@@ -373,8 +374,10 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 //http://linuxgazette.net/issue65/padala.html
 //http://misc.flogisoft.com/bash/tip_colors_and_formatting
 extern const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_token_vals{
+	/*clear screen*/
+	{	"cs", 		"\x1B[H\x1B[J"},
 
-	/*attributes*/
+	/*attributes specifiers*/
 	{	"bld", 		"\x1B[1m"},
 	{	"dim", 		"\x1B[2m"},
 	{	"uln", 		"\x1B[4m"},

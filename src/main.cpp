@@ -14,6 +14,10 @@ int main(int argc, char const *argv[])
         }
     }*/
 
+    c_printf(stdout, "random text\n");
+    //sleep(2);
+    c_printf(stdout, "/cs]text erased clearing screen\n");
+
     c_printf(stdout, "normal : /bld]bold/!]\n");
     c_printf(stdout, "normal : /dim]dim/!]\n");
     c_printf(stdout, "normal : /blk]blink/!]\n");

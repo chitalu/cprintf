@@ -120,11 +120,13 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 /*reverse*/ "/rvs]"\
 /*hidden*/ "/hid]"\
 
-#define ATTRIB_COL_TOKEN_EXAMPLES\
+#define ATTRIB_COL_TOKEN_EXAMPLES \
 "/uln;#24f]"\
 "/dim;#75b"\
 "/bld;#24f128b]"\
 "/bld;y!b]"\
+
+#define CLEAR_SCREEN "/cs]"
 
 /*
 parsing steps
