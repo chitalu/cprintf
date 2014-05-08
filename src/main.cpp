@@ -2,7 +2,25 @@
 
 int main(int argc, char const *argv[])
 {
-	auto test_str1 = 
+    /*int count = 0;
+    for(auto i : _cpf_colour_token_vals )
+    {
+        c_printf(stdout, 
+        std::string("/").append(i.first).append("]").append("%s").append("/!]\t").c_str(), 
+        i.first.c_str());
+        if((++count % 4) == 0)
+        {
+            printf("\n");
+        }
+    }*/
+
+    c_printf(stdout, "normal : /bld]bold/!]\n");
+    c_printf(stdout, "normal : /dim]dim/!]\n");
+    c_printf(stdout, "normal : /blk]blink/!]\n");
+    c_printf(stdout, "normal : /rvs]reverse/!]\n");
+    c_printf(stdout, "normal : /hid]hidden/!]\n");
+
+	/*auto test_str1 = 
 R"test_string(
 
 %%
@@ -58,7 +76,6 @@ print string %s
 
 )test_string";
 
-	/* test code */
 	c_printf(stdout, test_str1, 10u, 10.0f, "hello world!");
 
 	c_printf(stdout, "writing in /r!]red\n");
@@ -111,6 +128,6 @@ R"test_foo(
 
 	)test_foo";
     
-	c_printf(stdout, test_str3);
+	c_printf(stdout, test_str3);*/
 	return 0;
 }
