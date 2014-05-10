@@ -200,10 +200,24 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 	//	"`"
 	std::size_t crnt_end_quote_pos = 0, crnt_begin_quote_pos = 0;
 	bool on_first_iteration = true;
-	std::map<std::string, _cpf_types::string_vector> str_frmt_map;
+	
 	//"/${mystring1:mystring2}|(bld;r)(b!)$]"
 	while ((pos = src_format.find(tag, delimiter_pos)) != src_format.npos)
 	{
+		/* if we have hit a tag token effect terminator i.e /$]*/
+		auto off_char_pos = pos + 2;
+		auto off_char = src_format[off_char_pos];
+		if (off_char == ']')
+		{
+			delimiter_pos = off_char_pos;
+
+			auto next_tag_token_pos = src_format.find(tag, delimiter_pos);
+			/*effectively eliminate token string from output string*/
+			output.append(src_format.substr(delimiter_pos + 1, next_tag_token_pos - (delimiter_pos + 1)));
+			
+			continue;
+		}
+
 		if (on_first_iteration && pos != 0)
 		{
 			on_first_iteration = false;
@@ -215,7 +229,8 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 
 		auto next_tag_token_pos = src_format.find(tag, delimiter_pos);
 		/*effectively eliminate token string from output string*/
-		output.append(src_format.substr(delimiter_pos + 2, next_tag_token_pos - delimiter_pos));
+
+		output.append(src_format.substr(delimiter_pos + 1, next_tag_token_pos - (delimiter_pos + 1)));
 
 		//+2 = length of "/$"
 		auto raw_token = src_format.substr(pos + 2, (delimiter_pos - pos) - 2);
@@ -236,12 +251,8 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 		}
 
 		auto parsed_meta_tokens = parse_tag_space_token(str_frmts);
-		str_frmt_map.insert(std::begin(parsed_meta_tokens), std::end(parsed_meta_tokens));
-	}
 
-	if (!str_frmt_map.empty())
-	{
-		for (auto &i : str_frmt_map)
+		for (auto &i : parsed_meta_tokens)
 		{
 			auto str_to_repl = i.first;
 			_cpf_types::_string_type_ repl_str;
@@ -255,6 +266,10 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 
 			str_replace(output, str_to_repl, repl_str);
 		}
+	}
+
+	if (!output.empty())
+	{
 		return output;
 	}
 	else

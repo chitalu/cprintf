@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
 	/*sub string tag token tests*/
 	c_printf(
 	stdout, 
-	"quux bax /$mystring1:mystring2:mystring3|(r!)(b!)(yw)] example mystring1 foo mystring2 bar this is also mystring3 baz\n");
+	"quux bax /$s1:s2:s3|(r!)(b!)(yw)] example s1 foo s2 bar this is also s3 baz /$]the rest is not affected s2 foo s3 \n");
 	c_printf(
 	stdout, 
 	"quux bax /$mystring1:foo:this|(r!)(b!)(yw)] example mystring1 foo mystring2 bar this is also mystring3 baz\n");
