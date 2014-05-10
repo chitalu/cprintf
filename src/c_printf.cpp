@@ -1,30 +1,15 @@
 #include "c_printf.h"
-#include <stdlib.h>     /* atoi */
-#include <algorithm>
+#include "colour_repr.h"
 
 extern "C" _cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
 extern "C" _cpf_types::_string_type_ g_current_colour_repr = "S_T_A_UNDEF";
 
 #ifdef _WIN32
-
 auto console_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
-
 #else /*	#ifdef _WIN32	*/
 
 #endif /*	#ifdef _WIN32	*/
-
-extern void _cpf_authenticate_format_string(const char* format)
-{
-	for	(; *format; ++format)
-	{
-		if (*format != '%' || *++format == '%')
-		{
-			continue;
-		}
-		throw std::invalid_argument("bad format specifier");
-	}
-}
 
 void _cpf_except_on_condition(bool condition, std::string _err_msg)
 {
@@ -32,171 +17,6 @@ void _cpf_except_on_condition(bool condition, std::string _err_msg)
 	{
 		throw std::invalid_argument(_err_msg);
 	}
-}
-
-/*
-
-*/
-_cpf_types::_string_type_ _cpf_do_block_space_parse(
-	const _cpf_types::_string_type_ &src_format)
-{
-	_cpf_types::_string_type_ output;
-	_cpf_types::_string_type_ bs_tag = "/¬";
-	std::size_t delimiter_pos = 0;
-	std::size_t pos = 0;
-	bool on_first_iteration = true;
-	while ((pos = src_format.find(bs_tag, delimiter_pos)) != src_format.npos)
-	{
-		if (pos != 0 && on_first_iteration)
-		{
-			on_first_iteration = false;
-			output.append(src_format.substr(0, pos));
-		}
-
-		/*position of block space token delimiter*/
-		delimiter_pos = src_format.find("¬]", pos);
-		/*
-		"i" -> (n + length("/¬"))  where n is "pos"
-		*/
-		std::size_t detail_spos = pos + bs_tag.size();
-
-		auto err_msg = "syntax error: " + src_format.substr(detail_spos, (delimiter_pos - detail_spos));
-
-		std::string repl_str_start_mark,
-					repl_str_end_mark,
-					/*	"/¬35<...>=..¬]"
-					       ^^		*/
-					repetition_counter,
-					/*	"/¬...<foo>=...¬]"
-					           ^^^		*/
-					replacement_str, 
-					/*	"/¬...<...>=r¬]"
-					                ^
-					colour and/or format string */
-					text_format_string;
-
-		repl_str_start_mark = "<";
-		repl_str_end_mark = ">";
-
-		// "<"
-		auto bssm_pos = src_format.find_first_of(repl_str_start_mark, pos);
-		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
-
-		auto bsem_pos = src_format.find_first_of(repl_str_end_mark, pos);
-		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
-		_cpf_except_on_condition(((bsem_pos - bssm_pos) < 1), err_msg + "\nkey string undefined.");
-		
-		auto c_token_start_pos = src_format.find_first_of(">=", pos);
-		_cpf_except_on_condition(c_token_start_pos == std::string::npos, err_msg);
-		c_token_start_pos += 2; //length of ">="
-
-		auto sub_parse = [&](const std::size_t start, const std::size_t end, std::string& out)->void
-		{
-			auto index = start;
-			while (index < end)
-			{
-				out.append({ src_format[index++] });
-			}
-		};
-
-		sub_parse(detail_spos, bssm_pos, repetition_counter);
-
-		sub_parse(bssm_pos + 1, bsem_pos, replacement_str);
-		
-		sub_parse(c_token_start_pos, delimiter_pos, text_format_string);
-									
-		auto rblk_sze = atol(repetition_counter.c_str());
-		_cpf_except_on_condition((rblk_sze <= 0) , err_msg + "\nillegal replacement-string repetition counter.");
-		_cpf_types::_string_type_ s_, col_str;
-		col_str = "/" + text_format_string + "]";
-		for (auto i(0); i < rblk_sze; ++i)
-		{
-			s_.append(col_str + replacement_str);
-		}
-
-		/* /!] is used used reset any formatting options set by the block space format string*/
-		output.append(col_str + s_ + "/!]");
-		auto offs = delimiter_pos + 1;
-		
-		auto t = src_format.find(bs_tag, offs);
-		auto t_ = src_format.substr(offs, t);
-		if (t != std::string::npos)
-		{
-			output.append(t_);
-		}
-	}
-
-	return output.size() != 0 ? output : src_format;;
-}
-
-_cpf_types::meta_format_type _cpf_do_colour_token_parse(
-	const _cpf_types::_string_type_ &formatter)
-{
-	_cpf_types::meta_format_type meta;
-
-	_cpf_types::_string_type_ _c_prefix = "/", _c_suffix = "]";
-
-	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
-	{
-		std::size_t occurrences = 0;
-		_cpf_types::_string_type_::size_type start = 0;
-
-		while ((start = formatter.find(_c_prefix, start)) != _cpf_types::_string_type_::npos)
-		{
-			++occurrences;
-			start += _c_prefix.length();
-		}
-		return occurrences;
-	}();
-
-	auto first_c_frmt_pos = formatter.find(_c_prefix);
-	if (first_c_frmt_pos != 0)
-	{
-		meta.insert(
-			std::make_pair(0, std::make_pair("!", formatter.substr(0, first_c_frmt_pos)))
-			);
-	}
-
-	std::size_t counter = 0;
-	for (auto &c_repr : _cpf_colour_tokens)
-	{
-		if (counter > NUM_C_TAGS)
-		{
-			break;
-		}
-		auto c_frmt = _c_prefix + c_repr + _c_suffix;
-		auto pos = formatter.find(c_frmt);
-
-		while (pos != formatter.npos)
-		{
-			auto p_ = pos;
-			auto p_offset = p_ + c_frmt.length();
-			pos = formatter.find(_c_prefix, p_offset);
-			auto cf = formatter.substr(p_, c_frmt.length());
-
-			if (cf == c_frmt)
-			{
-				meta.insert(
-					std::make_pair(	p_offset, //first
-									std::make_pair(	c_repr, //second (first)
-													formatter.substr(p_offset, //(second) 
-																	(pos - p_offset))
-													)
-								)
-					);
-				pos = formatter.find(c_frmt, p_offset);
-				++counter;
-			}
-		}
-	}
-
-	return meta;
-}
-
-_cpf_types::meta_format_type _cpf_do_cursor_position_parse(
-	const _cpf_types::_string_type_ &formatter )
-{
-	return _cpf_types::meta_format_type();
 }
 
 extern "C" std::size_t _cpf_get_num_arg_specifiers(

@@ -14,6 +14,31 @@ int main(int argc, char const *argv[])
         }
     }*/
 
+#ifdef __gnu_linux__
+	c_printf(
+	stdout, 
+	"quux bax /$mystring1:mystring2:mystring3|(bld;r)(b!)(yw)] example mystring1 foo mystring2 bar this is also mystring3 baz");
+#endif
+
+	/*sub string tag token tests*/
+	c_printf(
+	stdout, 
+	"quux bax /$mystring1:mystring2:mystring3|(r!)(b!)(yw)] example mystring1 foo mystring2 bar this is also mystring3 baz\n");
+	c_printf(
+	stdout, 
+	"quux bax /$mystring1:foo:this|(r!)(b!)(yw)] example mystring1 foo mystring2 bar this is also mystring3 baz\n");
+
+	auto tag_token_test_string1 =
+R"test_string(
+/$int:while:true|(b!)]
+int c = %d;
+while(true)
+{
+    c++; 
+}
+)test_string";
+
+	c_printf(stdout, tag_token_test_string1, 10);
 	/*
 		block space token tests
 	*/

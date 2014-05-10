@@ -1,17 +1,55 @@
+#ifndef _CPF_COMMON_H
+#define _CPF_COMMON_H
+
+#include <stdexcept>
 #include <utility>
-#include <cstdio>
 #include <assert.h>
 
-#include "colour_repr.h"
-#include "type_norm.h"
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+
+#include <Windows.h>
+
+#undef VC_EXTRALEAN
+#undef WIN32_LEAN_AND_MEAN
+
+#include <vector>
+#include <map>
+#include <string>
+
+/*S_T_A_UNDEF = system text attribute undefined*/
+#ifdef _WIN32
+#define S_T_A_UNDEF (666)
+#else
+#define S_T_A_UNDEF ("undef")
+#endif
+
+namespace _cpf_types
+{
+	typedef std::string _string_type_;
+
+#ifdef _WIN32
+	typedef WORD colour;
+#else
+	typedef std::string colour;
+#endif
+}
 
 namespace _cpf_types
 {
 	typedef int error;
 	typedef std::pair<_cpf_types::_string_type_, _cpf_types::_string_type_> str_pair;
 	typedef std::map<std::size_t, str_pair> meta_format_type;
+	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
+	typedef std::vector<_cpf_types::_string_type_> string_vector;
 	typedef FILE* stream;
 }
+
+
+/*
+	
+*/
+extern void _cpf_except_on_condition(bool condition, std::string _err_msg);
 
 enum class ext_ASCII : unsigned char
 {
@@ -75,3 +113,5 @@ enum class ext_ASCII : unsigned char
 	fraction_three_quarters = 0xBE,
 	inverted_question_mark = 0xBF
 };
+
+#endif //_CPF_COMMON_H

@@ -1,33 +1,9 @@
 #ifndef _CPF_COLOUR_REPR_H
 #define _CPF_COLOUR_REPR_H
 
-#include <vector>
-#include <map>
-#include <string>
-
-namespace _cpf_types
-{
-	typedef std::string _string_type_;
-}
-
-/*S_T_A_UNDEF = system text attribute undefined*/
+#include "common.h"
 
 #ifdef _WIN32
-
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-
-#include <Windows.h>
-
-#undef VC_EXTRALEAN
-#undef WIN32_LEAN_AND_MEAN
-
-namespace _cpf_types
-{
-	typedef WORD colour;
-}
-
-#define S_T_A_UNDEF (666)
 
 /*
 	auxillary symbols to help shorten code in cpp
@@ -64,27 +40,13 @@ namespace _cpf_types
 
 #else /*	#ifdef _WIN32	*/
 
-#define S_T_A_UNDEF ("undef")
-
-namespace _cpf_types
-{
-	typedef std::string colour;
-}
-
 #endif /*	#ifdef _WIN32	*/
-
-namespace _cpf_types
-{
-	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
-	typedef std::vector<_cpf_types::_string_type_> string_vector;
-}
 
 extern const _cpf_types::colour_token_map _cpf_colour_token_vals;
 extern const _cpf_types::string_vector _cpf_colour_tokens;
 extern const _cpf_types::string_vector _cpf_blockspace_tokens;
 
 #endif /*	#ifndef _CPF_COLOUR_REPR_H	*/
-
 
 /*
 
@@ -101,7 +63,7 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 	"/¬24<foo>=r¬]"\
 	"/¬9<bar>=#94f¬]"\
 	"/¬10<bar>=rvs;#94b¬]"\
-	"/¬10<bar>=rvs;#94;65b¬]"
+	"/¬10<bar>=rvs;#94f;65b¬]"
 
 //http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
 #define CURSOR_POS_TOKEN "/@10-20]"
@@ -113,26 +75,37 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 	"/#2b;28f]"
 
 #define ATTRIBUTE_TOKEN \
-/*bold*/ "/bld]"\
-/*dim*/ "/dim]"\
-/*underline*/ "/uln]"\
-/*blink*/ "/blk]"\
-/*reverse*/ "/rvs]"\
-/*hidden*/ "/hid]"\
+	/*bold*/ "/bld]"\
+	/*dim*/ "/dim]"\
+	/*underline*/ "/uln]"\
+	/*blink*/ "/blk]"\
+	/*reverse*/ "/rvs]"\
+	/*hidden*/ "/hid]"\
 
 #define ATTRIB_COL_TOKEN_EXAMPLES \
-"/uln;#24f]"\
-"/dim;#75b"\
-"/bld;#24f128b]"\
-"/bld;y!b]"\
+	"/&uln;#24f]"\
+	"/&dim;#75b]"\
+	"/&bld;#24f;#128b]"\
+	"/&bld;y!b]"\
 
+/*
+	this should find all strings that match exactly those specifed
+	and prefix then with a smart formatter.
+*/
+#define SUB_STRING_FORMAT_TAGGING\
+	"/$mystring|(y!)]"\
+	"/$mystring1:mystring2|(r);(b!)]"\
+	"/$mystring1:mystring2|(g!)]"\
+	"/$mystring1:mystring2|(bld);(r);(b!)]"
+     
 #define CLEAR_SCREEN "/cs]"
 
 /*
 parsing steps
 1. block space parse
-2. full spectrm colour token parse (#34f;28b)
-3. attibs-fsc parse
+2. sub-string tag parse
+3. full spectrm colour token parse (#34f;28b)
+4. attibs-fsc parse
 
 for linux implementation a vector hould now be used to hold the
 "colour access tokens" allowing for complex tokens to be treated 
