@@ -52,10 +52,10 @@ SET (CMAKE_C_FLAGS "-Wall -Wno-error -std=c99")
 #
 PROJECT (c_printf)
 
-MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
+MESSAGE(STATUS "beginning ${CMAKE_PROJECT_NAME} setup...")
 
-option(BUILD_AS_EXECUTABLE "build as an application " ON) # ON is the default
-option(BUILD_AS_LIBRARY "build as a shared library" OFF) # OFF is the default
+option(BUILD_AS_EXECUTABLE "build as an application " OFF) # OFF is the default
+option(BUILD_AS_LIBRARY "build as a shared library" ON) # ON is the default
 
 SET(CMAKE_BUILD_TYPE Debug)
 
@@ -64,50 +64,60 @@ SET (c_printf_VERSION_MAJOR 0)
 SET (c_printf_VERSION_MINOR 1)
 SET (c_printf_VERSION_PATCH 0)
 
-MESSAGE(STATUS "mapping project source files")
+MESSAGE(STATUS "mapping library source files")
 
-file(GLOB_RECURSE c_printf_INCL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/incl/*.h")
-file(GLOB_RECURSE c_printf_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE INCL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/base/incl/*.h")
+file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/base/src/*.cpp")
 
 #
 #   debug/ release specific settings
 #
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-
     MESSAGE(STATUS "creating debug build")
     ADD_DEFINITIONS(-D_DEBUG)
-
 ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
-
      MESSAGE(STATUS "create release build")
-
 ENDIF()
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/incl")
-
-#
-#   add preprocessor definition for build output type 
-#   and register the corresponding output build type
-#
-IF(BUILD_AS_EXECUTABLE)
-
-    MESSAGE(STATUS "building project as executable")
-    ADD_DEFINITIONS(-DBUILDING_AS_EXECUTABLE)
-
-    ADD_EXECUTABLE( ${PROJECT_NAME} 
-                    ${c_printf_INCL_FILES} 
-                    ${c_printf_SRC_FILES})
-
-ELSEIF(BUILD_AS_LIBRARY)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/base/incl")
     
-    MESSAGE(STATUS "building project as shared library")
-    ADD_DEFINITIONS(-DBUILDING_AS_LIBRARY)
+MESSAGE(STATUS "registering library build")
 
-    ADD_LIBRARY(${PROJECT_NAME} 
-                ${c_printf_INCL_FILES} 
-                ${c_printf_SRC_FILES})
+ADD_LIBRARY(${CMAKE_PROJECT_NAME} 
+            ${INCL_FILES} 
+            ${SRC_FILES})
 
+IF(WIN32)
+    SET(LIB_FILE_EXT "lib")
+    SET(c_printf_LIB_FILE_PATH 
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
+ELSEIF(UNIX)
+    SET(LIB_FILE_EXT "so")
+    SET(c_printf_LIB_FILE_PATH 
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
 ENDIF()
 
-MESSAGE(STATUS "finished!")
-MESSAGE(STATUS "${PROJECT_NAME} has been built successfully")
+MESSAGE (STATUS "unpacking google test files")
+
+SET(GTEST_ZIP_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/gtest-1.7.0.zip")
+SET(GTEST_EXTRACTION_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0")
+IF(WIN32)
+    SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest/${CMAKE_BUILD_TYPE}")
+ELSEIF(UNIX)
+    SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+ENDIF()
+
+SET(GTEST_INCLUDE_DIR "${GTEST_EXTRACTION_DIR}/include") 
+
+execute_process( 
+    COMMAND "${CMAKE_COMMAND}" -E tar xvf ${GTEST_ZIP_FILE_PATH}
+    WORKING_DIRECTORY ${GTEST_EXTRACTION_DIR}
+    OUTPUT_QUIET
+)
+
+MESSAGE (STATUS "unpacked google test files to: ${GTEST_DIR}")
+
+ADD_SUBDIRECTORY(gtest)
+ADD_SUBDIRECTORY(test_c_printf)
+
+MESSAGE(STATUS "${CMAKE_PROJECT_NAME} has been built successfully")
