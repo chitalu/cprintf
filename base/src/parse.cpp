@@ -8,30 +8,31 @@
 /*
 
 */
-_cpf_types::_string_type_ _cpf_do_block_space_parse(
+_cpf_types::_string_type_ _cpf_block_space_token_parse(
 	const _cpf_types::_string_type_ &src_format)
 {
-	_cpf_types::_string_type_ output;
-	_cpf_types::_string_type_ bs_tag = "/¬";
-	std::size_t delimiter_pos = 0;
-	std::size_t pos = 0;
+	_cpf_types::_string_type_	output_format_str, 
+								token_prefix = "/¬", 
+								token_suffix = "¬]";
+	std::size_t token_suffix_pos = 0;
+	std::size_t token_start_pos = 0;
 	bool on_first_iteration = true;
-	while ((pos = src_format.find(bs_tag, delimiter_pos)) != src_format.npos)
+	while ((token_start_pos = src_format.find(token_prefix, token_suffix_pos)) != src_format.npos)
 	{
-		if (pos != 0 && on_first_iteration)
+		if (token_start_pos != 0 && on_first_iteration)
 		{
 			on_first_iteration = false;
-			output.append(src_format.substr(0, pos));
+			output_format_str.append(src_format.substr(0, token_start_pos));
 		}
 
 		/*position of block space token delimiter*/
-		delimiter_pos = src_format.find("¬]", pos);
+		token_suffix_pos = src_format.find(token_suffix, token_start_pos);
 		/*
 		"i" -> (n + length("/¬"))  where n is "pos"
 		*/
-		std::size_t detail_spos = pos + bs_tag.size();
+		std::size_t detail_spos = token_start_pos + token_prefix.size();
 
-		auto err_msg = "syntax error: " + src_format.substr(detail_spos, (delimiter_pos - detail_spos));
+		auto err_msg = "syntax error: " + src_format.substr(detail_spos, (token_suffix_pos - detail_spos));
 
 		std::string repl_str_start_mark,
 			repl_str_end_mark,
@@ -50,14 +51,14 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 		repl_str_end_mark = ">";
 
 		// "<"
-		auto bssm_pos = src_format.find_first_of(repl_str_start_mark, pos);
+		auto bssm_pos = src_format.find_first_of(repl_str_start_mark, token_start_pos);
 		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
 
-		auto bsem_pos = src_format.find_first_of(repl_str_end_mark, pos);
+		auto bsem_pos = src_format.find_first_of(repl_str_end_mark, token_start_pos);
 		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
 		_cpf_except_on_condition(((bsem_pos - bssm_pos) < 1), err_msg + "\nkey string undefined.");
 
-		auto c_token_start_pos = src_format.find_first_of(">=", pos);
+		auto c_token_start_pos = src_format.find_first_of(">=", token_start_pos);
 		_cpf_except_on_condition(c_token_start_pos == std::string::npos, err_msg);
 		c_token_start_pos += 2; //length of ">="
 
@@ -74,7 +75,7 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 
 		sub_parse(bssm_pos + 1, bsem_pos, replacement_str);
 
-		sub_parse(c_token_start_pos, delimiter_pos, text_format_string);
+		sub_parse(c_token_start_pos, token_suffix_pos, text_format_string);
 
 		auto rblk_sze = atol(repetition_counter.c_str());
 		_cpf_except_on_condition((rblk_sze <= 0), err_msg + "\nillegal replacement-string repetition counter.");
@@ -86,37 +87,36 @@ _cpf_types::_string_type_ _cpf_do_block_space_parse(
 		}
 
 		/* /!] is used used reset any formatting options set by the block space format string*/
-		output.append(col_str + s_ + "/!]");
-		auto offs = delimiter_pos + 1;
+		output_format_str.append(col_str + s_ + "/!]");
+		auto offs = token_suffix_pos + 1;
 
-		auto t = src_format.find(bs_tag, offs);
+		auto t = src_format.find(token_prefix, offs);
 		auto t_ = src_format.substr(offs, t);
 		if (t != std::string::npos)
 		{
-			output.append(t_);
+			output_format_str.append(t_);
 		}
 	}
 
-	return output.size() != 0 ? output : src_format;;
+	return output_format_str.size() != 0 ? output_format_str : src_format;;
 }
 
 //	{mystring1:mystring2}|(bld;r)(b!)
 std::map<std::string, _cpf_types::string_vector>
-parse_tag_space_token(const _cpf_types::str_pair str_frmt_pairs)
+parse_tag_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 {
-
 	auto parse_frmt = [&](const _cpf_types::_string_type_ target_str,
 		const _cpf_types::_string_type_& src_format,
-		std::map<std::string, _cpf_types::string_vector>& str_frmt_map)
+		std::map<std::string, _cpf_types::string_vector>& str_frmt_map)->void
 	{
-		_cpf_types::string_vector svec;
+		_cpf_types::string_vector tagged_strings;
 		_cpf_types::_string_type_ current_str_tag;
 
 		for (auto i(0u); i < src_format.size(); ++i)
 		{
 			if (src_format[i] == ';')
 			{
-				svec.push_back(current_str_tag);
+				tagged_strings.push_back(current_str_tag);
 				current_str_tag.clear();
 				continue;
 			}
@@ -124,12 +124,12 @@ parse_tag_space_token(const _cpf_types::str_pair str_frmt_pairs)
 
 			if (i == src_format.size() - 1)
 			{
-				svec.push_back(current_str_tag);
+				tagged_strings.push_back(current_str_tag);
 				current_str_tag.clear();
 			}
 		}
 
-		str_frmt_map.insert(std::make_pair(target_str, svec));
+		str_frmt_map.insert(std::make_pair(target_str, tagged_strings));
 	};
 
 	std::map<std::string, _cpf_types::string_vector> out_meta;
@@ -148,13 +148,13 @@ parse_tag_space_token(const _cpf_types::str_pair str_frmt_pairs)
 	_cpf_except_on_condition((num_strings != num_fstrings && num_fstrings != 1),
 		"syntax error: tag token");
 
-	auto colon_pos = strings_str.find(":");
-
 	//mystring1:mystring2:mystring3
 	//
 	//(bld;r)(b!)(yw)
-	std::size_t tstr_spos = 0, tstr_epos = 0, fstr_spos = 0, fstr_epos = 0;
-	bool made_first_pass = false;
+	std::size_t tstr_spos = 0, //tagged string start position
+				tstr_epos = 0,  //tagged string end position
+				fstr_spos = 0,  //tagged string's colour format string start position
+				fstr_epos = 0;	//tagged string's colour format string end position
 
 	do
 	{
@@ -180,10 +180,13 @@ parse_tag_space_token(const _cpf_types::str_pair str_frmt_pairs)
 	return out_meta;
 }
 
-_cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
+_cpf_types::_string_type_ _cpf_tag_map_token_parse(
 	_cpf_types::_string_type_ &src_format)
 {
-	auto str_replace = [&](std::string& subject, const std::string& search, const std::string& replace)
+	/*string replacement lambda*/
+	auto str_replace = [&](	std::string& subject, 
+							const std::string& search, 
+							const std::string& replace)->void
 	{
 		size_t pos = 0;
 		while ((pos = subject.find(search, pos)) != std::string::npos)
@@ -193,47 +196,42 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 		}
 	};
 
-	_cpf_types::_string_type_ output;
-	_cpf_types::_string_type_ tag = "/$";
-	std::size_t delimiter_pos = 0;
-	std::size_t pos = 0;
-	//	"`"
-	std::size_t crnt_end_quote_pos = 0, crnt_begin_quote_pos = 0;
+	_cpf_types::_string_type_	output_format_str, 
+								token_prefix = "/$";
+	std::size_t token_suffix_pos = 0, 
+				token_start_pos = 0;
 	bool on_first_iteration = true;
 	
-	//"/${mystring1:mystring2}|(bld;r)(b!)$]"
-	while ((pos = src_format.find(tag, delimiter_pos)) != src_format.npos)
+	//"/$mystring1:mystring2|(bld;r)(b!)]"
+	while ((token_start_pos = src_format.find(token_prefix, token_suffix_pos)) != src_format.npos)
 	{
-		/* if we have hit a tag token effect terminator i.e /$]*/
-		auto off_char_pos = pos + 2;
+		/* if we have hit a tag map token effect inhibitor i.e /$]*/
+		auto off_char_pos = token_start_pos + 2;
 		auto off_char = src_format[off_char_pos];
 		if (off_char == ']')
 		{
-			delimiter_pos = off_char_pos;
-
-			auto next_tag_token_pos = src_format.find(tag, delimiter_pos);
+			token_suffix_pos = off_char_pos;
+			auto next_token_pos = src_format.find(token_prefix, token_suffix_pos);
 			/*effectively eliminate token string from output string*/
-			output.append(src_format.substr(delimiter_pos + 1, next_tag_token_pos - (delimiter_pos + 1)));
-			
+			output_format_str.append(src_format.substr(token_suffix_pos + 1, next_token_pos - (token_suffix_pos + 1)));
 			continue;
 		}
 
-		if (on_first_iteration && pos != 0)
+		/*only on the first iteration and when pos is not the start point of the src_format string*/
+		if (on_first_iteration && token_start_pos != 0)
 		{
 			on_first_iteration = false;
-			output.append(src_format.substr(0, pos));
+			output_format_str.append(src_format.substr(0, token_start_pos));
 		}
-		std::size_t pipe_char_pos = src_format.find("|", pos);
+		std::size_t pipe_char_pos = src_format.find("|", token_start_pos);
 		/*position of block space token delimiter*/
-		delimiter_pos = src_format.find("]", pos);
+		token_suffix_pos = src_format.find("]", token_start_pos);
 
-		auto next_tag_token_pos = src_format.find(tag, delimiter_pos);
-		/*effectively eliminate token string from output string*/
-
-		output.append(src_format.substr(delimiter_pos + 1, next_tag_token_pos - (delimiter_pos + 1)));
+		/*... if there is one*/
+		auto next_token_pos = src_format.find(token_prefix, token_suffix_pos);
 
 		//+2 = length of "/$"
-		auto raw_token = src_format.substr(pos + 2, (delimiter_pos - pos) - 2);
+		auto raw_token = src_format.substr(token_start_pos + 2, (token_suffix_pos - token_start_pos) - 2);
 		_cpf_types::str_pair str_frmts;
 		_cpf_types::_string_type_ segment;
 		auto ssrt = std::stringstream(raw_token);
@@ -250,7 +248,11 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 			}
 		}
 
-		auto parsed_meta_tokens = parse_tag_space_token(str_frmts);
+		auto parsed_meta_tokens = parse_tag_map_token_values(str_frmts);
+		auto tagged_section = src_format.substr(
+									token_suffix_pos + 1, 
+									(next_token_pos - (token_suffix_pos + 1))
+									);
 
 		for (auto &i : parsed_meta_tokens)
 		{
@@ -264,13 +266,15 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 
 			repl_str.append(str_to_repl + "/!]");
 
-			str_replace(output, str_to_repl, repl_str);
+			str_replace(tagged_section, str_to_repl, repl_str);
 		}
+
+		output_format_str.append(tagged_section);
 	}
 
-	if (!output.empty())
+	if (!output_format_str.empty())
 	{
-		return output;
+		return output_format_str;
 	}
 	else
 	{
@@ -278,7 +282,7 @@ _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
 	}
 }
 
-_cpf_types::meta_format_type _cpf_do_colour_token_parse(
+_cpf_types::meta_format_type _cpf_colour_token_parse(
 	const _cpf_types::_string_type_ &formatter)
 {
 	_cpf_types::meta_format_type meta;
@@ -302,7 +306,9 @@ _cpf_types::meta_format_type _cpf_do_colour_token_parse(
 	if (first_c_frmt_pos != 0)
 	{
 		meta.insert(
-			std::make_pair(0, std::make_pair("!", formatter.substr(0, first_c_frmt_pos)))
+			std::make_pair(	0, 
+							std::make_pair("!", 
+											formatter.substr(0, first_c_frmt_pos)))
 			);
 	}
 
@@ -314,26 +320,24 @@ _cpf_types::meta_format_type _cpf_do_colour_token_parse(
 			break;
 		}
 		auto c_frmt = _c_prefix + c_repr + _c_suffix;
-		auto pos = formatter.find(c_frmt);
+		auto token_start_pos = formatter.find(c_frmt);
 
-		while (pos != formatter.npos)
+		while (token_start_pos != formatter.npos)
 		{
-			auto p_ = pos;
+			auto p_ = token_start_pos;
 			auto p_offset = p_ + c_frmt.length();
-			pos = formatter.find(_c_prefix, p_offset);
+			token_start_pos = formatter.find(_c_prefix, p_offset);
 			auto cf = formatter.substr(p_, c_frmt.length());
 
 			if (cf == c_frmt)
 			{
 				meta.insert(
 					std::make_pair(p_offset, //first
-					std::make_pair(c_repr, //second (first)
-					formatter.substr(p_offset, //(second) 
-					(pos - p_offset))
-					)
-					)
-					);
-				pos = formatter.find(c_frmt, p_offset);
+						std::make_pair(c_repr, //second (first)
+						formatter.substr(p_offset, //(second) 
+						(token_start_pos - p_offset)))));
+
+				token_start_pos = formatter.find(c_frmt, p_offset);
 				++counter;
 			}
 		}

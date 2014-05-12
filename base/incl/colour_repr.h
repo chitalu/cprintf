@@ -97,8 +97,6 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 	"/$mystring1:mystring2|(r);(b!)]"\
 	"/$mystring1:mystring2|(g!)]"\
 	"/$mystring1:mystring2|(bld);(r);(b!)]"
-     
-#define CLEAR_SCREEN "/cs]"
 
 /*
 parsing steps

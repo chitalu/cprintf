@@ -1,52 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-IF(WIN32)
-        #
-        # setup visual studio compiler 
-        #
-
-        MESSAGE(STATUS "setting up windows compiler")
-        #SET (CMAKE_CXX_FLAGS                "-Wall")
-
-ELSEIF(UNIX)
-    
-    option(USE_CLANG "build application with clang" ON) # ON is the default
-    option(USE_GCC "build application with gcc" OFF) # OFF is the default
-    
-    IF(USE_CLANG)
-        #
-        # setup clang 
-        #
-        MESSAGE(STATUS "setting up clang")
-
-        SET (CMAKE_C_COMPILER               "/usr/bin/clang")
-        SET (CMAKE_C_FLAGS_DEBUG            "-g")
-        SET (CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG")
-        SET (CMAKE_C_FLAGS_RELEASE          "-O4 -DNDEBUG")
-        SET (CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g")
-
-        SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
-        SET (CMAKE_CXX_FLAGS                "-std=c++11 -Wno-error")
-        SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
-        SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-        SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-        SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-
-    ELSE(USE_CLANG)
-        #
-        # setup GCC 
-        #
-
-        SET (CMAKE_CXX_FLAGS "-Wall -Wno-error -std=gnu++11")
-         
-        MESSAGE(STATUS "setting up GCC")
-
-    ENDIF(USE_CLANG)
-
-ENDIF()
-
-SET (CMAKE_C_FLAGS "-Wall -Wno-error -std=c99")
-
 #
 #   project
 #
@@ -54,15 +7,60 @@ PROJECT (c_printf)
 
 MESSAGE(STATUS "beginning ${CMAKE_PROJECT_NAME} setup...")
 
-option(BUILD_AS_EXECUTABLE "build as an application " OFF) # OFF is the default
-option(BUILD_AS_LIBRARY "build as a shared library" ON) # ON is the default
+#set_target_properties(${TARGET} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS})
 
 SET(CMAKE_BUILD_TYPE Debug)
 
-SET (c_printf_VERSION_STRING "0.1.0")
-SET (c_printf_VERSION_MAJOR 0)
-SET (c_printf_VERSION_MINOR 1)
+SET (c_printf_VERSION_STRING "1.0.0")
+SET (c_printf_VERSION_MAJOR 1)
+SET (c_printf_VERSION_MINOR 0)
 SET (c_printf_VERSION_PATCH 0)
+
+IF(WIN32)
+        #
+        # setup visual studio compiler 
+        #
+
+        MESSAGE(STATUS "setting up windows compiler")
+        
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS "-WX")
+
+ELSEIF(UNIX)
+    
+    option(USE_CLANG "build application with clang" ON) # ON is the default
+    
+    IF(USE_CLANG)
+        #
+        # setup clang 
+        #
+        MESSAGE (STATUS "setting up clang")
+
+        SET_PROPERTY (CMAKE_C_COMPILER               "/usr/bin/clang")
+        SET_PROPERTY (CMAKE_C_FLAGS_DEBUG            "-g")
+        SET_PROPERTY (CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG")
+        SET_PROPERTY (CMAKE_C_FLAGS_RELEASE          "-O4 -DNDEBUG")
+        SET_PROPERTY (CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g")
+
+        SET_PROPERTY (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+        SET_PROPERTY (CMAKE_CXX_FLAGS                "-std=c++11 -Wno-error")
+        SET_PROPERTY (CMAKE_CXX_FLAGS_DEBUG          "-g")
+        SET_PROPERTY (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+        SET_PROPERTY (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+        SET_PROPERTY (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+    ELSE(USE_CLANG)
+        #
+        # setup GCC 
+        #
+        MESSAGE(STATUS "setting up GCC")
+
+        SET_PROPERTY (CMAKE_CXX_FLAGS "-Wno-error -std=gnu++11")
+         
+    ENDIF(USE_CLANG)
+
+ENDIF()
+
+SET (CMAKE_C_FLAGS "-std=c99")
 
 MESSAGE(STATUS "mapping library source files")
 

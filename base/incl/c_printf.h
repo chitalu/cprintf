@@ -1,5 +1,8 @@
-#include <cstdio>
+#ifndef C_PRINTF_H
+#define C_PRINTF_H
 
+#include <tuple>
+#include <cstdio>
 #include "parse.h"
 
 extern "C" _cpf_types::_string_type_ g_current_colour_repr;
@@ -132,15 +135,13 @@ void _cpf_call_(
 
 */
 template<typename... Ts>
-void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
+void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
 {
-	_cpf_types::error err = 0;
-
 	if (strm == nullptr)
 	{ 
 		throw std::invalid_argument("output stream undefined");
 	}
-	else if(format == nullptr)
+	else if(format.empty())
 	{
 		throw std::invalid_argument("format undefined");
 	}
@@ -153,32 +154,71 @@ void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
 	//check_printf(format, normalize_arg(args)...);
 #endif
 
-	auto block_space_parsed_str = _cpf_do_block_space_parse(format);
-	auto sub_str_tag_parsed_str = _cpf_do_sub_str_tag_token_parse(block_space_parsed_str);
-	auto meta_string_data = _cpf_do_colour_token_parse(sub_str_tag_parsed_str);
+	auto tokenised_string_data = _cpf_colour_token_parse(
+		std::forward<_cpf_types::_string_type_>(_cpf_tag_map_token_parse(
+			std::forward<_cpf_types::_string_type_>(_cpf_block_space_token_parse(format)))));
     
-    auto msd_iter_begin = meta_string_data.cbegin();
-    auto m_iter_end_point_comparator = meta_string_data.cend();
-
-   /*for(auto &i : meta_string_data)
-   {
-   		auto c_meta = _cpf_do_cursor_position_parse(i.second.second);
-   		auto c_iter_begin = meta_string_data.cbegin();
-    	auto c_iter_end_point_comparator = meta_string_data.cend();
-   		
-   		_cpf_call_(	strm,
-					c_iter_end_point_comparator,
-					c_iter_begin,
-					c_iter_begin->second.second,
-					0,
-					normalize_arg(args)...);
-   }*/
+	auto tsd_iter_begin = tokenised_string_data.cbegin();
+	auto tsd_iter_end_point_comparator = tokenised_string_data.cend();
 
 	_cpf_call_(	strm,
-				m_iter_end_point_comparator,
-				msd_iter_begin,
-				msd_iter_begin->second.second,
+				tsd_iter_end_point_comparator,
+				tsd_iter_begin,
+				tsd_iter_begin->second.second,
 				0,
 				std::forward<Ts>(normalize_arg(args))...);
 }
 
+#ifdef _DEBUG
+
+#include <varargs.h>
+
+const auto _cpf_debug_pre_str =
+R"debug_str(
+cpf dbg call 
+#build %s-%s
+ 
+@file:		%s
+@line-number:	%d
+@function:	%s
+
+debug log:
+
+)debug_str";
+
+#ifdef _WIN32
+struct _cpf_dbg_fpath_separator
+{
+	bool operator()(char character) const{ return character == '\\' || character == '/'; }
+};
+
+#else
+
+struct _cpf_dbg_fpath_separator
+{
+	bool operator()(char character) const{	return character == '/';	}
+};
+
+#endif
+
+/*
+	implicit conversions from std::string to const char* are invalid
+	*/
+#define debug_c_printf(format, ...) \
+	do{\
+	std::string const& pathname = __FILE__;\
+	auto fname =  std::string(\
+	std::find_if(pathname.rbegin(), pathname.rend(),\
+	_cpf_dbg_fpath_separator()).base(),\
+	pathname.end());\
+	fprintf(stderr, _cpf_debug_pre_str, __DATE__, __TIME__, fname.c_str(), __LINE__, __FUNCTION__); \
+	}while (0);\
+c_printf(stderr, format, ##__VA_ARGS__);
+
+#else
+
+#define debug_c_printf(format, ...) /*do nothing*/
+
+#endif
+
+#endif /* C_PRINTF_H */

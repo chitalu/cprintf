@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include <algorithm>
 #include <assert.h>
 
 #define VC_EXTRALEAN

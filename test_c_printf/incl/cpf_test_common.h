@@ -1,6 +1,9 @@
 #ifndef CPF_TEST_COMMON_H
 #define CPF_TEST_COMMON_H
 
+#include "gtest/gtest.h"
+#include "c_printf.h"
+
 /*
 	note: cant used c_printf to test c_printf that is why
 	printf is used.

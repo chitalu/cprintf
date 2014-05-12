@@ -13,7 +13,7 @@ args
 *\@
 
 */
-extern _cpf_types::_string_type_ _cpf_do_block_space_parse(
+extern _cpf_types::_string_type_ _cpf_block_space_token_parse(
 	const _cpf_types::_string_type_ &src_format);
 
 /*
@@ -24,10 +24,10 @@ args
 *\@
 
 */
-extern _cpf_types::meta_format_type _cpf_do_colour_token_parse(
+extern _cpf_types::meta_format_type _cpf_colour_token_parse(
 	const _cpf_types::_string_type_ &formatter);
 
-extern _cpf_types::_string_type_ _cpf_do_sub_str_tag_token_parse(
+extern _cpf_types::_string_type_ _cpf_tag_map_token_parse(
 	_cpf_types::_string_type_ &formatter);
 
 /*

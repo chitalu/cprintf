@@ -6,53 +6,48 @@ extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
 	"!",
 
 	/*dim text colour no background*/
-	"r", "g", "b", "y", "m", "c", "w", "0",
+	"r", "g", "b", "y", "m", "c", "w",
 
 	/*bright text colour no background*/
-	"r!", "g!", "b!", "y!", "m!", "c!", "w!", "0!",
+	"r!", "g!", "b!", "y!", "m!", "c!", "w!",
 
 	/*dim text and background colour*/
-	"rr", "rb", "rg", "ry", "rm", "rc", "rw", "r0",/*red*/
-	"gg", "gb", "gr", "gy", "gm", "gc", "gw", "g0",/*green*/
-	"bb", "br", "bg", "by", "bm", "bc", "bw", "b0",/*blue*/
-	"yy", "yb", "yg", "yr", "ym", "yc", "yw", "y0",/*yellow*/
-	"mm", "mr", "mg", "my", "mb", "mc", "mw", "m0",/*magenta*/
-	"cc", "cr", "cg", "cy", "cm", "cb", "cw", "c0",/*cyan*/
-	"ww", "wr", "wg", "wy", "wm", "wc", "wb", "w0",/*white*/
-	"00", "0r", "0g", "0y", "0m", "0c", "0b", "0w",/*black*/
+	"rr", "rb", "rg", "ry", "rm", "rc", "rw", /*red*/
+	"gg", "gb", "gr", "gy", "gm", "gc", "gw", /*green*/
+	"bb", "br", "bg", "by", "bm", "bc", "bw", /*blue*/
+	"yy", "yb", "yg", "yr", "ym", "yc", "yw", /*yellow*/
+	"mm", "mr", "mg", "my", "mb", "mc", "mw", /*magenta*/
+	"cc", "cr", "cg", "cy", "cm", "cb", "cw", /*cyan*/
+	"ww", "wr", "wg", "wy", "wm", "wc", "wb", /*white*/
 
 	/*bright text colour and dim background colour*/
-	"r!r", "r!b", "r!g", "r!y", "r!m", "r!c", "r!w", "r!0", 	/*red*/
-	"g!g", "g!b", "g!r", "g!y", "g!m", "g!c", "g!w", "g!0",	/*green*/
-	"b!b", "b!r", "b!g", "b!y", "b!m", "b!c", "b!w", "b!0",	/*blue*/
-	"y!y", "y!b", "y!g", "y!r", "y!m", "y!c", "y!w", "y!0",	/*yellow*/
-	"m!m", "m!r", "m!g", "m!y", "m!b", "m!c", "m!w", "m!0",	/*magenta*/
-	"c!c", "c!r", "c!g", "c!y", "c!m", "c!b", "c!w", "c!0",	/*cyan*/
-	"w!w", "w!r", "w!g", "w!y", "w!m", "w!c", "w!b", "w!0",	/*white*/
-	"0!0", "0!r", "0!g", "0!y", "0!m", "0!c", "0!b", "0!w",/*black*/
+	"r!r", "r!b", "r!g", "r!y", "r!m", "r!c", "r!w", /*red*/
+	"g!g", "g!b", "g!r", "g!y", "g!m", "g!c", "g!w", /*green*/
+	"b!b", "b!r", "b!g", "b!y", "b!m", "b!c", "b!w", /*blue*/
+	"y!y", "y!b", "y!g", "y!r", "y!m", "y!c", "y!w", /*yellow*/
+	"m!m", "m!r", "m!g", "m!y", "m!b", "m!c", "m!w", /*magenta*/
+	"c!c", "c!r", "c!g", "c!y", "c!m", "c!b", "c!w", /*cyan*/
+	"w!w", "w!r", "w!g", "w!y", "w!m", "w!c", "w!b", /*white*/
 
 	/*dim text colour and bright background colour*/
-	"rr!", "rb!", "rg!", "ry!", "rm!", "rc!", "rw!", "r0!",/*red*/
-	"gg!", "gb!", "gr!", "gy!", "gm!", "gc!", "gw!", "g0!",/*green*/
-	"bb!", "br!", "bg!", "by!", "bm!", "bc!", "bw!", "b0!",/*blue*/
-	"yy!", "yb!", "yg!", "yr!", "ym!", "yc!", "yw!", "y0!",	/*yellow*/
-	"mm!", "mr!", "mg!", "my!", "mb!", "mc!", "mw!", "m0!",	/*magenta*/
-	"cc!", "cr!", "cg!", "cy!", "cm!", "cb!", "cw!", "c0!",	/*cyan*/
-	"ww!", "wr!", "wg!", "wy!", "wm!", "wc!", "wb!", "w0!",	/*white*/
-	"00!", "0r!", "0g!", "0y!", "0m!", "0c!", "0b!", "0w!",/*black*/
+	"rr!", "rb!", "rg!", "ry!", "rm!", "rc!", "rw!", /*red*/
+	"gg!", "gb!", "gr!", "gy!", "gm!", "gc!", "gw!", /*green*/
+	"bb!", "br!", "bg!", "by!", "bm!", "bc!", "bw!", /*blue*/
+	"yy!", "yb!", "yg!", "yr!", "ym!", "yc!", "yw!", /*yellow*/
+	"mm!", "mr!", "mg!", "my!", "mb!", "mc!", "mw!", /*magenta*/
+	"cc!", "cr!", "cg!", "cy!", "cm!", "cb!", "cw!", /*cyan*/
+	"ww!", "wr!", "wg!", "wy!", "wm!", "wc!", "wb!", /*white*/
 
 	/*bright text and background colour*/
-	"r!r!", "r!b!", "r!g!", "r!y!", "r!m!", "r!c!", "r!w!", "r!0!",/*red*/
-	"g!g!", "g!b!", "g!r!", "g!y!", "g!m!", "g!c!", "g!w!", "g!0!",/*green*/
-	"b!b!", "b!r!", "b!g!", "b!y!", "b!m!", "b!c!", "b!w!", "b!0!",/*blue*/
-	"y!y!", "y!b!", "y!g!", "y!r!", "y!m!", "y!c!", "y!w!", "y!0!",/*yellow*/
-	"m!m!", "m!r!", "m!g!", "m!y!", "m!b!", "m!c!", "m!w!", "m!0!",/*magenta*/
-	"c!c!", "c!r!", "c!g!", "c!y!", "c!m!", "c!b!", "c!w!", "c!0!",/*cyan*/
-	"w!w!", "w!r!", "w!g!", "w!y!", "w!m!", "w!c!", "w!b!", "w!0!",/*white*/
-	"0!0!", "0!r!", "0!g!", "0!y!", "0!m!", "0!c!", "0!b!", "0!w!",/*black*/
+	"r!r!", "r!b!", "r!g!", "r!y!", "r!m!", "r!c!", "r!w!", /*red*/
+	"g!g!", "g!b!", "g!r!", "g!y!", "g!m!", "g!c!", "g!w!", /*green*/
+	"b!b!", "b!r!", "b!g!", "b!y!", "b!m!", "b!c!", "b!w!", /*blue*/
+	"y!y!", "y!b!", "y!g!", "y!r!", "y!m!", "y!c!", "y!w!", /*yellow*/
+	"m!m!", "m!r!", "m!g!", "m!y!", "m!b!", "m!c!", "m!w!", /*magenta*/
+	"c!c!", "c!r!", "c!g!", "c!y!", "c!m!", "c!b!", "c!w!", /*cyan*/
+	"w!w!", "w!r!", "w!g!", "w!y!", "w!m!", "w!c!", "w!b!", /*white*/
 
 #ifndef _WIN32
-	"cs", /*clear screen*/
 	"bld", "dim", "uln", "blk",	"rvs",	"hid",	
 	"!bld",	"!dim",	"!uln",	"!blk",	"!rvs",	"!hid",
 #endif /*#ifndef _WIN32*/
@@ -62,51 +57,14 @@ extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
 
 const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_token_vals{
 	/*default*/
-	{ "!", [&]()->_cpf_types::colour
-	{
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-		auto a = csbi.wAttributes;
-		return static_cast<_cpf_types::colour>(a % 16);
-	}()
+	{ "!",	[&]()->_cpf_types::colour
+			{
+				CONSOLE_SCREEN_BUFFER_INFO csbi;
+				assert(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi));
+				auto a = csbi.wAttributes;
+				return static_cast<_cpf_types::colour>(a);
+			}()
 	},
-
-	/*black*/
-
-	{ "0", (_cpf_Rf) },
-	{ "0!", (_cpf_Rf | _cpf_fgi) },
-
-	{ "0r", (_cpf_Rf | _cpf_Rb) },
-	{ "0b", (_cpf_Rf | _cpf_Bb) },
-	{ "0g", (_cpf_Rf | _cpf_Gb) },
-	{ "0y", (_cpf_Rf | _cpf_Rb | _cpf_Gb) },
-	{ "0m", (_cpf_Rf | _cpf_Rb | _cpf_Bb) },
-	{ "0c", (_cpf_Rf | _cpf_Gb | _cpf_Bb) },
-	{ "0w", (_cpf_Rf | _cpf_Gb | _cpf_Bb | _cpf_Rb) },
-
-	{ "0!r", ((_cpf_Rf | _cpf_fgi) | _cpf_Rb) },
-	{ "0!b", ((_cpf_Rf | _cpf_fgi) | _cpf_Bb) },
-	{ "0!g", ((_cpf_Rf | _cpf_fgi) | _cpf_Gb) },
-	{ "0!y", ((_cpf_Rf | _cpf_fgi) | _cpf_Rb | _cpf_Gb) },
-	{ "0!m", ((_cpf_Rf | _cpf_fgi) | _cpf_Rb | _cpf_Bb) },
-	{ "0!c", ((_cpf_Rf | _cpf_fgi) | _cpf_Gb | _cpf_Bb) },
-	{ "0!w", ((_cpf_Rf | _cpf_fgi) | _cpf_Gb | _cpf_Bb | _cpf_Rb) },
-
-	{ "0r!", ((_cpf_Rf) | (_cpf_Rb | _cpf_bgi)) },
-	{ "0b!", ((_cpf_Rf) | (_cpf_Bb | _cpf_bgi)) },
-	{ "0g!", (_cpf_Rf | (_cpf_Gb | _cpf_bgi)) },
-	{ "0y!", (_cpf_Rf | (_cpf_Rb | _cpf_Gb | _cpf_bgi)) },
-	{ "0m!", (_cpf_Rf | (_cpf_Rb | _cpf_Bb | _cpf_bgi)) },
-	{ "0c!", (_cpf_Rf | (_cpf_Gb | _cpf_Bb | _cpf_bgi)) },
-	{ "0w!", (_cpf_Rf | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
-
-	{ "0!r!", ((_cpf_Rf | _cpf_fgi) | (_cpf_bgi | _cpf_Rb)) },
-	{ "0!b!", ((_cpf_Rf | _cpf_fgi) | (_cpf_Bb | _cpf_bgi)) },
-	{ "0!g!", ((_cpf_Rf | _cpf_fgi) | (_cpf_Gb | _cpf_bgi)) },
-	{ "0!y!", ((_cpf_Rf | _cpf_fgi) | (_cpf_Rb | _cpf_Gb | _cpf_bgi)) },
-	{ "0!m!", ((_cpf_Rf | _cpf_fgi) | (_cpf_Rb | _cpf_Bb | _cpf_bgi)) },
-	{ "0!c!", ((_cpf_Rf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_bgi)) },
-	{ "0!w!", ((_cpf_Rf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*red*/
 	{ "r", (_cpf_Rf) },
@@ -374,8 +332,6 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 //http://linuxgazette.net/issue65/padala.html
 //http://misc.flogisoft.com/bash/tip_colors_and_formatting
 extern const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_token_vals{
-	/*clear screen*/
-	{	"cs", 		"\x1B[H\x1B[J"},
 
 	/*attributes specifiers*/
 	{	"bld", 		"\x1B[1m"},
