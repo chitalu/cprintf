@@ -1,8 +1,8 @@
 #include "c_printf.h"
 #include "colour_repr.h"
 
-extern "C" _cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
-extern "C" _cpf_types::_string_type_ g_current_colour_repr = "S_T_A_UNDEF";
+_cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
+_cpf_types::_string_type_ g_current_colour_repr = "S_T_A_UNDEF";
 
 #ifdef _WIN32
 auto console_stdout = GetStdHandle(STD_OUTPUT_HANDLE);

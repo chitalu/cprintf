@@ -68,12 +68,6 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 //http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
 #define CURSOR_POS_TOKEN "/@10-20]"
 
-#define FULL_SPECTRUM_COLOUR_TOKEN \
-	"/#252b]"\
-	"/#128f]"\
-	"/#64f;24b]"\
-	"/#2b;28f]"
-
 #define ATTRIBUTE_TOKEN \
 	/*bold*/ "/bld]"\
 	/*dim*/ "/dim]"\
@@ -83,9 +77,10 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 	/*hidden*/ "/hid]"\
 
 #define ATTRIB_COL_TOKEN_EXAMPLES \
-	"/&uln;#24f]"\
-	"/&dim;#75b]"\
-	"/&bld;#24f;#128b]"\
+	"/&32f]"\
+	"/&uln;24f]"\
+	"/&dim;75b]"\
+	"/&bld;24f;128b]"\
 	"/&bld;y!b]"\
 
 /*

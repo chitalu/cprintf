@@ -9,7 +9,7 @@ extern "C" _cpf_types::_string_type_ g_current_colour_repr;
 extern "C" const _cpf_types::string_vector _cpf_colour_tokens;
 
 /*
-
+	
 */
 extern "C" void _cpf_store_attribs(void);
 
@@ -202,8 +202,9 @@ struct _cpf_dbg_fpath_separator
 #endif
 
 /*
-	implicit conversions from std::string to const char* are invalid
-	*/
+implicit conversions from std::string to const char* are not allowed
+
+*/
 #define debug_c_printf(format, ...) \
 	do{\
 	std::string const& pathname = __FILE__;\

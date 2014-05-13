@@ -284,19 +284,118 @@ _cpf_types::_string_type_ _cpf_tag_map_token_parse(
 	}
 }
 
-_cpf_types::meta_format_type _cpf_colour_token_parse(
-	const _cpf_types::_string_type_ &formatter)
+#ifdef __gnu_linux__
+
+_cpf_types::_string_type_ _cpf_full_colour_spectrum_token_parse(const _cpf_types::_string_type_ &src_format)
 {
+	_cpf_types::_string_type_ output_format_str;
+
+	const _cpf_types::_string_type_ prefix =  "/&",
+									suffix = "]";
+
+	std::size_t token_suffix_pos = 0, 
+				token_start_pos = 0;
+	bool on_first_iteration = true;
+	
+	//	"/&bld;24f;128b]"
+	while ((token_start_pos = src_format.find(prefix, token_suffix_pos)) != src_format.npos)
+	{
+		if(on_first_iteration && token_start_pos != 0)
+		{
+			output_format_str.append(src_format.substr(0, token_start_pos));
+			on_first_iteration = false;
+		}
+
+		token_suffix_pos = src_format.find(suffix, token_start_pos);
+		_cpf_except_on_condition(	token_suffix_pos >= src_format.size(), 
+									"invalid full colour spectrum token");
+
+		_cpf_types::_string_type_ value_str;
+		auto i = token_start_pos + 2; //+2 -> len("/&")
+		while(i < token_suffix_pos)
+		{
+			value_str.append({src_format[i++]});
+		}
+
+		_cpf_types::string_vector f_strings;
+		_cpf_types::_string_type_ segment;
+		std::stringstream ssrt;
+		ssrt << value_str;
+		while (std::getline(ssrt, segment, ';'))
+		{
+			f_strings.push_back(segment);
+		}
+
+		/*append the text formatting strings to the output string*/
+		for(auto &i : f_strings)
+		{
+			_cpf_types::_string_type_ colour_str;
+			
+			char scnd_lst_char = i[i.size() - 2];
+			bool is_ful_spec_col_token = isdigit(scnd_lst_char);
+			if(is_ful_spec_col_token)//if its a full colour spectrum token i.e 76f
+			{
+				char lst_char = i[i.size() - 1];
+				auto colour_num = i.substr(0, i.size() - 2);
+				if(lst_char == 'f')//foreground
+				{
+					colour_str = ("\x1B[38;5;" + colour_num + "m");
+				}
+				else if(lst_char == 'b') //background
+				{
+					colour_str = ("\x1B[48;5;" + colour_num + "m"); 
+				}
+				else
+				{
+					_cpf_except_on_condition(true, "invalid full-colour-spectrum token.");
+				}
+			}
+			
+			output_format_str.append( 
+				is_ful_spec_col_token ? colour_str : _cpf_colour_token_vals.find(i)->second);
+		}
+
+		auto next_token_pos = src_format.find(prefix, token_suffix_pos);
+		output_format_str.append(src_format.substr(	token_suffix_pos + 1, 
+													next_token_pos - (token_suffix_pos + 1)));
+	}
+
+	if(!output_format_str.empty())
+	{
+		return output_format_str;
+	}
+	else
+	{
+		return src_format;
+	}
+}
+
+#endif
+/*
+	USE std::find_if IN ALL PARSING FUNCTIONS in order to be able to use a custom
+	search algorithm meaning it will be easier to escape the forward slashes using a lambda for example
+*/
+_cpf_types::meta_format_type _cpf_colour_token_parse(
+	const _cpf_types::_string_type_ &src_format)
+{
+	_cpf_types::_string_type_ _src_format;
+#ifdef __gnu_linux__
+	_src_format = _cpf_full_colour_spectrum_token_parse(src_format);
+#else
+	//windows
+	_src_format = src_format;
+#endif
 	_cpf_types::meta_format_type meta;
 
-	_cpf_types::_string_type_ _c_prefix = "/", _c_suffix = "]";
+	_cpf_types::_string_type_ 	_c_prefix = "/", 
+								_c_suffix = "]";
 
 	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
 	{
 		std::size_t occurrences = 0;
 		_cpf_types::_string_type_::size_type start = 0;
 
-		while ((start = formatter.find(_c_prefix, start)) != _cpf_types::_string_type_::npos)
+		while ((start = _src_format.find(_c_prefix, start)) != _cpf_types::_string_type_::npos)
 		{
 			++occurrences;
 			start += _c_prefix.length();
@@ -304,16 +403,18 @@ _cpf_types::meta_format_type _cpf_colour_token_parse(
 		return occurrences;
 	}();
 
-	auto first_c_frmt_pos = formatter.find(_c_prefix);
+	auto first_c_frmt_pos = _src_format.find(_c_prefix);
 	if (first_c_frmt_pos != 0)
 	{
 		meta.insert(
 			std::make_pair(	0, 
 							std::make_pair("!", 
-											formatter.substr(0, first_c_frmt_pos)))
+											_src_format.substr(0, first_c_frmt_pos)))
 			);
 	}
 
+	/*not that the followng only searches for the "standardised" colour tokens
+		i.e /y!] and not the full colour spectrum tokens i.e /#34f]*/
 	std::size_t counter = 0;
 	for (auto &c_repr : _cpf_colour_tokens)
 	{
@@ -322,24 +423,24 @@ _cpf_types::meta_format_type _cpf_colour_token_parse(
 			break;
 		}
 		auto c_frmt = _c_prefix + c_repr + _c_suffix;
-		auto token_start_pos = formatter.find(c_frmt);
+		auto token_start_pos = _src_format.find(c_frmt);
 
-		while (token_start_pos != formatter.npos)
+		while (token_start_pos != _src_format.npos)
 		{
 			auto p_ = token_start_pos;
 			auto p_offset = p_ + c_frmt.length();
-			token_start_pos = formatter.find(_c_prefix, p_offset);
-			auto cf = formatter.substr(p_, c_frmt.length());
+			token_start_pos = _src_format.find(_c_prefix, p_offset);
+			auto cf = _src_format.substr(p_, c_frmt.length());
 
 			if (cf == c_frmt)
 			{
 				meta.insert(
 					std::make_pair(p_offset, //first
 						std::make_pair(c_repr, //second (first)
-						formatter.substr(p_offset, //(second) 
+						_src_format.substr(p_offset, //(second) 
 						(token_start_pos - p_offset)))));
 
-				token_start_pos = formatter.find(c_frmt, p_offset);
+				token_start_pos = _src_format.find(c_frmt, p_offset);
 				++counter;
 			}
 		}

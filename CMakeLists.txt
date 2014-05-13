@@ -41,68 +41,35 @@ ADD_LIBRARY(${CMAKE_PROJECT_NAME}
             ${SRC_FILES})
 
 IF(WIN32)
-        #
-        # setup visual studio compiler 
-        #
+    #
+    # setup visual studio compiler 
+    #
 
-        MESSAGE(STATUS "setting up windows compiler")
-        
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS "-WX")
+    MESSAGE(STATUS "setting up windows compiler")
+    SET (CMAKE_CXX_FLAGS "-WX")
 
-ELSEIF(UNIX)
-    
-    option(USE_CLANG "build application with clang" OFF)
-    
-    IF(USE_CLANG)
-        #
-        # setup clang 
-        #
-        MESSAGE (STATUS "setting up clang")
-
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_COMPILER               "/usr/bin/clang")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_DEBUG            "-g")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_RELEASE          "-O4 -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g")
-
-        SET_PROPERTY ( GLOBAL APPEND_STRING PROPERTY  CMAKE_CXX_COMPILER  "/usr/bin/clang++")
-        SET_PROPERTY ( GLOBAL PROPERTY CMAKE_CXX_FLAGS  "-std=c++11 -Wno-error")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_DEBUG          "-g")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-
-    ELSE(USE_CLANG)
-        #
-        # setup GCC 
-        #
-        MESSAGE(STATUS "setting up GCC")
-
-        SET (CMAKE_CXX_FLAGS "-std=gnu++11 -pthread") #"pthread" is necessary for gtest to build
-         
-    ENDIF(USE_CLANG)
-
-ENDIF()
-
-SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS "-std=c99")
-
-MESSAGE (STATUS "${CMAKE_CXX_FLAGS}")
-
-
-IF(WIN32)
     SET(LIB_FILE_EXT "lib")
     SET(c_printf_LIB_FILE_PATH 
     "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
 ELSEIF(UNIX)
+    #
+    # setup GCC 
+    #
+    MESSAGE(STATUS "setting up GCC")
+    SET (CMAKE_CXX_FLAGS "-std=gnu++11 -pthread") #"pthread" is necessary for gtest to build
+
     SET(LIB_FILE_EXT "a")
     SET(c_printf_LIB_FILE_PATH 
     "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
 ENDIF()
 
+SET (CMAKE_C_FLAGS "-std=c99")
+
 MESSAGE (STATUS "unpacking google test files")
 
 SET(GTEST_ZIP_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/gtest-1.7.0.zip")
 SET(GTEST_EXTRACTION_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0")
+
 IF(WIN32)
     SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest/${CMAKE_BUILD_TYPE}")
 ELSEIF(UNIX)
