@@ -28,7 +28,7 @@ extern _cpf_types::meta_format_type _cpf_colour_token_parse(
 	const _cpf_types::_string_type_ &formatter);
 
 extern _cpf_types::_string_type_ _cpf_tag_map_token_parse(
-	_cpf_types::_string_type_ &formatter);
+	const _cpf_types::_string_type_ &formatter);
 
 /*
 descr

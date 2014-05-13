@@ -16,51 +16,6 @@ SET (c_printf_VERSION_MAJOR 1)
 SET (c_printf_VERSION_MINOR 0)
 SET (c_printf_VERSION_PATCH 0)
 
-IF(WIN32)
-        #
-        # setup visual studio compiler 
-        #
-
-        MESSAGE(STATUS "setting up windows compiler")
-        
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS "-WX")
-
-ELSEIF(UNIX)
-    
-    option(USE_CLANG "build application with clang" ON) # ON is the default
-    
-    IF(USE_CLANG)
-        #
-        # setup clang 
-        #
-        MESSAGE (STATUS "setting up clang")
-
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_COMPILER               "/usr/bin/clang")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_DEBUG            "-g")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_RELEASE          "-O4 -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g")
-
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_COMPILER             "/usr/bin/clang++")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS                "-std=c++11 -Wno-error")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_DEBUG          "-g")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-
-    ELSE(USE_CLANG)
-        #
-        # setup GCC 
-        #
-        MESSAGE(STATUS "setting up GCC")
-
-        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS "-Wno-error -std=gnu++11")
-         
-    ENDIF(USE_CLANG)
-
-ENDIF()
-
-SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS "-std=c99")
 
 MESSAGE(STATUS "mapping library source files")
 
@@ -86,13 +41,62 @@ ADD_LIBRARY(${CMAKE_PROJECT_NAME}
             ${SRC_FILES})
 
 IF(WIN32)
+        #
+        # setup visual studio compiler 
+        #
+
+        MESSAGE(STATUS "setting up windows compiler")
+        
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS "-WX")
+
+ELSEIF(UNIX)
+    
+    option(USE_CLANG "build application with clang" OFF)
+    
+    IF(USE_CLANG)
+        #
+        # setup clang 
+        #
+        MESSAGE (STATUS "setting up clang")
+
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_COMPILER               "/usr/bin/clang")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_DEBUG            "-g")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_RELEASE          "-O4 -DNDEBUG")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g")
+
+        SET_PROPERTY ( GLOBAL APPEND_STRING PROPERTY  CMAKE_CXX_COMPILER  "/usr/bin/clang++")
+        SET_PROPERTY ( GLOBAL PROPERTY CMAKE_CXX_FLAGS  "-std=c++11 -Wno-error")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_DEBUG          "-g")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+        SET_PROPERTY (GLOBAL PROPERTY CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+    ELSE(USE_CLANG)
+        #
+        # setup GCC 
+        #
+        MESSAGE(STATUS "setting up GCC")
+
+        SET (CMAKE_CXX_FLAGS "-std=gnu++11 -pthread") #"pthread" is necessary for gtest to build
+         
+    ENDIF(USE_CLANG)
+
+ENDIF()
+
+SET_PROPERTY (GLOBAL PROPERTY CMAKE_C_FLAGS "-std=c99")
+
+MESSAGE (STATUS "${CMAKE_CXX_FLAGS}")
+
+
+IF(WIN32)
     SET(LIB_FILE_EXT "lib")
     SET(c_printf_LIB_FILE_PATH 
     "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
 ELSEIF(UNIX)
-    SET(LIB_FILE_EXT "so")
+    SET(LIB_FILE_EXT "a")
     SET(c_printf_LIB_FILE_PATH 
-    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
+    "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
 ENDIF()
 
 MESSAGE (STATUS "unpacking google test files")
@@ -113,7 +117,7 @@ execute_process(
     OUTPUT_QUIET
 )
 
-MESSAGE (STATUS "unpacked google test files to: ${GTEST_DIR}")
+MESSAGE (STATUS "unpacked google test files to: ${GTEST_EXTRACTION_DIR}")
 
 ADD_SUBDIRECTORY(gtest)
 ADD_SUBDIRECTORY(test_c_printf)

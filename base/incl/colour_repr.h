@@ -43,7 +43,7 @@
 #endif /*	#ifdef _WIN32	*/
 
 extern const _cpf_types::colour_token_map _cpf_colour_token_vals;
-extern const _cpf_types::string_vector _cpf_colour_tokens;
+extern "C" const _cpf_types::string_vector _cpf_colour_tokens;
 extern const _cpf_types::string_vector _cpf_blockspace_tokens;
 
 #endif /*	#ifndef _CPF_COLOUR_REPR_H	*/

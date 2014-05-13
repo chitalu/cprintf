@@ -181,7 +181,7 @@ parse_tag_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 }
 
 _cpf_types::_string_type_ _cpf_tag_map_token_parse(
-	_cpf_types::_string_type_ &src_format)
+	const _cpf_types::_string_type_ &src_format)
 {
 	/*string replacement lambda*/
 	auto str_replace = [&](	std::string& subject, 
@@ -234,7 +234,9 @@ _cpf_types::_string_type_ _cpf_tag_map_token_parse(
 		auto raw_token = src_format.substr(token_start_pos + 2, (token_suffix_pos - token_start_pos) - 2);
 		_cpf_types::str_pair str_frmts;
 		_cpf_types::_string_type_ segment;
-		auto ssrt = std::stringstream(raw_token);
+		//auto ssrt = std::stringstream(raw_token);
+		std::stringstream ssrt;
+		ssrt << raw_token;
 		//insure non syntax pipe chars are escaped else throw 
 		while (std::getline(ssrt, segment, '|'))
 		{

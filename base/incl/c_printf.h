@@ -171,7 +171,7 @@ void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
 
 #ifdef _DEBUG
 
-#include <varargs.h>
+#include <stdarg.h>
 
 const auto _cpf_debug_pre_str =
 R"debug_str(

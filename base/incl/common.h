@@ -6,6 +6,14 @@
 #include <algorithm>
 #include <assert.h>
 
+#include <vector>
+#include <map>
+#include <string>
+
+/*S_T_A_UNDEF = system text attribute undefined*/
+#ifdef _WIN32
+#define S_T_A_UNDEF (666)
+
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 
@@ -14,13 +22,7 @@
 #undef VC_EXTRALEAN
 #undef WIN32_LEAN_AND_MEAN
 
-#include <vector>
-#include <map>
-#include <string>
 
-/*S_T_A_UNDEF = system text attribute undefined*/
-#ifdef _WIN32
-#define S_T_A_UNDEF (666)
 #else
 #define S_T_A_UNDEF ("undef")
 #endif
