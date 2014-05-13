@@ -449,12 +449,6 @@ _cpf_types::meta_format_type _cpf_colour_token_parse(
 	return meta;
 }
 
-_cpf_types::meta_format_type _cpf_do_cursor_position_parse(
-	const _cpf_types::_string_type_ &formatter)
-{
-	return _cpf_types::meta_format_type();
-}
-
 extern void _cpf_authenticate_format_string(const char* format)
 {
 	for (; *format; ++format)

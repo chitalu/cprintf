@@ -4,7 +4,7 @@
 #include <sstream>
 
 
-TEST(Colour_token, stardard_fg_bg_colour_test)
+TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)
 {
 	int count = 0;
 	for(auto i : _cpf_colour_token_vals )
@@ -21,35 +21,35 @@ TEST(Colour_token, stardard_fg_bg_colour_test)
 
 #ifdef __gnu_linux__
 
-TEST(Colour_token, basic_full_colour_spectrum_foreground)
+TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_foreground)
 {
 	auto t_str = "test full spectrum /&32f]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf(stdout, t_str));
 }
 
-TEST(Colour_token, basic_full_colour_spectrum_background)
+TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_background)
 {
 	auto t_str = "test full spectrum /&bld;32b]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf(stdout, t_str));
 }
 
-TEST(Colour_token, basic_full_colour_spectrum_foreground_with_attribute)
+TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_foreground_with_attribute)
 {
 	auto t_str = "test full spectrum /&bld;32f]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf(stdout, t_str));
 }
 
-TEST(Colour_token, basic_full_colour_spectrum_background_with_attribute)
+TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_background_with_attribute)
 {
 	auto t_str = "test full spectrum /&32b]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf(stdout, t_str));
 }
 
-TEST(Colour_token, full_foreground_colour_spectrum_test)
+TEST(Text_Colour_Formatting_Tokens, full_foreground_colour_spectrum_test)
 {
 	int count = 0;
 	for(auto i(0u); i < 256; ++i )
@@ -65,7 +65,7 @@ TEST(Colour_token, full_foreground_colour_spectrum_test)
 	}
 }
 
-TEST(Colour_token, full_background_colour_spectrum_test)
+TEST(Text_Colour_Formatting_Tokens, full_background_colour_spectrum_test)
 {
 	int count = 0;
 	for(auto i(0u); i < 256; ++i )
@@ -81,7 +81,7 @@ TEST(Colour_token, full_background_colour_spectrum_test)
 	}
 }
 
-TEST(Colour_token, full_foreground_and_background_colour_spectrum_test)
+TEST(Text_Colour_Formatting_Tokens, full_foreground_and_background_colour_spectrum_test)
 {
 	int count = 0;
 	for(auto i(0u); i < 256; ++i )

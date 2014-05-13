@@ -47,7 +47,7 @@ extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
 	"c!c!", "c!r!", "c!g!", "c!y!", "c!m!", "c!b!", "c!w!", /*cyan*/
 	"w!w!", "w!r!", "w!g!", "w!y!", "w!m!", "w!c!", "w!b!" /*white*/
 
-#ifndef _WIN32
+#ifndef _WIN32 //attribute
 	, "bld", "dim", "uln", "blk",	"rvs",	"hid",	
 	"!bld",	"!dim",	"!uln",	"!blk",	"!rvs",	"!hid",
 #endif /*#ifndef _WIN32*/

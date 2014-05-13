@@ -2,27 +2,16 @@
 #define _CPF_PARSE_H
 
 #include "common.h"
-
 #include "type_norm.h"
 
 /*
-descr
-*\
-
-args
-*\@
 
 */
 extern _cpf_types::_string_type_ _cpf_block_space_token_parse(
 	const _cpf_types::_string_type_ &src_format);
 
 /*
-descr
-*\
-
-args
-*\@
-
+	
 */
 extern _cpf_types::meta_format_type _cpf_colour_token_parse(
 	const _cpf_types::_string_type_ &formatter);
@@ -31,32 +20,11 @@ extern _cpf_types::_string_type_ _cpf_tag_map_token_parse(
 	const _cpf_types::_string_type_ &formatter);
 
 /*
-descr
-*\
-
-args
-*\@
-
-*/
-extern _cpf_types::meta_format_type _cpf_do_cursor_position_parse(
-	const _cpf_types::_string_type_ &formatter);
-
-/*
-descr
-*\
-
-args
-*\@
 
 */
 extern void _cpf_authenticate_format_string(const char* format);
 
 /*
-descr
-*\
-
-args
-*\@
 
 */
 template<class T, typename... Ts> void
