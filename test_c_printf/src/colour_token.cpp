@@ -80,7 +80,7 @@ TEST(Text_Colour_Formatting_Tokens, full_background_colour_spectrum_test)
 	}
 }
 
-TEST(Text_Colour_Formatting_Tokens, full_foreground_and_background_colour_spectrum_test)
+TEST(Text_Colour_Formatting_Tokens, full_fg_bg_colour_spectrum_test)
 {
 	int count = 0;
 	for(auto i(0u); i < 256; ++i )
