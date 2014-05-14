@@ -1,5 +1,5 @@
-#include "parse.h"
-#include "colour_repr.h"
+#include "_cpf_parse.h"
+#include "_cpf_sys_colour_config.h"
 #include <cstdio>
 #include <stdlib.h>     /* atoi */
 #include <algorithm>
@@ -375,15 +375,20 @@ _cpf_types::_string_type_ _cpf_full_colour_spectrum_token_parse(const _cpf_types
 	USE std::find_if IN ALL PARSING FUNCTIONS in order to be able to use a custom
 	search algorithm meaning it will be easier to escape the forward slashes using a lambda for example
 */
-_cpf_types::meta_format_type _cpf_colour_token_parse(
+_cpf_types::meta_format_type _cpf_process_format_string(
 	const _cpf_types::_string_type_ &src_format)
 {
+	auto frmt_str_ = _cpf_tag_map_token_parse(
+		std::forward<_cpf_types::_string_type_>(
+		_cpf_block_space_token_parse(src_format)));
+
 	_cpf_types::_string_type_ _src_format;
 #ifdef __gnu_linux__
-	_src_format = _cpf_full_colour_spectrum_token_parse(src_format);
+	/*full colour spectrum only supported on linux terminals*/
+	_src_format = _cpf_full_colour_spectrum_token_parse(frmt_str_);
 #else
 	//windows
-	_src_format = src_format;
+	_src_format = frmt_str_;
 #endif
 	_cpf_types::meta_format_type meta;
 
@@ -413,10 +418,10 @@ _cpf_types::meta_format_type _cpf_colour_token_parse(
 			);
 	}
 
-	/*not that the followng only searches for the "standardised" colour tokens
+	/*note that the followng only searches for the "standardised" colour tokens
 		i.e /y!] and not the full colour spectrum tokens i.e /#34f]*/
 	std::size_t counter = 0;
-	for (auto &c_repr : _cpf_colour_tokens)
+	for (auto &c_repr : _cpf_std_tokens)
 	{
 		if (counter > NUM_C_TAGS)
 		{

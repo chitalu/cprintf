@@ -10,9 +10,8 @@
 #include <map>
 #include <string>
 
-/*S_T_A_UNDEF = system text attribute undefined*/
 #ifdef _WIN32
-#define S_T_A_UNDEF (666)
+#define SYSTXTATTIB_UNDEF (0xFF)
 
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
@@ -24,7 +23,7 @@
 
 
 #else
-#define S_T_A_UNDEF ("undef")
+#define SYSTXTATTIB_UNDEF ("undef")
 #endif
 
 namespace _cpf_types

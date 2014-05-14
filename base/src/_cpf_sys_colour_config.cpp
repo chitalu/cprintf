@@ -1,6 +1,8 @@
-#include "colour_repr.h"
+#include "_cpf_sys_colour_config.h"
 
-extern "C" const _cpf_types::string_vector _cpf_colour_tokens= {
+_cpf_types::_string_type_ _cpf_crnt_colour_repr = "undef";
+
+extern "C" const _cpf_types::string_vector _cpf_std_tokens= {
 
 	/*default*/
 	"!",
@@ -62,7 +64,7 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
 				assert(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi));
 				auto a = csbi.wAttributes;
-				return static_cast<_cpf_types::colour>(a);
+				return static_cast<_cpf_types::colour>(a % 16);
 			}()
 	},
 
@@ -400,6 +402,52 @@ extern const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_
 	{	"c!",	"\x1B[0;0;96m" },
 	{	"w!",	"\x1B[0;0;97m" }
 };
-//};
 
 #endif /*#ifdef _WIN32*/
+
+bool _cpf_is_fstream(_cpf_types::stream strm)
+{
+	bool is_fstream = true;
+	for (auto s : { stdout, stderr })
+	{
+		if (strm == s)
+		{
+			is_fstream = false;
+			break;
+		}
+	}
+	return is_fstream;
+}
+
+extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
+	const _cpf_types::_string_type_ c_repr)
+{
+	if (_cpf_is_fstream(strm))
+	{
+		return;
+	}
+
+	if (_cpf_crnt_colour_repr.compare(c_repr) != 0)
+	{
+		_cpf_crnt_colour_repr = c_repr;
+	}
+
+#ifdef _WIN32
+	HANDLE hnd = nullptr;//TODO: test this for mem leaks
+	if (strm == stdout)
+	{
+		hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+	}
+	else if (strm == stderr)
+	{
+		hnd = GetStdHandle(STD_ERROR_HANDLE);
+	}
+	assert(hnd != nullptr);
+	SetConsoleTextAttribute(hnd, _cpf_colour_token_vals.find(c_repr)->second);
+#else
+	fprintf(strm,
+		"%s",
+		_cpf_colour_token_vals.find(_cpf_crnt_colour_repr)->second.c_str());
+
+#endif
+}

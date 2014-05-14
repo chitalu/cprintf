@@ -46,7 +46,7 @@ IF(WIN32)
     #
 
     MESSAGE(STATUS "setting up windows compiler")
-    SET (CMAKE_CXX_FLAGS "-WX")
+    #SET (CMAKE_CXX_FLAGS "-WX")
 
     SET(LIB_FILE_EXT "lib")
     SET(c_printf_LIB_FILE_PATH 
@@ -62,8 +62,6 @@ ELSEIF(UNIX)
     SET(c_printf_LIB_FILE_PATH 
     "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
 ENDIF()
-
-SET (CMAKE_C_FLAGS "-std=c99")
 
 MESSAGE (STATUS "unpacking google test files")
 

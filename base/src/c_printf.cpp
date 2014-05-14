@@ -1,15 +1,8 @@
 #include "c_printf.h"
-#include "colour_repr.h"
+#include "_cpf_sys_colour_config.h"
 
-_cpf_types::colour _cpf_sys_attribs = S_T_A_UNDEF;
-_cpf_types::_string_type_ g_current_colour_repr = "S_T_A_UNDEF";
-
-#ifdef _WIN32
-auto console_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-auto console_stderr = GetStdHandle(STD_ERROR_HANDLE);
-#else /*	#ifdef _WIN32	*/
-
-#endif /*	#ifdef _WIN32	*/
+/*text attributes before a call was made to c_printf*/
+_cpf_types::colour _cpf_default_sys_attribs = SYSTXTATTIB_UNDEF;
 
 void _cpf_except_on_condition(bool condition, std::string _err_msg)
 {
@@ -33,88 +26,38 @@ extern "C" std::size_t _cpf_get_num_arg_specifiers(
 	return n;
 }
 
-extern "C" void _cpf_store_attribs(void)
+extern "C" void _cpf_store_sys_default_attribs(_cpf_types::stream strm)
 {
-	if (_cpf_sys_attribs == S_T_A_UNDEF)
+	if (_cpf_default_sys_attribs == SYSTXTATTIB_UNDEF)
 	{
 #ifdef _WIN32
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(console_stdout, &csbi);
+		GetConsoleScreenBufferInfo(strm, &csbi);
 		auto a = csbi.wAttributes;
-		_cpf_sys_attribs = static_cast<_cpf_types::colour>(a % 16);
+		_cpf_default_sys_attribs = static_cast<_cpf_types::colour>(a % 16);
 #else
 		/*TODO:*/
 #endif
 	}
 }
 
-extern "C" void _cpf_load_attribs(void)
+extern "C" void _cpf_load_sys_default_attribs(_cpf_types::stream strm)
 {
 #ifdef _WIN32
-	for (auto &handle : {console_stdout, console_stderr})
-	{
-		SetConsoleTextAttribute(handle, _cpf_sys_attribs);
-	}
+	SetConsoleTextAttribute(strm, _cpf_default_sys_attribs);
 #else
-	for (auto s : {stderr, stdout})
-	{
-		fprintf(s, "\x1B[0m");
-	}
-	
-#endif
-}
-
-bool _cpf_is_fstream(_cpf_types::stream strm)
-{
-	bool is_fstream = true;
-	for (auto s : { stdout, stderr })
-	{
-		if (strm == s)
-		{
-			is_fstream = false;
-			break;
-		}
-	}
-	return is_fstream;
-}
-
-extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::_string_type_ c_repr)
-{
-	if (_cpf_is_fstream(strm))
-	{
-		return;
-	}
-
-	if (g_current_colour_repr.compare(c_repr) != 0)
-	{
-		g_current_colour_repr = c_repr;
-	}
-
-#ifdef _WIN32
-	HANDLE hnd = nullptr;//TODO: test this for mem leaks
-	if (strm == stdout)
-	{
-		hnd = GetStdHandle(STD_OUTPUT_HANDLE);
-	}
-	else if (strm == stderr)
-	{
-		hnd = GetStdHandle(STD_ERROR_HANDLE);
-	}
-	assert(hnd != nullptr);
-	SetConsoleTextAttribute(hnd, _cpf_colour_token_vals.find(c_repr)->second);
-#else
-	fprintf(strm, 
-			"%s", 
-			_cpf_colour_token_vals.find(g_current_colour_repr)->second.c_str());
+	fprintf(strm, "\x1B[0m");
 	
 #endif
 }
 
 _cpf_types::_string_type_ _cpf_print_pre_arg_str(	_cpf_types::stream strm,
 													_cpf_types::_string_type_& printed_string_,
-													std::size_t& ssp_)
+													std::size_t& ssp_,
+													const _cpf_types::_string_type_ c_repr)
 {
+	_cpf_config_terminal(strm, c_repr);
+
 	ssp_ = printed_string_.find_first_of("%", ssp_);
 	if (ssp_ != 0)
 	{
@@ -153,6 +96,8 @@ void _cpf_print_non_arg_str(_cpf_types::stream strm,
 							std::size_t& ssp_,
 							_cpf_types::meta_format_type::const_iterator &msd_iter)
 {
+	_cpf_config_terminal(strm, msd_iter->second.first);
+
 	ssp_ = 0;
 	fprintf(strm, "%s", printed_string_.c_str());
 	std::advance(msd_iter, 1);
@@ -179,5 +124,5 @@ void _cpf_call_(
 		std::advance(msd_iter, 1);
     }
 
-	_cpf_load_attribs();
+	_cpf_load_sys_default_attribs(strm);
 }

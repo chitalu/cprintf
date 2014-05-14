@@ -1,7 +1,7 @@
-#ifndef _CPF_COLOUR_REPR_H
-#define _CPF_COLOUR_REPR_H
+#ifndef _CPF__cpf_sys_colour_config_H
+#define _CPF__cpf_sys_colour_config_H
 
-#include "common.h"
+#include "_cpf_common.h"
 
 #ifdef _WIN32
 
@@ -42,11 +42,23 @@
 
 #endif /*	#ifdef _WIN32	*/
 
+extern "C" _cpf_types::_string_type_ _cpf_crnt_colour_repr;
+extern "C" const _cpf_types::string_vector _cpf_std_tokens;
+
 extern const _cpf_types::colour_token_map _cpf_colour_token_vals;
-extern "C" const _cpf_types::string_vector _cpf_colour_tokens;
+extern "C" const _cpf_types::string_vector _cpf_std_tokens;
 extern const _cpf_types::string_vector _cpf_blockspace_tokens;
 
-#endif /*	#ifndef _CPF_COLOUR_REPR_H	*/
+/*
+	configure system terminal settings
+
+	@strm 	- output stream
+	@c_repr - colour token string used to locate corresponding value
+*/
+extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
+	const _cpf_types::_string_type_ c_repr);
+
+#endif /*	#ifndef _CPF__cpf_sys_colour_config_H	*/
 
 /*
 
@@ -99,10 +111,4 @@ parsing steps
 2. sub-string tag parse
 3. full spectrm colour token parse (#34f;28b)
 4. attibs-fsc parse
-
-for linux implementation a vector hould now be used to hold the
-"colour access tokens" allowing for complex tokens to be treated 
-as individual elements of the vectors to be later used individually in
-order to access the corresponding terminal value.
-
 */

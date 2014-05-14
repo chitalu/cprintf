@@ -3,34 +3,9 @@
 
 #include <tuple>
 #include <cstdio>
-#include "parse.h"
+#include "_cpf_parse.h"
 
-extern "C" _cpf_types::_string_type_ g_current_colour_repr;
-extern "C" const _cpf_types::string_vector _cpf_colour_tokens;
-
-/*
-	
-*/
-extern "C" void _cpf_store_attribs(void);
-
-/*
-
-*/
-extern "C" void _cpf_load_attribs(void);
-
-/*
-
-*/
-extern "C" bool _cpf_is_fstream(_cpf_types::stream strm);
-
-/*
-	configure system terminal settings
-	
-	@strm 	- output stream
-	@c_repr - colour token string used to locate corresponding value
-*/
-extern "C" void _cpf_config_terminal(	_cpf_types::stream strm, 
-										const _cpf_types::_string_type_ c_repr);
+extern "C" void _cpf_store_sys_default_attribs(_cpf_types::stream strm);
 
 /*
 
@@ -43,7 +18,8 @@ extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_types::_string_ty
 */
 extern _cpf_types::_string_type_ _cpf_print_pre_arg_str(_cpf_types::stream strm,
 														_cpf_types::_string_type_& printed_string_,
-														std::size_t& ssp_);
+														std::size_t& ssp_,
+														const _cpf_types::_string_type_ c_repr);
 
 /*
 
@@ -73,7 +49,8 @@ extern void _cpf_call_(
 	const std::size_t search_start_pos);
 
 /*
-
+	recursive call to process the format string as well as any arguments provided
+	note: this function is not executed if no vairadic arguments as respecified
 */
 template<typename T0, typename ...Ts>
 void _cpf_call_(	
@@ -85,8 +62,6 @@ void _cpf_call_(
 	T0&& arg0,
     Ts&&... args)
 {
-	_cpf_config_terminal(strm, msd_iter->second.first);
-
 	_cpf_types::_string_type_ printed_string_ = printed_string;
 
 	/*printed string argument ('%') count*/
@@ -103,7 +78,7 @@ void _cpf_call_(
 
 	if (pstr_argc >= 1)
 	{
-		auto fstr = _cpf_print_pre_arg_str(strm, printed_string_, ssp_);
+		auto fstr = _cpf_print_pre_arg_str(strm, printed_string_, ssp_, msd_iter->second.first);
 		fprintf(strm, fstr.c_str(), arg0);
 		_cpf_print_post_arg_str(strm, printed_string_, ssp_, more_args_on_iter, msd_iter);
 		printed_arg0 = true;
@@ -132,7 +107,22 @@ void _cpf_call_(
 }
 
 /*
+	c_printf is a C++(11/0x) language function for extended formatted-printing. 
+	It achieves this by providing a thin abstraction layer atop that of fprintf. 
+	The function works,	in much a similar manner to that of its patternal 
+	counter-part(s) i.e printf, fprintf etc. 
+	Aside from guarranteed type-safety (unlike that of it predecesors) c_printf also
+	introduces the feature of colour tokens specification (and other extra formatting tokens). 
+	With this, users are able to specify, as part of the format string, the colour of
+	all or some of the format string. Alongside this is also the introduction 
+	tagging tokens which enable users the ability to map specific strings with 
+	certain colours.
 
+	@the function will throw an invalid_argument exception on condition that an invalid token 
+	is encountered on parsing. In the case that a user opts to use feature which are not available
+	for an impementation, the format string may remain unchanged with a possibility 
+	an exception being thrown on parsing.
+	 
 */
 template<typename... Ts>
 void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
@@ -151,16 +141,13 @@ void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
 		(_cpf_get_num_arg_specifiers(format, "%") > 0 && sizeof...(args) > 0) ||
 		(_cpf_get_num_arg_specifiers(format, "%") == 0 && sizeof...(args) == 0)
 		);
-	//check_printf(format, normalize_arg(args)...);
+	//_cpf_authenticate_format_string(format, normalize_arg(args)...);
 #endif
+	auto meta_str_data = _cpf_process_format_string(format);
+	auto tsd_iter_begin = meta_str_data.cbegin();
+	auto tsd_iter_end_point_comparator = meta_str_data.cend();
 
-	auto tokenised_string_data = _cpf_colour_token_parse(
-		std::forward<_cpf_types::_string_type_>(_cpf_tag_map_token_parse(
-			std::forward<_cpf_types::_string_type_>(_cpf_block_space_token_parse(format)))));
-    
-	auto tsd_iter_begin = tokenised_string_data.cbegin();
-	auto tsd_iter_end_point_comparator = tokenised_string_data.cend();
-
+	_cpf_store_sys_default_attribs(strm);
 	_cpf_call_(	strm,
 				tsd_iter_end_point_comparator,
 				tsd_iter_begin,
@@ -175,37 +162,41 @@ void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
 
 const auto _cpf_debug_pre_str =
 R"debug_str(
-cpf dbg call 
-#build %s-%s
- 
+>> dbg print 
+@build:		%s-%s 
 @file:		%s
 @line-number:	%d
 @function:	%s
 
-debug log:
-
+log:
 )debug_str";
 
+/*
+	os specific dir path wrangling
+*/
+struct _cpf_dbg_fpath_separator
+{
+	bool operator()(char character) const
+	{ 
 #ifdef _WIN32
-struct _cpf_dbg_fpath_separator
-{
-	bool operator()(char character) const{ return character == '\\' || character == '/'; }
-};
-
+		return character == '\\' || character == '/'; 
 #else
-
-struct _cpf_dbg_fpath_separator
-{
-	bool operator()(char character) const{	return character == '/';	}
-};
-
+		return character == '/';
 #endif
+	}
+};
 
 /*
-implicit conversions from std::string to const char* are not allowed
-
+	Auxillary 'macro-functio'n ideal for debugging purposes
+	note: all output is streamed to standard error.
+	users may use this function just as they would "c_printf"
+	features permitted and limitations imposed reflect those 
+	of "c_printf".
+	This function will only work for debug builds and non else.
+	By design, building in release mode results in the macro-function
+	expanding to nothing, rendering your call impotent.
 */
-#define debug_c_printf(format, ...) \
+#define c_printf_dbg(format, ...) \
 	do{\
 	std::string const& pathname = __FILE__;\
 	auto fname =  std::string(\

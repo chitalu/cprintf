@@ -1,8 +1,7 @@
 #include "cpf_test_common.h"
-#include "colour_repr.h"
+#include "_cpf_sys_colour_config.h"
 
 #include <sstream>
-
 
 TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)
 {
