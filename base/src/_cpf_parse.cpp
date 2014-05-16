@@ -453,15 +453,3 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 
 	return meta;
 }
-
-extern void _cpf_authenticate_format_string(const char* format)
-{
-	for (; *format; ++format)
-	{
-		if (*format != '%' || *++format == '%')
-		{
-			continue;
-		}
-		throw std::invalid_argument("bad format specifier");
-	}
-}
