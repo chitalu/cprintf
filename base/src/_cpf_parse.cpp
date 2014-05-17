@@ -1,12 +1,13 @@
 #include "_cpf_parse.h"
 #include "_cpf_sys_colour_config.h"
+#include "_cpf_find.h"
 #include <cstdio>
 #include <stdlib.h>     /* atoi */
 #include <algorithm>
 #include <sstream>
 
 /*
-
+	
 */
 _cpf_types::_string_type_ _cpf_block_space_token_parse(
 	const _cpf_types::_string_type_ &src_format)
@@ -17,7 +18,8 @@ _cpf_types::_string_type_ _cpf_block_space_token_parse(
 	std::size_t token_suffix_pos = 0;
 	std::size_t token_start_pos = 0;
 	bool on_first_iteration = true;
-	while ((token_start_pos = src_format.find(token_prefix, token_suffix_pos)) != src_format.npos)
+	//while ((token_start_pos = src_format.find(token_prefix, token_suffix_pos)) != src_format.npos)
+	while ((token_start_pos = _cpf_find(token_prefix, src_format, token_suffix_pos)) != src_format.npos)
 	{
 		if (token_start_pos != 0 && on_first_iteration)
 		{
@@ -37,13 +39,13 @@ _cpf_types::_string_type_ _cpf_block_space_token_parse(
 		std::string repl_str_start_mark,
 			repl_str_end_mark,
 			/*	"/¬35<...>=..¬]"
-			^^		*/
+				   ^^		*/
 			repetition_counter,
 			/*	"/¬...<foo>=...¬]"
-			^^^		*/
+			           ^^^		*/
 			replacement_str,
 			/*	"/¬...<...>=r¬]"
-			^
+			                ^
 			colour and/or format string */
 			text_format_string;
 

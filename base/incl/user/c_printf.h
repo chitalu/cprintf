@@ -130,11 +130,11 @@ void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
 {
 	if (strm == nullptr)
 	{ 
-		throw std::invalid_argument("output stream undefined");
+		throw _cpf_types::error("output stream undefined");
 	}
 	else if(format.empty())
 	{
-		throw std::invalid_argument("format undefined");
+		throw _cpf_types::error("format undefined");
 	}
 
 #if defined(_DEBUG)

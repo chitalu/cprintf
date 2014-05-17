@@ -1,3 +1,5 @@
+#ifndef _CPF_TYPE_NORM_H
+#define _CPF_TYPE_NORM_H
 
 #include <string>
 #include <type_traits>
@@ -24,3 +26,5 @@ normalize_arg(const T arg)
 }
 
 extern const char* normalize_arg(const std::string& arg);
+
+#endif
