@@ -2,7 +2,7 @@
 #define C_PRINTF_H
 
 #include <tuple>
-#include <cstdio>
+#include <cassert>
 #include "_cpf_parse.h"
 #include "_cpf_type_norm.h"
 
@@ -74,7 +74,7 @@ template <
 	template <std::size_t...> class I,
 	std::size_t... Indices
 >
-inline auto apply_tuple(Op&& op, Tuple&& t, I<Indices...>&&) -> decltype(std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...))
+inline auto _apply_tuple(Op&& op, Tuple&& t, I<Indices...>&&) -> decltype(std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...))
 {
 	return std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...);
 }
@@ -90,9 +90,9 @@ template <
 	std::tuple_size<typename std::decay<Tuple>::type>::value
 	>
 >
-inline auto apply_tuple(Op&& op, Tuple&& t) -> decltype(apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
+inline auto apply_tuple(Op&& op, Tuple&& t) -> decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 {
-	return	apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{});
+	return	_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{});
 }
 
 extern "C" void _cpf_store_sys_default_attribs(_cpf_types::stream strm);
@@ -215,16 +215,10 @@ void _cpf_call_(
 	 
 */
 template<typename... Ts>
-void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
+void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
 {
-	if (strm == nullptr)
-	{ 
-		throw _cpf_types::error("output stream undefined");
-	}
-	else if(format.empty())
-	{
-		throw _cpf_types::error("format undefined");
-	}
+	assert(strm != nullptr && "output stream undefined");
+	assert(format != nullptr && "format string undefined");
 
 #if defined(_DEBUG)
 	//this will be used in the first parse stage not here!!
@@ -248,15 +242,17 @@ void c_printf(	_cpf_types::stream strm, std::string format, Ts... args)
 }
 
 template<typename... Ts>
-void c_printf_t(_cpf_types::stream strm, std::string format, std::tuple<Ts...>&& args_tup)
+void c_printf_t(_cpf_types::stream strm, const char* format, std::tuple<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
-	apply_tuple(c_printf, call_args);
+	//apply_tuple(c_printf<std::tuple_element<0, decltype(args_tup)>::type>, std::forward<decltype(args_tup)>(args_tup));
+	apply_tuple(c_printf<int>, call_args);
+
 }
 
 template<typename... Ts>
-void c_printf_ts(_cpf_types::stream strm, std::string format, Ts&&... args)
+void c_printf_ts(_cpf_types::stream strm, const char* format, Ts... args)
 {
 	auto arg0 = std::get<0>(args);
 

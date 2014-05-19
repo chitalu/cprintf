@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <cstdio>
 
 #define _CPF_DISABLE 0x00
 #define _CPF_ENABLE 0xFF
