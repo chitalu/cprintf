@@ -2,7 +2,6 @@
 #define _CPF_COMMON_H
 
 #ifdef _WIN32
-#include <Windows.h>
 #define SYSTXTATTIB_UNDEF (0xFF)
 #else
 #define SYSTXTATTIB_UNDEF ("undef")

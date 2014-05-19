@@ -38,8 +38,6 @@
 #define _cpf_fgi 	(FOREGROUND_INTENSITY)
 #define _cpf_bgi	(BACKGROUND_INTENSITY)
 
-#else /*	#ifdef _WIN32	*/
-
 #endif /*	#ifdef _WIN32	*/
 
 extern "C" _cpf_types::_string_type_ _cpf_crnt_colour_repr;
@@ -70,13 +68,6 @@ interesting:
 http://bjh21.me.uk/all-escapes/all-escapes.txt
 */
 
-#define BLOCK_SPACE_TOKEN \
-	"/¬6<->=r¬]"\
-	"/¬24<foo>=r¬]"\
-	"/¬9<bar>=#94f¬]"\
-	"/¬10<bar>=rvs;#94b¬]"\
-	"/¬10<bar>=rvs;#94f;65b¬]"
-
 //http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
 #define CURSOR_POS_TOKEN "/@10-20]"
 
@@ -90,24 +81,23 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 
 #define ATTRIB_COL_TOKEN_EXAMPLES \
 	"/&32f]"\
-	"/&uln;24f]"\
-	"/&dim;75b]"\
-	"/&bld;24f;128b]"\
-	"/&bld;y!b]"\
+	"/&uln.24f]"\
+	"/&dim.75b]"\
+	"/&bld.24f.128b]"\
+	"/&bld.y!b]"\
 
 /*
 	this should find all strings that match exactly those specifed
 	and prefix then with a smart formatter.
-*/
+	*/
 #define SUB_STRING_FORMAT_TAGGING\
-	"/$mystring|(y!)]"\
-	"/$mystring1:mystring2|(r);(b!)]"\
-	"/$mystring1:mystring2|(g!)]"\
-	"/$mystring1:mystring2|(bld);(r);(b!)]"
+	"/$mystring|y!]"\
+	"/$mystring1;mystring2|r;b!]"\
+	"/$mystring1;mystring2|g!]"\
+	"/$mystring1;mystring2|bld.r;b!]"
 
 /*
 parsing steps
-1. block space parse
 2. sub-string tag parse
 3. full spectrm colour token parse (#34f;28b)
 4. attibs-fsc parse

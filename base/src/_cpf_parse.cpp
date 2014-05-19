@@ -6,104 +6,9 @@
 #include <algorithm>
 #include <sstream>
 
-/*
-	
-*/
-_cpf_types::_string_type_ _cpf_block_space_token_parse(
-	const _cpf_types::_string_type_ &src_format)
-{
-	_cpf_types::_string_type_	output_format_str, 
-								token_prefix = "/¬", 
-								token_suffix = "¬]";
-	std::size_t token_suffix_pos = 0;
-	std::size_t token_start_pos = 0;
-	bool on_first_iteration = true;
-	//while ((token_start_pos = src_format.find(token_prefix, token_suffix_pos)) != src_format.npos)
-	while ((token_start_pos = _cpf_find(token_prefix, src_format, token_suffix_pos)) != src_format.npos)
-	{
-		if (token_start_pos != 0 && on_first_iteration)
-		{
-			on_first_iteration = false;
-			output_format_str.append(src_format.substr(0, token_start_pos));
-		}
+std::uint8_t _cpf_colour_config = _CPF_ENABLE;
 
-		/*position of block space token delimiter*/
-		token_suffix_pos = src_format.find(token_suffix, token_start_pos);
-		/*
-		"i" -> (n + length("/¬"))  where n is "pos"
-		*/
-		std::size_t detail_spos = token_start_pos + token_prefix.size();
-
-		auto err_msg = "syntax error: " + src_format.substr(detail_spos, (token_suffix_pos - detail_spos));
-
-		std::string repl_str_start_mark,
-			repl_str_end_mark,
-			/*	"/¬35<...>=..¬]"
-				   ^^		*/
-			repetition_counter,
-			/*	"/¬...<foo>=...¬]"
-			           ^^^		*/
-			replacement_str,
-			/*	"/¬...<...>=r¬]"
-			                ^
-			colour and/or format string */
-			text_format_string;
-
-		repl_str_start_mark = "<";
-		repl_str_end_mark = ">";
-
-		// "<"
-		auto bssm_pos = src_format.find_first_of(repl_str_start_mark, token_start_pos);
-		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
-
-		auto bsem_pos = src_format.find_first_of(repl_str_end_mark, token_start_pos);
-		_cpf_except_on_condition(bssm_pos == std::string::npos, err_msg);
-		_cpf_except_on_condition(((bsem_pos - bssm_pos) < 1), err_msg + "\nkey string undefined.");
-
-		auto c_token_start_pos = src_format.find_first_of(">=", token_start_pos);
-		_cpf_except_on_condition(c_token_start_pos == std::string::npos, err_msg);
-		c_token_start_pos += 2; //length of ">="
-
-		auto sub_parse = [&](const std::size_t start, const std::size_t end, std::string& out)->void
-		{
-			auto index = start;
-			while (index < end)
-			{
-				out.append({ src_format[index++] });
-			}
-		};
-
-		sub_parse(detail_spos, bssm_pos, repetition_counter);
-
-		sub_parse(bssm_pos + 1, bsem_pos, replacement_str);
-
-		sub_parse(c_token_start_pos, token_suffix_pos, text_format_string);
-
-		auto rblk_sze = atol(repetition_counter.c_str());
-		_cpf_except_on_condition((rblk_sze <= 0), err_msg + "\nillegal replacement-string repetition counter.");
-		_cpf_types::_string_type_ s_, col_str;
-		col_str = "/" + text_format_string + "]";
-		for (auto i(0); i < rblk_sze; ++i)
-		{
-			s_.append(col_str + replacement_str);
-		}
-
-		/* /!] is used used reset any formatting options set by the block space format string*/
-		output_format_str.append(col_str + s_ + "/!]");
-		auto offs = token_suffix_pos + 1;
-
-		auto t = src_format.find(token_prefix, offs);
-		auto t_ = src_format.substr(offs, t);
-		if (t != std::string::npos)
-		{
-			output_format_str.append(t_);
-		}
-	}
-
-	return output_format_str.size() != 0 ? output_format_str : src_format;;
-}
-
-//	{mystring1:mystring2}|(bld;r)(b!)
+//	/$mystring1;mystring2|bld.r;b!]
 std::map<std::string, _cpf_types::string_vector>
 parse_tag_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 {
@@ -140,19 +45,20 @@ parse_tag_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 
 	auto num_strings = std::count_if(std::begin(strings_str),
 		std::end(strings_str),
-		[&](char e){ return e == ':'; });
+		[&](char e){ return e == ';'; });
 	// + 1 because number of colons is n - 1 where n is the number of tag strings
 	num_strings += 1;
 
 	auto num_fstrings = std::count(std::begin(frmts_str),
-		std::end(frmts_str), '(');
+		std::end(frmts_str), ';');
+	num_fstrings += 1;
 
 	_cpf_except_on_condition((num_strings != num_fstrings && num_fstrings != 1),
-		"syntax error: tag token");
+		"syntax error: map token");
 
-	//mystring1:mystring2:mystring3
+	//mystring1;mystring2;mystring3
 	//
-	//(bld;r)(b!)(yw)
+	//bld.r;b!;yw
 	std::size_t tstr_spos = 0, //tagged string start position
 				tstr_epos = 0,  //tagged string end position
 				fstr_spos = 0,  //tagged string's colour format string start position
@@ -160,12 +66,12 @@ parse_tag_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 
 	do
 	{
-		tstr_epos = strings_str.find(":", tstr_spos);
+		tstr_epos = strings_str.find(";", tstr_spos);
 		auto tstr = strings_str.substr(tstr_spos, tstr_epos - tstr_spos);
 		tstr_spos = tstr_epos + 1;
 
 		fstr_spos = frmts_str.find("(", fstr_spos);
-		fstr_epos = frmts_str.find(")", fstr_spos);
+		fstr_epos = frmts_str.find(";", fstr_spos);
 
 		auto fstr = frmts_str.substr(fstr_spos + 1, (fstr_epos - fstr_spos) - 1);
 
@@ -380,9 +286,15 @@ _cpf_types::_string_type_ _cpf_full_colour_spectrum_token_parse(const _cpf_types
 _cpf_types::meta_format_type _cpf_process_format_string(
 	const _cpf_types::_string_type_ &src_format)
 {
-	auto frmt_str_ = _cpf_tag_map_token_parse(
-		std::forward<_cpf_types::_string_type_>(
-		_cpf_block_space_token_parse(src_format)));
+	_cpf_types::meta_format_type meta;
+
+	if (_cpf_colour_config == _CPF_DISABLE)
+	{
+		meta.insert(std::make_pair(0, std::make_pair("no-colour", src_format)));
+		return meta;
+	}
+
+	auto frmt_str_ = (_cpf_colour_config == _CPF_ENABLE) ? _cpf_tag_map_token_parse(src_format) : src_format;
 
 	_cpf_types::_string_type_ _src_format;
 #ifdef __gnu_linux__
@@ -392,7 +304,6 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 	//windows
 	_src_format = frmt_str_;
 #endif
-	_cpf_types::meta_format_type meta;
 
 	_cpf_types::_string_type_ 	_c_prefix = "/", 
 								_c_suffix = "]";

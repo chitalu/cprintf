@@ -56,13 +56,13 @@ int main(int argc, char ** argv)
 //		block space token tests
 //	*/
 //
-//	c_printf(stdout, "block space:\n/¬5<i am yellow /b!]foo /g!]bar /c!]baz /!] default\n>=y!¬]");
+//	c_printf(stdout, "block space:\n/{5<i am yellow /b!]foo /g!]bar /c!]baz /!] default\n>=y!¬]");
 //
-//	c_printf(stdout, "block space:\n/¬5<i am number /w!][%d] /b!]foo /g!]bar /c!]baz /!] default\n>=c!¬]", 1, 2, 3, 4, 5);
+//	c_printf(stdout, "block space:\n/{5<i am number /w!][%d] /b!]foo /g!]bar /c!]baz /!] default\n>=c!¬]", 1, 2, 3, 4, 5);
 //
 //
 //	try{
-//		c_printf(stdout, "wrong block space: /¬0<foo>=r!r!¬]");
+//		c_printf(stdout, "wrong block space: /{0<foo>=r!r!¬]");
 //	}
 //	catch (std::invalid_argument& e){
 //		c_printf(stderr, "exception caught: \n/m!]%s/!]", e.what());

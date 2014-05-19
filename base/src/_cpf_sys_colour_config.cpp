@@ -1,4 +1,6 @@
 #include "_cpf_sys_colour_config.h"
+#include <assert.h>
+
 
 _cpf_types::_string_type_ _cpf_crnt_colour_repr = "undef";
 
@@ -62,7 +64,7 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "!",	[&]()->_cpf_types::colour
 			{
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
-				assert(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi));
+				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 				auto a = csbi.wAttributes;
 				return static_cast<_cpf_types::colour>(a % 16);
 			}()

@@ -1,10 +1,27 @@
 #ifndef _CPF_TYPES_H
 #define _CPF_TYPES_H
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
+#include <cstdint>
 #include <utility>
 #include <vector>
 #include <map>
 #include <string>
+
+#define _CPF_DISABLE 0x00
+#define _CPF_ENABLE 0xFF
+
+/*
+	flag to specify whether colour configuration is enabled or not.
+	by default this value is set to [enabled].
+	if disabled, format strings containing c_printf approved text formatting
+	tokens will remain unmodified and subsequently displayed as is. No 
+	exception will be thrown unless otherwise applicable.
+*/
+extern std::uint8_t _cpf_colour_config;
 
 struct _cpf_err{
 private:
