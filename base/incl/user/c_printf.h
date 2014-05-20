@@ -198,17 +198,17 @@ void _cpf_call_(
 
 /*
 	c_printf is a C++(11/0x) language function for extended formatted-printing. 
-	It achieves this by providing a thin abstraction layer atop that of fprintf. 
+	It achieves this by providing a thin auxiallary layer atop that of fprintf. 
 	The function works,	in much a similar manner to that of its patternal 
 	counter-part(s) i.e printf, fprintf etc. 
 	Aside from guarranteed type-safety (unlike that of it predecesors) c_printf also
 	introduces the feature of colour token specification. 
 	With this, users are able to specify, as part of the format string, the colour of
-	all or some of the format-string-text within console output. Alongside this is also the addition 
-	map tokens which enable users the ability to map specific strings with 
+	all or some of the format-string-text within console output. Alongside this is also 
+	the addition of	map tokens which enable users the ability to map specific strings with 
 	certain token value(s).
 
-	@if colour configuration is enabled, the function will throw an _cpf_err exception 
+	@if colour configuration is enabled, the function will throw a _cpf_err exception 
 	on condition that an invalid token is encountered on parsing. In the case that a 
 	user opts to use features which are not available for a platform (or terminal), the 
 	format string may remain unchanged, the implementation may throw an exception on parsing.
@@ -241,13 +241,28 @@ void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
 				std::forward<Ts>(normalize_arg(args))...);
 }
 
+struct C_PrintF 
+{
+	template<typename... Ts>
+	static void operator()(	_cpf_types::stream strm, const char* format, Ts... args)
+	{
+	}
+};
+
+template <typename F, typename ...Ts>
+apply_tuple(???) 
+{
+	F::operator()<Ts...>(???);
+}
+
 template<typename... Ts>
 void c_printf_t(_cpf_types::stream strm, const char* format, std::tuple<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 	//apply_tuple(c_printf<std::tuple_element<0, decltype(args_tup)>::type>, std::forward<decltype(args_tup)>(args_tup));
-	apply_tuple(c_printf<int>, call_args);
+	//apply_tuple(c_printf<int>, call_args);
+	apply_tuple(C_PrintF, call_args);
 
 }
 
