@@ -2,6 +2,8 @@
 #define C_PRINTF_H
 
 #include <tuple>
+#include <algorithm>
+#include <stdarg.h>
 #include <cassert>
 #include "_cpf_parse.h"
 #include "_cpf_type_norm.h"
@@ -10,47 +12,32 @@ template <std::size_t...>
 struct indices
 {	 };
 
-template <
-	std::size_t Begin,
-	std::size_t End,
-	typename Indices = indices<>,
-	typename Enable = void
->
+template <	std::size_t Begin,
+			std::size_t End,
+			typename Indices = indices<>,
+			typename Enable = void>
 struct make_seq_indices
 {
 	static_assert(Begin <= End, "Begin must be <= End");
 };
 
-template <
-	std::size_t Begin,
-	std::size_t End,
-	template <std::size_t...> class I,
-	std::size_t... Indices
->
-struct make_seq_indices<
-	Begin, End,
-	I<Indices...>,
-	typename std::enable_if<Begin < End, void>::type
-	>
+template <	std::size_t Begin,
+			std::size_t End,
+			template <std::size_t...> class I,
+			std::size_t... Indices>
+struct make_seq_indices<Begin, 
+						End, 
+						I<Indices...>,
+						typename std::enable_if<Begin < End, void>::type>
 {
-	using type =
-		typename make_seq_indices<
-		Begin + 1, End,
-		I<Indices..., Begin>
-		>::type
-		;
+	using type =typename make_seq_indices<Begin + 1, End, I<Indices..., Begin>>::type;
 };
 
-template <
-	std::size_t Begin,
-	std::size_t End,
-	typename Indices
->
-struct make_seq_indices<
-	Begin, End,
-	Indices,
-	typename std::enable_if<Begin == End, void>::type
->
+template <std::size_t Begin,std::size_t End,typename Indices>
+struct make_seq_indices<Begin, 
+						End,
+						Indices,
+						typename std::enable_if<Begin == End, void>::type>
 {
 	using type = Indices;
 };
@@ -62,7 +49,8 @@ using make_seq_indices_T = typename make_seq_indices<Begin, End>::type;
 //It is useful to consider how to pass a set of function arguments to a function or functor.The code to do this is:
 //constexpr
 template <typename Op, typename... Args>
-inline auto apply(Op&& op, Args&&... args) -> decltype(std::forward<Op>(op)(std::forward<Args>(args)...))
+inline auto apply(Op&& op, Args&&... args) -> 
+decltype(std::forward<Op>(op)(std::forward<Args>(args)...))
 {
 	return std::forward<Op>(op)(std::forward<Args>(args)...);
 }
@@ -74,7 +62,8 @@ template <
 	template <std::size_t...> class I,
 	std::size_t... Indices
 >
-inline auto _apply_tuple(Op&& op, Tuple&& t, I<Indices...>&&) -> decltype(std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...))
+inline auto _apply_tuple(Op&& op, Tuple&& t, I<Indices...>&&) -> 
+decltype(std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...))
 {
 	return std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...);
 }
@@ -84,13 +73,10 @@ inline auto _apply_tuple(Op&& op, Tuple&& t, I<Indices...>&&) -> decltype(std::f
 template <
 	typename Op,
 	typename Tuple,
-	typename Indices =
-	make_seq_indices_T<
-	0,
-	std::tuple_size<typename std::decay<Tuple>::type>::value
-	>
+	typename Indices =	make_seq_indices_T<	0,std::tuple_size<typename std::decay<Tuple>::type>::value>
 >
-inline auto apply_tuple(Op&& op, Tuple&& t) -> decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
+inline auto apply_tuple(Op&& op, Tuple&& t) -> 
+decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 {
 	return	_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{});
 }
@@ -140,7 +126,7 @@ extern void _cpf_call_(
 
 /*
 	recursive call to process the format string as well as any arguments provided
-	note: this function is not executed if no vairadic arguments as respecified
+	note: this function is not executed if no variadic arguments are respecified
 */
 template<typename T0, typename ...Ts>
 void _cpf_call_(	
@@ -242,30 +228,54 @@ void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
 }
 
 template<typename... Ts>
-void c_printf_t(_cpf_types::stream strm, const char* format, std::tuple<Ts...> args_tup)
+void c_fprintf(_cpf_types::stream strm, const char* format, Ts... args)
+{
+	assert(strm != nullptr && "output stream undefined");
+	assert(format != nullptr && "format string undefined");
+
+#if defined(_DEBUG)
+	//this will be used in the first parse stage not here!!
+	//_cpf_verify(format, normalize_arg(args)...);
+#endif
+	auto meta_str_data = _cpf_process_format_string(format);
+	auto tsd_iter_begin = meta_str_data.cbegin();
+	auto tsd_iter_end_point_comparator = meta_str_data.cend();
+
+	if (_cpf_colour_config == _CPF_ENABLE)
+	{
+		_cpf_store_sys_default_attribs(strm);
+	}
+
+	_cpf_call_(strm,
+		tsd_iter_end_point_comparator,
+		tsd_iter_begin,
+		tsd_iter_begin->second.second,
+		0,
+		std::forward<Ts>(normalize_arg(args))...);
+}
+
+template<typename... Ts>
+void c_printf(const char* format, Ts... args)
+{
+	c_fprintf(stdout, format, std::forward<Ts>(args)...);
+}
+
+template<typename... Ts>
+void c_fprintf_t(_cpf_types::stream strm, const char* format, std::tuple<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 	
-	apply_tuple(c_printf<Ts...>, call_args);
-
+	apply_tuple(c_fprintf<Ts...>, call_args);
 }
 
-static void c_printf_ts(_cpf_types::stream strm, const char* format)
+template<typename... Ts>
+void c_printf_t(const char* format, std::tuple<Ts...> args_tup)
 {
-
-}
-
-template<typename T0, typename... Ts>
-void c_printf_ts(_cpf_types::stream strm, const char* format, T0 arg0, Ts... args)
-{
-	
-	
+	c_fprintf_t(stdout, format, std::forward<std::tuple<Ts...>>(args_tup));
 }
 
 #ifdef _DEBUG
-
-#include <stdarg.h>
 
 const auto _cpf_debug_pre_str =
 R"debug_str(
@@ -294,39 +304,52 @@ struct _cpf_dbg_fpath_separator
 };
 
 /*
-	Auxillary 'macro-functio'n ideal for debugging purposes
-	note: all output is streamed to standard error.
-	users may use this function just as they would "c_printf"
-	features permitted and limitations imposed reflect those 
-	of "c_printf".
-	This function will only work for debug builds and non else.
-	By design, building in release mode results in the macro-function
-	expanding to nothing, rendering your call impotent.
+	The following are auxillary macros ideal for debugging purposes.
+	All output is streamed to standard error by default.
+	Users may use this function just as they would c_printf,
+	c_fprintf, c_printf_t and c_fprintf_t and permissions
+	and limitations imposed reflect those of the aforementioned.
+	Macro expansion will only occur in client debug builds and non else.
+	And as such, building in release mode results in the macros
+	expanding to [nothing], rendering your call impotent.
+	*/
 
-	TODO: IMPLEMENT YOUR OWN PATH STRIPPER INSTEAD OF DEPENDING ON
-	std::find_if
-
-#define c_printf_dbg(format, ...) \
-	do{\
+#define __print_stat_str\
 	std::string const& pathname = __FILE__;\
 	auto fname =  std::string(\
 	std::find_if(pathname.rbegin(), pathname.rend(),\
 	_cpf_dbg_fpath_separator()).base(),\
 	pathname.end());\
 	fprintf(stderr, _cpf_debug_pre_str, __DATE__, __TIME__, fname.c_str(), __LINE__, __FUNCTION__); \
-	}while (0);\
-c_printf(stderr, format, ##__VA_ARGS__);
-*/
+
+#define c_fprintf_dbg(strm, format, ...) \
+	do{\
+	__print_stat_str \
+	c_fprintf(strm, format, ##__VA_ARGS__);\
+	}while (0);
 
 #define c_printf_dbg(format, ...) \
+	c_fprintf_dbg(stderr, format, ##__VA_ARGS__)
+
+#define c_fprintf_t_dbg(strm, format, tup) \
 	do{\
-	fprintf(stderr, _cpf_debug_pre_str, __DATE__, __TIME__, __FILE__, __LINE__, __FUNCTION__); \
-	c_printf(stderr, format, ##__VA_ARGS__);\
-	}while (0);
+	__print_stat_str \
+	c_fprintf_t(strm, format, tup); \
+	} while (0);\
+
+#define c_printf_t_dbg(format, ...) \
+	c_fprintf_t_dbg(stderr, format, ##__VA_ARGS__);
 
 #else
 
-#define debug_c_printf(format, ...) /*do nothing*/
+/*do nothing*/
+#define c_fprintf_dbg(strm, format, ...) 
+
+#define c_printf_dbg(format, ...) 
+
+#define c_fprintf_t_dbg(strm, format, ...) 
+
+#define c_printf_t_dbg(format, ...) 
 
 #endif
 
