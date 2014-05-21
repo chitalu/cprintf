@@ -1,0 +1,28 @@
+/*
+	c_printf is an umbrella name used to encapsulate a group of C++(11/0x) 
+	language functions for extended formatted-printing. 
+	The project aims to provide a thin auxiallary layer atop that of fprintf.
+	Most functionality works, in much a similar manner to that of its patternal
+	counter-part(s)	i.e printf, fprintf etc. 
+
+	Aside from guarranteed type-safety (unlike that of it predecesors) 
+	c_printf also introduces the feature of colour token specification. 
+	With this, users are able to specify, as part of the format string, the 
+	colour of all or some of the format-string-text within console output. 
+	Alongside this is also the addition of map tokens which enable users the 
+	ability to map specific strings with certain token value(s).
+
+	Extending on the use of variadic arguments, c_printf also permits users
+	the ability to opt for the use of a Tuple object which then acts as a 
+	container for the to-be-printed arguments ordered in correspondence with 
+	the argument layout as specified within the format string. 
+
+	If colour configuration is enabled, the function will throw a _cpf_err 
+	exception on condition that an invalid token is encountered on parsing. In 
+	the case that a user opts to use features which are not available for a 
+	platform (or terminal), the function produce one or more of the following:
+
+	-	the format string may remain unchanged. 
+	-	cause an an exception to be thrown.
+	-	produce undefined output to specifed stream
+*/
