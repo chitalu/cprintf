@@ -241,45 +241,26 @@ void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
 				std::forward<Ts>(normalize_arg(args))...);
 }
 
-struct C_PrintF 
-{
-	template<typename... Ts>
-	static void operator()(	_cpf_types::stream strm, const char* format, Ts... args)
-	{
-	}
-};
-
-template <typename F, typename ...Ts>
-apply_tuple(???) 
-{
-	F::operator()<Ts...>(???);
-}
-
 template<typename... Ts>
 void c_printf_t(_cpf_types::stream strm, const char* format, std::tuple<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
-	//apply_tuple(c_printf<std::tuple_element<0, decltype(args_tup)>::type>, std::forward<decltype(args_tup)>(args_tup));
-	//apply_tuple(c_printf<int>, call_args);
-	apply_tuple(C_PrintF, call_args);
+	
+	apply_tuple(c_printf<Ts...>, call_args);
 
 }
 
-template<typename... Ts>
-void c_printf_ts(_cpf_types::stream strm, const char* format, Ts... args)
+static void c_printf_ts(_cpf_types::stream strm, const char* format)
 {
-	auto arg0 = std::get<0>(args);
 
-	if (sizeof...(args) > 1)
-	{
-		auto tup_concat = std::tuple_cat(arg0, std::get<1>(args));
-		c_printf_ts(strm, format, tup_concat, std::forward<Ts>(args)...);
-	}
-	else
-	{
-		c_printf_t(strm, format, arg0);
-	}
+}
+
+template<typename T0, typename... Ts>
+void c_printf_ts(_cpf_types::stream strm, const char* format, T0 arg0, Ts... args)
+{
+	
+	
 }
 
 #ifdef _DEBUG
