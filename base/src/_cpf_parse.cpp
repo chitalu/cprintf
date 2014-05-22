@@ -259,7 +259,8 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 				continue;
 			}
 			current_attrib.append({*c});
-			if (*c == attibs_str[attibs_str.size() - 1])
+			//reached last character in string...
+			if (std::distance(attibs_str.begin(), c) == (attibs_str.size() - 1) )
 			{
 				subseq_str_attribs.push_back(current_attrib);
 			}
@@ -270,7 +271,7 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 			prefix_pos, 
 			std::make_pair(
 				subseq_str_attribs, 
-				_src_format.substr(suffix_pos + 1, next_prefix_pos))));
+				_src_format.substr(suffix_pos + 1, (next_prefix_pos - (suffix_pos + 1))))));
 	}
 
 	return meta;

@@ -5,9 +5,17 @@
 
 TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 {
-	auto t_str = "left hand side /r*] right hand side";
+	auto t_str = "left hand side /r*] right /!]hand side";
 	_CPF_OSTR_PRINT(printf("%s", t_str));
 	ASSERT_NO_THROW(c_printf(t_str));
+
+	auto t_str1 = "left hand side /#y*] right /!]hand side";
+	_CPF_OSTR_PRINT(printf("%s", t_str1));
+	ASSERT_NO_THROW(c_printf(t_str1));
+
+	auto t_str2 = "left hand side /r*] right /!]hand side";
+	_CPF_OSTR_PRINT(printf("%s", t_str2));
+	ASSERT_NO_THROW(c_printf(t_str2));
 }
 
 TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)

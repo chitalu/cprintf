@@ -1,6 +1,17 @@
 #include "_cpf_sys_colour_config.h"
 #include <assert.h>
 
+#ifdef _WIN32 //attribute
+const auto default_foreground_colour = [&]()->_cpf_types::colour
+{
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	auto a = csbi.wAttributes;
+	return static_cast<_cpf_types::colour>(a % 16);
+}();
+#else
+
+#endif
 
 _cpf_types::attributes _cpf_current_text_attribs;
 
@@ -12,8 +23,14 @@ extern "C" const _cpf_types::string_vector _cpf_std_tokens= {
 	/*dim text colour no background*/
 	"r", "g", "b", "y", "m", "c", "w",
 
+	/*dim background*/
+	"#r", "#g", "#b", "#y", "#m", "#c", "#w",
+
 	/*bright text colour no background*/
 	"r*", "g*", "b*", "y*", "m*", "c*", "w*",
+
+	/*bright background*/
+	"#r*", "#g*", "#b*", "#y*", "#m*", "#c*", "#w*",
 
 	/*dim text and background colour*/
 	"rr", "rb", "rg", "ry", "rm", "rc", "rw", /*red*/
@@ -71,6 +88,9 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	},
 
 	/*red*/
+	{ "#r", (default_foreground_colour | _cpf_Rb) },
+	{ "#r*", (default_foreground_colour | _cpf_Rb | _cpf_bgi) },
+
 	{ "r", (_cpf_Rf) },
 	{ "r*", (_cpf_Rf | _cpf_fgi) },
 
@@ -107,6 +127,8 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "r*w*", ((_cpf_Rf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*green*/
+	{ "#g", (default_foreground_colour | _cpf_Gb) },
+	{ "#g*", (default_foreground_colour | _cpf_Gb | _cpf_bgi) },
 
 	{ "g", (_cpf_Gf) },
 	{ "g*", (_cpf_Gf | _cpf_fgi) },
@@ -144,6 +166,8 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "g*w*", ((_cpf_Gf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*blue*/
+	{ "#b", (default_foreground_colour | _cpf_Gb) },
+	{ "#b*", (default_foreground_colour | _cpf_Gb | _cpf_bgi) },
 
 	{ "b", (_cpf_Bf) },
 	{ "b*", (_cpf_Bf | _cpf_fgi) },
@@ -181,6 +205,8 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "b*w*", ((_cpf_Bf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*yellow*/
+	{ "#y", (default_foreground_colour | (_cpf_Rb | _cpf_Gb)) },
+	{ "#y*", (default_foreground_colour | (_cpf_Rb | _cpf_Gb) | _cpf_bgi) },
 
 	{ "y", (_cpf_Rf | _cpf_Gf) },
 	{ "y*", ((_cpf_Rf | _cpf_Gf) | _cpf_fgi) },
@@ -218,6 +244,8 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "y*w*", (((_cpf_Rf | _cpf_Gf) | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*magenta*/
+	{ "#m", (default_foreground_colour | (_cpf_Rb | _cpf_Bb)) },
+	{ "#m*", (default_foreground_colour | (_cpf_Rb | _cpf_Bb) | _cpf_bgi) },
 
 	{ "m", (_cpf_Rf | _cpf_Bf) },
 	{ "m*", (_cpf_Rf | _cpf_Bf | _cpf_fgi) },
@@ -255,6 +283,8 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "m*w*", ((_cpf_Rf | _cpf_Bf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*cyan*/
+	{ "#c", (default_foreground_colour | (_cpf_Gb | _cpf_Bb)) },
+	{ "#c*", (default_foreground_colour | (_cpf_Gb | _cpf_Bb) | _cpf_bgi) },
 
 	{ "c", (_cpf_Gf | _cpf_Bf) },
 	{ "c*", (_cpf_Gf | _cpf_Bf | _cpf_fgi) },
@@ -292,9 +322,11 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 	{ "c*w*", ((_cpf_Gf | _cpf_Bf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*white*/
+	{ "#w", (default_foreground_colour | (_cpf_Rb | _cpf_Gb | _cpf_Bb)) },
+	{ "#w*", (default_foreground_colour | (_cpf_Rb | _cpf_Gb | _cpf_Bb) | _cpf_bgi) },
 
-	{ "w", ((_cpf_Rf | _cpf_Gf | _cpf_Bf | _cpf_fgi)) },
-	{ "w*", ((_cpf_Rf | _cpf_Gf | _cpf_Bf | _cpf_fgi) | _cpf_fgi) },
+	{ "w", ((_cpf_Rf | _cpf_Gf | _cpf_Bf)) },
+	{ "w*", ((_cpf_Rf | _cpf_Gf | _cpf_Bf) | _cpf_fgi) },
 
 	{ "wr", ((_cpf_Rf | _cpf_Gf | _cpf_Bf | _cpf_fgi) | _cpf_Rb) },
 	{ "wb", ((_cpf_Rf | _cpf_Gf | _cpf_Bf | _cpf_fgi) | _cpf_Bb) },
