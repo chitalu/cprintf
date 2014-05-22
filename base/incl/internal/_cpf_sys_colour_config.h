@@ -40,7 +40,7 @@
 
 #endif /*	#ifdef _WIN32	*/
 
-extern "C" _cpf_types::_string_type_ _cpf_crnt_colour_repr;
+extern "C" _cpf_types::attributes _cpf_current_text_attribs;
 extern "C" const _cpf_types::string_vector _cpf_std_tokens;
 
 extern const _cpf_types::colour_token_map _cpf_colour_token_vals;
@@ -51,10 +51,10 @@ extern const _cpf_types::string_vector _cpf_blockspace_tokens;
 	configure system terminal settings
 
 	@strm 	- output stream
-	@c_repr - colour token string used to locate corresponding value
+	@attr - attribute vector
 */
 extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::_string_type_ c_repr);
+	const _cpf_types::attributes attr);
 
 #endif /*	#ifndef _CPF__cpf_sys_colour_config_H	*/
 

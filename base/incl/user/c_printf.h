@@ -91,7 +91,7 @@ extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_types::_string_ty
 extern _cpf_types::_string_type_ _cpf_print_pre_arg_str(_cpf_types::stream strm,
 														_cpf_types::_string_type_& printed_string_,
 														std::size_t& ssp_,
-														const _cpf_types::_string_type_ c_repr);
+														const _cpf_types::attributes attr);
 
 /*
 

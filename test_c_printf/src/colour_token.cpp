@@ -3,6 +3,13 @@
 
 #include <sstream>
 
+TEST(Text_Colour_Formatting_Tokens, basic_syntax)
+{
+	auto t_str = "left hand side /r*] right hand side";
+	_CPF_OSTR_PRINT(printf("%s", t_str));
+	ASSERT_NO_THROW(c_printf(t_str));
+}
+
 TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)
 {
 	int count = 0;

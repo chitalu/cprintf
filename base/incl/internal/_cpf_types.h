@@ -24,6 +24,13 @@
 */
 extern std::uint8_t _cpf_colour_config;
 
+/*
+	flag to specify whether to automatically include a carridge-return
+	at the end of the format string or not. Default behaviour is 
+	to include.
+*/
+extern std::uint8_t _cpf_newline_config;
+
 struct _cpf_err{
 private:
 	const char* msg;
@@ -50,9 +57,11 @@ namespace _cpf_types
 {
 	typedef _cpf_err error;
 	typedef std::pair<_cpf_types::_string_type_, _cpf_types::_string_type_> str_pair;
-	typedef std::map<std::size_t, str_pair> meta_format_type;
-	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
 	typedef std::vector<_cpf_types::_string_type_> string_vector;
+	typedef string_vector attributes;
+	typedef std::map<std::size_t, std::pair<string_vector, _cpf_types::_string_type_>> meta_format_type;
+	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
+	
 	typedef FILE* stream;
 }
 

@@ -54,9 +54,9 @@ extern "C" void _cpf_load_sys_default_attribs(_cpf_types::stream strm)
 _cpf_types::_string_type_ _cpf_print_pre_arg_str(	_cpf_types::stream strm,
 													_cpf_types::_string_type_& printed_string_,
 													std::size_t& ssp_,
-													const _cpf_types::_string_type_ c_repr)
+													const _cpf_types::attributes attr)
 {
-	_cpf_config_terminal(strm, c_repr);
+	_cpf_config_terminal(strm, attr);
 
 	ssp_ = printed_string_.find_first_of("%", ssp_);
 	if (ssp_ != 0)
@@ -119,8 +119,10 @@ void _cpf_call_(
 {
 	while (msd_iter != end_point_comparator)
     {
+		auto nl =	std::distance(msd_iter, end_point_comparator) > 1 && 
+					(_cpf_newline_config == _CPF_ENABLE);
 		_cpf_config_terminal(strm, msd_iter->second.first);
-		fprintf(strm, "%s", msd_iter->second.second.c_str());
+		fprintf(strm, nl ? "%s" : "%s\n", msd_iter->second.second.c_str());
 		std::advance(msd_iter, 1);
     }
 

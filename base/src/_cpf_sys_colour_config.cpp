@@ -2,7 +2,7 @@
 #include <assert.h>
 
 
-_cpf_types::_string_type_ _cpf_crnt_colour_repr = "undef";
+_cpf_types::attributes _cpf_current_text_attribs;
 
 extern "C" const _cpf_types::string_vector _cpf_std_tokens= {
 
@@ -421,35 +421,106 @@ bool _cpf_is_fstream(_cpf_types::stream strm)
 	return is_fstream;
 }
 
+std::string get_terminal_bitmap_colour_value(const std::string& attrib_token)
+{
+	auto at_size = attrib_token.size();
+	char lst_char = attrib_token[at_size - 1];
+	auto colour_num = attrib_token.substr(0, at_size - 2);
+
+	auto int_repr = atoi(colour_num.c_str());
+	if ((lst_char != 'f' || lst_char != 'b') || at_size == 1 || (int_repr > 256 || int_repr < 0))
+	{
+		throw _cpf_err(std::string("invalid attribute token: ").append(attrib_token).c_str());
+	}
+
+	_cpf_types::_string_type_ colour_str;
+
+	if (lst_char == 'f')//foreground
+	{
+		colour_str = ("\x1B[38;5;" + colour_num + "m");
+	}
+	else if (lst_char == 'b') //background
+	{
+		colour_str = ("\x1B[48;5;" + colour_num + "m");
+	}
+
+	return colour_str;
+}
+
 extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::_string_type_ c_repr)
+	const _cpf_types::attributes attribs)
 {
 	if (_cpf_is_fstream(strm))
 	{
-		return;
+		return; //because file streams do not support colour
 	}
 
-	if (_cpf_crnt_colour_repr.compare(c_repr) != 0)
+	//i.e 32f or 200b
+	auto is_bitmap_colour_token = [&](const _cpf_types::_string_type_& attrib) ->bool
 	{
-		_cpf_crnt_colour_repr = c_repr;
-	}
+		for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
+		{
+			//if any value in the attribute is a digit
+			if (isdigit(*c))
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+
+	auto safely_get_terminal_value = [&](const std::string& colour_key)->_cpf_types::colour
+	{
+		auto terminal_value = _cpf_colour_token_vals.find(colour_key);
+		if (terminal_value == _cpf_colour_token_vals.end())
+		{
+			throw _cpf_types::error(std::string("invalid attribute token: ").append(colour_key).c_str());
+		}
+		return terminal_value->second;
+	};
+
+	if (_cpf_current_text_attribs != attribs)
+	{
+		_cpf_current_text_attribs = attribs;
+
+		for (auto a = std::begin(attribs); a != std::end(attribs); ++a)
+		{
+			auto c_repr = *a;
+
+			auto is_bmct = is_bitmap_colour_token(*a);
 
 #ifdef _WIN32
-	HANDLE hnd = nullptr;//TODO: test this for mem leaks
-	if (strm == stdout)
-	{
-		hnd = GetStdHandle(STD_OUTPUT_HANDLE);
-	}
-	else if (strm == stderr)
-	{
-		hnd = GetStdHandle(STD_ERROR_HANDLE);
-	}
-	assert(hnd != nullptr);
-	SetConsoleTextAttribute(hnd, _cpf_colour_token_vals.find(c_repr)->second);
-#else
-	fprintf(strm,
-		"%s",
-		_cpf_colour_token_vals.find(_cpf_crnt_colour_repr)->second.c_str());
+			if (is_bmct)
+			{
+				//because windows does not support that.
+				continue;
+			}
 
+			HANDLE hnd = nullptr;
+			if (strm == stdout)
+			{
+				hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+			}
+			else if (strm == stderr)
+			{
+				hnd = GetStdHandle(STD_ERROR_HANDLE);
+			}
+			assert(hnd != nullptr);
+			SetConsoleTextAttribute(hnd, safely_get_terminal_value(c_repr));
+#else
+			std::string fstr;
+
+			if(is_bmct)
+			{
+				fstr = get_terminal_bitmap_colour_value(c_repr);
+			}
+			else
+			{
+				fstr = safely_get_terminal_value(c_repr);
+			}
+
+			fprintf(strm, "%s",	fstr.c_str());
 #endif
+		}
+	}
 }
