@@ -5,7 +5,9 @@
 
 TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 {
-	auto t_str = "left hand side /r*] right /!]hand side";
+	c_printf("%d this /y*]is %s edd", 28, "floyd");
+
+	auto t_str = "left hand side /r*] right hand side";
 	_CPF_OSTR_PRINT(printf("%s", t_str));
 	ASSERT_NO_THROW(c_printf(t_str));
 
@@ -16,6 +18,10 @@ TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 	auto t_str2 = "left hand side /r*] right /!]hand side";
 	_CPF_OSTR_PRINT(printf("%s", t_str2));
 	ASSERT_NO_THROW(c_printf(t_str2));
+
+	auto t_str3 = "left hand side /32&] right /!]hand side";
+	_CPF_OSTR_PRINT(printf("%s", t_str3));
+	ASSERT_NO_THROW(c_printf(t_str3));
 }
 
 TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)

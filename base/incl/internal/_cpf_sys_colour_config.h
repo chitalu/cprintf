@@ -54,7 +54,7 @@ extern const _cpf_types::string_vector _cpf_blockspace_tokens;
 	@attr - attribute vector
 */
 extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::attributes attr);
+	const _cpf_types::attributes& attr);
 
 #endif /*	#ifndef _CPF__cpf_sys_colour_config_H	*/
 

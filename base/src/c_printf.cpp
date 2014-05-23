@@ -26,37 +26,15 @@ extern "C" std::size_t _cpf_get_num_arg_specifiers(
 	return n;
 }
 
-extern "C" void _cpf_store_sys_default_attribs(_cpf_types::stream strm)
-{
-	if (_cpf_default_sys_attribs == SYSTXTATTIB_UNDEF)
-	{
-#ifdef _WIN32
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(strm, &csbi);
-		auto a = csbi.wAttributes;
-		_cpf_default_sys_attribs = static_cast<_cpf_types::colour>(a % 16);
-#else
-		/*TODO:*/
-#endif
-	}
-}
-
-extern "C" void _cpf_load_sys_default_attribs(_cpf_types::stream strm)
-{
-#ifdef _WIN32
-	SetConsoleTextAttribute(strm, _cpf_default_sys_attribs);
-#else
-	fprintf(strm, "\x1B[0m");
-	
-#endif
-}
-
 _cpf_types::_string_type_ _cpf_print_pre_arg_str(	_cpf_types::stream strm,
 													_cpf_types::_string_type_& printed_string_,
 													std::size_t& ssp_,
 													const _cpf_types::attributes attr)
 {
-	_cpf_config_terminal(strm, attr);
+	if (_cpf_colour_config == _CPF_ENABLE)
+	{
+		_cpf_config_terminal(strm, attr);
+	}
 
 	ssp_ = printed_string_.find_first_of("%", ssp_);
 	if (ssp_ != 0)
@@ -96,7 +74,10 @@ void _cpf_print_non_arg_str(_cpf_types::stream strm,
 							std::size_t& ssp_,
 							_cpf_types::meta_format_type::const_iterator &msd_iter)
 {
-	_cpf_config_terminal(strm, msd_iter->second.first);
+	if (_cpf_colour_config == _CPF_ENABLE)
+	{
+		_cpf_config_terminal(strm, msd_iter->second.first);
+	}
 
 	ssp_ = 0;
 	fprintf(strm, "%s", printed_string_.c_str());
@@ -104,7 +85,10 @@ void _cpf_print_non_arg_str(_cpf_types::stream strm,
 
 	while (_cpf_get_num_arg_specifiers(msd_iter->second.second, "%") == 0)
 	{
-		_cpf_config_terminal(strm, msd_iter->second.first);
+		if (_cpf_colour_config == _CPF_ENABLE)
+		{
+			_cpf_config_terminal(strm, msd_iter->second.first);
+		}
 		fprintf(strm, "%s", msd_iter->second.second.c_str());
 		std::advance(msd_iter, 1);
 	}
@@ -121,10 +105,17 @@ void _cpf_call_(
     {
 		auto nl =	std::distance(msd_iter, end_point_comparator) > 1 && 
 					(_cpf_newline_config == _CPF_ENABLE);
-		_cpf_config_terminal(strm, msd_iter->second.first);
+		if (_cpf_colour_config == _CPF_ENABLE)
+		{
+			_cpf_config_terminal(strm, msd_iter->second.first);
+		}
 		fprintf(strm, nl ? "%s" : "%s\n", msd_iter->second.second.c_str());
 		std::advance(msd_iter, 1);
     }
 
-	_cpf_load_sys_default_attribs(strm);
+	/*restore defaults*/
+	if (_cpf_colour_config == _CPF_ENABLE)
+	{
+		_cpf_config_terminal(strm, msd_iter->second.first);
+	}
 }

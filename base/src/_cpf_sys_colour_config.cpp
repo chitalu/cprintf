@@ -460,7 +460,7 @@ std::string get_terminal_bitmap_colour_value(const std::string& attrib_token)
 	auto colour_num = attrib_token.substr(0, at_size - 2);
 
 	auto int_repr = atoi(colour_num.c_str());
-	if ((lst_char != 'f' || lst_char != 'b') || at_size == 1 || (int_repr > 256 || int_repr < 0))
+	if ((lst_char != 'f' || lst_char != 'b' || lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 	{
 		throw _cpf_err(std::string("invalid attribute token: ").append(attrib_token).c_str());
 	}
@@ -475,12 +475,16 @@ std::string get_terminal_bitmap_colour_value(const std::string& attrib_token)
 	{
 		colour_str = ("\x1B[48;5;" + colour_num + "m");
 	}
+	else // "43&"
+	{
+		colour_str = ("\x1B[38;5;" + colour_num + "m\x1B[48;5;" + colour_num + "m");
+	}
 
 	return colour_str;
 }
 
 extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::attributes attribs)
+	const _cpf_types::attributes& attribs)
 {
 	if (_cpf_is_fstream(strm))
 	{

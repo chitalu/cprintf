@@ -77,8 +77,6 @@ decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 	return	_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{});
 }
 
-extern "C" void _cpf_store_sys_default_attribs(_cpf_types::stream strm);
-
 /*
 
 */
@@ -194,11 +192,6 @@ void c_printf(	_cpf_types::stream strm, const char* format, Ts... args)
 	auto meta_str_data = _cpf_process_format_string(format);
 	auto tsd_iter_begin = meta_str_data.cbegin();
 	auto tsd_iter_end_point_comparator = meta_str_data.cend();
-
-	if (_cpf_colour_config == _CPF_ENABLE)
-	{
-		_cpf_store_sys_default_attribs(strm);
-	}
 	
 	_cpf_call_(	strm,
 				tsd_iter_end_point_comparator,
@@ -221,11 +214,6 @@ void c_fprintf(_cpf_types::stream strm, const char* format, Ts... args)
 	auto meta_str_data = _cpf_process_format_string(format);
 	auto tsd_iter_begin = meta_str_data.cbegin();
 	auto tsd_iter_end_point_comparator = meta_str_data.cend();
-
-	if (_cpf_colour_config == _CPF_ENABLE)
-	{
-		_cpf_store_sys_default_attribs(strm);
-	}
 
 	_cpf_call_(strm,
 		tsd_iter_end_point_comparator,
