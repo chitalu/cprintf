@@ -5,23 +5,55 @@
 
 TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 {
-	c_printf("%d this /y*]is %s edd", 28, "floyd");
+	try
+	{
 
-	auto t_str = "left hand side /r*] right hand side";
-	_CPF_OSTR_PRINT(printf("%s", t_str));
-	ASSERT_NO_THROW(c_printf(t_str));
+		c_printf("%d this /y*]is %s edd", 28, "floyd");
 
-	auto t_str1 = "left hand side /#y*] right /!]hand side";
-	_CPF_OSTR_PRINT(printf("%s", t_str1));
-	ASSERT_NO_THROW(c_printf(t_str1));
+		auto t_str = "left hand side /r*] right hand side";
+		_CPF_OSTR_PRINT(printf("%s", t_str));
+		ASSERT_NO_THROW(c_printf(t_str));
 
-	auto t_str2 = "left hand side /r*] right /!]hand side";
-	_CPF_OSTR_PRINT(printf("%s", t_str2));
-	ASSERT_NO_THROW(c_printf(t_str2));
+		auto t_str1 = "left hand side /#y*] right /!]hand side";
+		_CPF_OSTR_PRINT(printf("%s", t_str1));
+		ASSERT_NO_THROW(c_printf(t_str1));
 
-	auto t_str3 = "left hand side /32&] right /!]hand side";
-	_CPF_OSTR_PRINT(printf("%s", t_str3));
-	ASSERT_NO_THROW(c_printf(t_str3));
+		auto t_str2 = "left hand side /r*] right /!]hand side";
+		_CPF_OSTR_PRINT(printf("%s", t_str2));
+		ASSERT_NO_THROW(c_printf(t_str2));
+
+		auto t_str3 = "left hand side /32&] right /!]hand side";
+		_CPF_OSTR_PRINT(printf("%s", t_str3));
+		ASSERT_NO_THROW(c_printf(t_str3));
+	}
+	catch (_cpf_types::error& e)
+	{
+		printf("%s", e.what());
+		e;
+	}
+}
+
+TEST(Text_Colour_Formatting_Tokens, basic_mapping_syntax)
+{
+	try
+	{
+		auto t_str = "%d is /$first `;argument;second;foo|r*;#c*;b*] the first ;argument. %s is the second. now changing to foo";
+		_CPF_OSTR_PRINT(printf("%s", t_str, 28, "floyd"));
+		ASSERT_NO_THROW(c_printf(t_str, 28, "floyd"));
+
+		auto t_str1 = "%d is `/$first;second;foo|g*] the first argument. %s is the second. now changing to foo";
+		_CPF_OSTR_PRINT(printf("%s", t_str1, 28, "floyd"));
+		ASSERT_NO_THROW(c_printf(t_str1, 28, "floyd"));
+
+		auto t_str2 = "escape chars `/!] hello";
+		_CPF_OSTR_PRINT(printf("%s", t_str2));
+		ASSERT_NO_THROW(c_printf(t_str2));
+	}
+	catch (_cpf_types::error& e)
+	{
+		printf("%s", e.what());
+		e;
+	}
 }
 
 TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)

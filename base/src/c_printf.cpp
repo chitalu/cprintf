@@ -116,6 +116,6 @@ void _cpf_call_(
 	/*restore defaults*/
 	if (_cpf_colour_config == _CPF_ENABLE)
 	{
-		_cpf_config_terminal(strm, msd_iter->second.first);
+		_cpf_config_terminal(strm, _cpf_types::string_vector({"!"}));
 	}
 }
