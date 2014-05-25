@@ -1,5 +1,6 @@
 #include "c_printf.h"
 #include "_cpf_sys_colour_config.h"
+#include "_cpf_find.h"
 
 /*text attributes before a call was made to c_printf*/
 _cpf_types::colour _cpf_default_sys_attribs = SYSTXTATTIB_UNDEF;
@@ -18,7 +19,7 @@ extern "C" std::size_t _cpf_get_num_arg_specifiers(
 {
 	std::size_t n = 0;
 	_cpf_types::_string_type_::size_type pos = 0;
-	while ((pos = obj.find(target, pos)) != _cpf_types::_string_type_::npos)
+	while ((pos = _cpf_find(target, obj, pos, '%')) != _cpf_types::_string_type_::npos)
 	{
 		n++;
 		pos += target.size();

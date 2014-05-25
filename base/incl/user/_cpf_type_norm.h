@@ -5,14 +5,14 @@
 #include <type_traits>
 
 template<class T>
-typename std::enable_if<std::is_integral<T>::value, long>::type
+typename std::enable_if<std::is_integral<T>::value, T>::type
 normalize_arg(const T arg)
 {
 	return arg;
 }
 
 template<class T>
-typename std::enable_if<std::is_floating_point<T>::value, double>::type
+typename std::enable_if<std::is_floating_point<T>::value, T>::type
 normalize_arg(const T arg)
 {
 	return arg;

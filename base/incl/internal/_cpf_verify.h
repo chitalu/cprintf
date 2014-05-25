@@ -41,7 +41,7 @@ _cpf_verify(const char* format, const T& farg, const Ts&&... args)
 			printf("warning: unsupported formatter: %c\n", f);
 			break;
 		}
-		return check_printf(++format, args...);
+		return _cpf_verify(++format, std::forward<Ts>(args)...);
 	}
 
 	throw _cpf_types::error("Too few format specifiers.");

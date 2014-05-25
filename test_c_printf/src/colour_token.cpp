@@ -37,6 +37,7 @@ TEST(Text_Colour_Formatting_Tokens, basic_mapping_syntax)
 {
 	try
 	{
+		c_printf_dbg("test debug");
 		auto t_str = "%d is /$first `;argument;second;foo|r*;#c*;b*] the first ;argument. %s is the second. now changing to foo";
 		_CPF_OSTR_PRINT(printf("%s", t_str, 28, "floyd"));
 		ASSERT_NO_THROW(c_printf(t_str, 28, "floyd"));

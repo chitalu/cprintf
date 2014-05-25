@@ -14,7 +14,7 @@
 std::uint8_t _cpf_colour_config = _CPF_ENABLE;
 std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
-const std::string esc_seqs[] = { "`/", "`]", "`/$", "`|", "`;" };
+const std::string esc_seqs[] = { "`/", "`]", "`/$", "`|", "`;", "``" };
 
 
 void str_replace(std::string& subject, const std::string& search, const std::string& replace)
