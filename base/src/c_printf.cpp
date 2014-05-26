@@ -3,23 +3,15 @@
 #include "_cpf_find.h"
 
 /*text attributes before a call was made to c_printf*/
-_cpf_types::colour _cpf_default_sys_attribs = SYSTXTATTIB_UNDEF;
-
-void _cpf_except_on_condition(bool condition, std::string _err_msg)
-{
-	if (condition == true)
-	{
-		throw std::invalid_argument(_err_msg);
-	}
-}
+_cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTIB_UNDEF;
 
 extern "C" std::size_t _cpf_get_num_arg_specifiers(
-	const _cpf_types::_string_type_ & obj, 
-	const _cpf_types::_string_type_ & target)
+	const _cpf_type::str & obj, 
+	const _cpf_type::str & target)
 {
 	std::size_t n = 0;
-	_cpf_types::_string_type_::size_type pos = 0;
-	while ((pos = _cpf_find(target, obj, pos, '%')) != _cpf_types::_string_type_::npos)
+	_cpf_type::str::size_type pos = 0;
+	while ((pos = _cpf_find(target, obj, pos, '%')) != _cpf_type::str::npos)
 	{
 		n++;
 		pos += target.size();
@@ -27,10 +19,10 @@ extern "C" std::size_t _cpf_get_num_arg_specifiers(
 	return n;
 }
 
-_cpf_types::_string_type_ _cpf_print_pre_arg_str(	_cpf_types::stream strm,
-													_cpf_types::_string_type_& printed_string_,
+_cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
+													_cpf_type::str& printed_string_,
 													std::size_t& ssp_,
-													const _cpf_types::attributes attr)
+													const _cpf_type::attribs attr)
 {
 	if (_cpf_colour_config == _CPF_ENABLE)
 	{
@@ -49,11 +41,11 @@ _cpf_types::_string_type_ _cpf_print_pre_arg_str(	_cpf_types::stream strm,
 	return fstr;
 }
 
-void _cpf_print_post_arg_str(	_cpf_types::stream strm,
-								_cpf_types::_string_type_& printed_string_,
+void _cpf_print_post_arg_str(	_cpf_type::stream strm,
+								_cpf_type::str& printed_string_,
 								std::size_t& ssp_,
 								bool &more_args_on_iter,
-								_cpf_types::meta_format_type::const_iterator &msd_iter)
+								_cpf_type::meta_format_type::const_iterator &msd_iter)
 {
 	printed_string_ = printed_string_.substr(ssp_);
 	ssp_ = 0;
@@ -70,10 +62,10 @@ void _cpf_print_post_arg_str(	_cpf_types::stream strm,
 	}
 }
 
-void _cpf_print_non_arg_str(_cpf_types::stream strm,
-							_cpf_types::_string_type_& printed_string_,
+void _cpf_print_non_arg_str(_cpf_type::stream strm,
+							_cpf_type::str& printed_string_,
 							std::size_t& ssp_,
-							_cpf_types::meta_format_type::const_iterator &msd_iter)
+							_cpf_type::meta_format_type::const_iterator &msd_iter)
 {
 	if (_cpf_colour_config == _CPF_ENABLE)
 	{
@@ -96,10 +88,10 @@ void _cpf_print_non_arg_str(_cpf_types::stream strm,
 }
 
 void _cpf_call_(	
-	_cpf_types::stream strm,
-	const _cpf_types::meta_format_type::const_iterator &end_point_comparator,
-	_cpf_types::meta_format_type::const_iterator &msd_iter,
-	const _cpf_types::_string_type_ printed_string="",
+	_cpf_type::stream strm,
+	const _cpf_type::meta_format_type::const_iterator &end_point_comparator,
+	_cpf_type::meta_format_type::const_iterator &msd_iter,
+	const _cpf_type::str printed_string="",
 	const std::size_t search_start_pos=0)
 {
 	while (msd_iter != end_point_comparator)
@@ -117,6 +109,6 @@ void _cpf_call_(
 	/*restore defaults*/
 	if (_cpf_colour_config == _CPF_ENABLE)
 	{
-		_cpf_config_terminal(strm, _cpf_types::string_vector({"!"}));
+		_cpf_config_terminal(strm, _cpf_type::str_vec({"!"}));
 	}
 }

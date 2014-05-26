@@ -2,20 +2,20 @@
 #include <assert.h>
 
 #ifdef _WIN32 //attribute
-const auto default_foreground_colour = [&]()->_cpf_types::colour
+const auto default_foreground_colour = [&]()->_cpf_type::colour
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 	auto a = csbi.wAttributes;
-	return static_cast<_cpf_types::colour>(a % 16);
+	return static_cast<_cpf_type::colour>(a % 16);
 }();
 #else
 
 #endif
 
-_cpf_types::attributes _cpf_current_text_attribs;
+_cpf_type::attribs _cpf_current_text_attribs;
 
-extern "C" const _cpf_types::string_vector _cpf_std_tokens= {
+extern "C" const _cpf_type::str_vec _cpf_std_tokens= {
 
 	/*default*/
 	"!",
@@ -76,14 +76,14 @@ extern "C" const _cpf_types::string_vector _cpf_std_tokens= {
 
 #ifdef _WIN32
 
-const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_token_vals{
+const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	/*default*/
-	{ "!",	[&]()->_cpf_types::colour
+	{ "!",	[&]()->_cpf_type::colour
 			{
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
 				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 				auto a = csbi.wAttributes;
-				return static_cast<_cpf_types::colour>(a % 16);
+				return static_cast<_cpf_type::colour>(a % 16);
 			}()
 	},
 
@@ -367,7 +367,7 @@ const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
 //http://misc.flogisoft.com/bash/tip_colors_and_formatting
-extern const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_colour_token_vals{
+extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 
 	/*attributes specifiers*/
 	{	"bld", 		"\x1B[1m"},
@@ -439,7 +439,7 @@ extern const std::map<const _cpf_types::_string_type_, _cpf_types::colour> _cpf_
 
 #endif /*#ifdef _WIN32*/
 
-bool _cpf_is_fstream(_cpf_types::stream strm)
+bool _cpf_is_fstream(_cpf_type::stream strm)
 {
 	bool is_fstream = true;
 	for (auto s : { stdout, stderr })
@@ -453,19 +453,19 @@ bool _cpf_is_fstream(_cpf_types::stream strm)
 	return is_fstream;
 }
 
-std::string get_terminal_bitmap_colour_value(const std::string& attrib_token)
+_cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_token)
 {
 	auto at_size = attrib_token.size();
 	char lst_char = attrib_token[at_size - 1];
 	auto colour_num = attrib_token.substr(0, at_size - 2);
 
 	auto int_repr = atoi(colour_num.c_str());
-	if ((lst_char != 'f' || lst_char != 'b' || lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
+	if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 	{
-		throw _cpf_err(std::string("invalid attribute token: ").append(attrib_token).c_str());
+		throw _cpf_err(_cpf_type::str("invalid attribute token: ").append(attrib_token).c_str());
 	}
 
-	_cpf_types::_string_type_ colour_str;
+	_cpf_type::str colour_str;
 
 	if (lst_char == 'f')//foreground
 	{
@@ -483,8 +483,8 @@ std::string get_terminal_bitmap_colour_value(const std::string& attrib_token)
 	return colour_str;
 }
 
-extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::attributes& attribs)
+extern "C" void _cpf_config_terminal(_cpf_type::stream strm,
+	const _cpf_type::attribs& attribs)
 {
 	if (_cpf_is_fstream(strm))
 	{
@@ -492,7 +492,7 @@ extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
 	}
 
 	//i.e 32f or 200b
-	auto is_bitmap_colour_token = [&](const _cpf_types::_string_type_& attrib) ->bool
+	auto is_bitmap_colour_token = [&](const _cpf_type::str& attrib) ->bool
 	{
 		for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
 		{
@@ -505,12 +505,12 @@ extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
 		return false;
 	};
 
-	auto safely_get_terminal_value = [&](const std::string& colour_key)->_cpf_types::colour
+	auto safely_get_terminal_value = [&](const _cpf_type::str& colour_key)->_cpf_type::colour
 	{
-		auto terminal_value = _cpf_colour_token_vals.find(colour_key);
-		if (terminal_value == _cpf_colour_token_vals.end())
+		auto terminal_value = _cpf_std_token_vals.find(colour_key);
+		if (terminal_value == _cpf_std_token_vals.end())
 		{
-			throw _cpf_types::error(std::string("invalid attribute token: ").append(colour_key).c_str());
+			throw _cpf_type::error(_cpf_type::str("invalid attribute token: ").append(colour_key).c_str());
 		}
 		return terminal_value->second;
 	};
@@ -544,7 +544,7 @@ extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
 			assert(hnd != nullptr);
 			SetConsoleTextAttribute(hnd, safely_get_terminal_value(c_repr));
 #else
-			std::string fstr;
+			_cpf_type::str fstr;
 
 			if(is_bmct)
 			{

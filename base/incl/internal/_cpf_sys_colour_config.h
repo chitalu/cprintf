@@ -1,5 +1,5 @@
-#ifndef _CPF__cpf_sys_colour_config_H
-#define _CPF__cpf_sys_colour_config_H
+#ifndef _CPF_SYS_COLOUR_CONFIG_H
+#define _CPF_SYS_COLOUR_CONFIG_H
 
 #include "_cpf_common.h"
 
@@ -40,23 +40,23 @@
 
 #endif /*	#ifdef _WIN32	*/
 
-extern "C" _cpf_types::attributes _cpf_current_text_attribs;
-extern "C" const _cpf_types::string_vector _cpf_std_tokens;
+extern "C" _cpf_type::attribs _cpf_current_text_attribs;
+extern "C" const _cpf_type::str_vec _cpf_std_tokens;
 
-extern const _cpf_types::colour_token_map _cpf_colour_token_vals;
-extern "C" const _cpf_types::string_vector _cpf_std_tokens;
-extern const _cpf_types::string_vector _cpf_blockspace_tokens;
+/*
+	tokens available on both windows and linux
+*/
+extern const _cpf_type::colour_token_map _cpf_std_token_vals;
 
 /*
 	configure system terminal settings
 
 	@strm 	- output stream
-	@attr - attribute vector
+	@attr - text attribute vector
 */
-extern "C" void _cpf_config_terminal(_cpf_types::stream strm,
-	const _cpf_types::attributes& attr);
-
-#endif /*	#ifndef _CPF__cpf_sys_colour_config_H	*/
+extern "C" void _cpf_config_terminal(	_cpf_type::stream strm,
+										const _cpf_type::attribs& attr);
+#endif /*	#ifndef _CPF_SYS_COLOUR_CONFIG_H	*/
 
 /*
 
@@ -95,10 +95,3 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 	"/$mystring1;mystring2|r;b!]"\
 	"/$mystring1;mystring2|g!]"\
 	"/$mystring1;mystring2|bld.r;b!]"
-
-/*
-parsing steps
-2. sub-string tag parse
-3. full spectrm colour token parse (#34f;28b)
-4. attibs-fsc parse
-*/

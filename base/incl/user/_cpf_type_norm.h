@@ -1,7 +1,7 @@
 #ifndef _CPF_TYPE_NORM_H
 #define _CPF_TYPE_NORM_H
 
-#include <string>
+#include "_cpf_type.h"
 #include <type_traits>
 
 template<class T>
@@ -25,6 +25,6 @@ normalize_arg(const T arg)
 	return arg;
 }
 
-extern const char* normalize_arg(const std::string& arg);
+extern _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
 
 #endif

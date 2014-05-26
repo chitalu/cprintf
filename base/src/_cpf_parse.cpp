@@ -4,8 +4,6 @@
 #include <cstdio>
 #include <stdlib.h>     /* atoi */
 #include <algorithm>
-#include <sstream>
-#include <array>
 
 #define _CPF_MAP_TOKEN_PREFIX "/$"
 #define _CPF_TOKEN_PREFIX "/"
@@ -14,20 +12,20 @@
 std::uint8_t _cpf_colour_config = _CPF_ENABLE;
 std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
-const std::string esc_seqs[] = { "`/", "`]", "`/$", "`|", "`;", "``" };
+const _cpf_type::str esc_seqs[] = { "`/", "`]", "`/$", "`|", "`;", "``" };
 
 
-void str_replace(std::string& subject, const std::string& search, const std::string& replace)
+void str_replace(_cpf_type::str& subject, const _cpf_type::str& search, const _cpf_type::str& replace)
 {
 	size_t pos = 0;
-	while ((pos = _cpf_find(search, subject, pos)) != std::string::npos)
+	while ((pos = _cpf_find(search, subject, pos)) != _cpf_type::str::npos)
 	{
 		subject.replace(pos, search.length(), replace);
 		pos += replace.length();
 	}
 }
 
-void purge_str_esc_sequences(std::string &src)
+void purge_str_esc_sequences(_cpf_type::str &src)
 {
 	for (auto &es : esc_seqs)
 	{
@@ -36,10 +34,10 @@ void purge_str_esc_sequences(std::string &src)
 }
 
 //	/$mystring1;mystring2|bld.r;b!]
-std::map<std::string, std::string>
-extract_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
+std::map<_cpf_type::str, _cpf_type::str>
+extract_map_token_values(const _cpf_type::str_pair str_frmt_pairs)
 {
-	auto get_num_semi_colons = [&](const std::string &src)-> std::size_t
+	auto get_num_semi_colons = [&](const _cpf_type::str &src)-> std::size_t
 	{
 		std::size_t p = 0, occur = 0, off =0;
 		while ((p = _cpf_find(";", src, off)) != src.npos)
@@ -51,7 +49,7 @@ extract_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 		return occur;
 	};
 
-	std::map<std::string, std::string> out_meta;
+	std::map<_cpf_type::str, _cpf_type::str> out_meta;
 	auto strings_str = str_frmt_pairs.first;
 	auto frmts_str = str_frmt_pairs.second;
 
@@ -62,8 +60,10 @@ extract_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 	auto num_fstrings = get_num_semi_colons(frmts_str);
 	num_fstrings += 1;
 
-	_cpf_except_on_condition((num_strings != num_fstrings && num_fstrings != 1),
-		"syntax error: key-value pair mismatch");
+	if (num_strings != num_fstrings && num_fstrings != 1)
+	{
+		throw _cpf_type::error("syntax error: key-value pair mismatch");
+	}
 
 	//mystring1;mystring2;mystring3
 	//
@@ -97,10 +97,10 @@ extract_map_token_values(const _cpf_types::str_pair str_frmt_pairs)
 	return out_meta;
 }
 
-_cpf_types::_string_type_ _cpf_map_token_parse(
-	const _cpf_types::_string_type_ &src_format)
+_cpf_type::str _cpf_map_token_parse(
+	const _cpf_type::str &src_format)
 {
-	_cpf_types::_string_type_	output_format_str;
+	_cpf_type::str	output_format_str;
 	std::size_t token_suffix_pos = 0, 
 				token_start_pos = 0;
 	bool on_first_iteration = true;
@@ -132,7 +132,7 @@ _cpf_types::_string_type_ _cpf_map_token_parse(
 
 		if (token_suffix_pos == src_format.npos)
 		{
-			throw _cpf_types::error("invalid map token: suffix not found");
+			throw _cpf_type::error("invalid map token: suffix not found");
 		}
 
 		/*... if there is one*/
@@ -143,9 +143,9 @@ _cpf_types::_string_type_ _cpf_map_token_parse(
 		auto pipe_char_pos = _cpf_find("|", raw_token);
 		if (pipe_char_pos == raw_token.npos)
 		{
-			throw _cpf_types::error("invalid map token: key-value pair delimiter '|' is missing");
+			throw _cpf_type::error("invalid map token: key-value pair delimiter '|' is missing");
 		}
-		_cpf_types::str_pair map_string(
+		_cpf_type::str_pair map_string(
 			raw_token.substr(0, pipe_char_pos),
 			raw_token.substr(pipe_char_pos + 1));
 
@@ -159,7 +159,7 @@ _cpf_types::_string_type_ _cpf_map_token_parse(
 		for (auto &i : parsed_meta_tokens)
 		{
 			auto str_to_repl = i.first;
-			_cpf_types::_string_type_ repl_str;
+			_cpf_type::str repl_str;
 
 			//reserve enough space for the number of character to be appended
 			repl_str.reserve(5 + i.second.size() + str_to_repl.size());
@@ -181,7 +181,7 @@ _cpf_types::_string_type_ _cpf_map_token_parse(
 	}
 }
 
-void purge_meta_esc_sequences(_cpf_types::meta_format_type& meta)
+void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
 {
 	for (auto &e : meta)
 	{
@@ -191,26 +191,26 @@ void purge_meta_esc_sequences(_cpf_types::meta_format_type& meta)
 	encountered_esc_seq_on_parse = false;
 }
 
-_cpf_types::meta_format_type _cpf_process_format_string(
-	const _cpf_types::_string_type_ &src_format)
+_cpf_type::meta_format_type _cpf_process_format_string(
+	const _cpf_type::str &src_format)
 {
-	_cpf_types::meta_format_type meta;
+	_cpf_type::meta_format_type meta;
 
 	if (_cpf_colour_config == _CPF_DISABLE)
 	{
-		_cpf_types::string_vector default_attrib{ "no-colour" };
+		_cpf_type::str_vec default_attrib{ "no-colour" };
 		meta.insert(std::make_pair(0, std::make_pair(default_attrib, src_format)));
 		return meta;
 	}
 
-	_cpf_types::_string_type_ _src_format = (_cpf_colour_config == _CPF_ENABLE) ? _cpf_map_token_parse(src_format) : src_format;
+	_cpf_type::str _src_format = (_cpf_colour_config == _CPF_ENABLE) ? _cpf_map_token_parse(src_format) : src_format;
 
 	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
 	{
 		std::size_t occurrences = 0;
-		_cpf_types::_string_type_::size_type start = 0;
+		_cpf_type::str::size_type start = 0;
 
-		while ((start = _cpf_find(_CPF_TOKEN_PREFIX, _src_format, start)) != _cpf_types::_string_type_::npos)
+		while ((start = _cpf_find(_CPF_TOKEN_PREFIX, _src_format, start)) != _cpf_type::str::npos)
 		{
 			++occurrences;
 			start++;
@@ -218,14 +218,14 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 		return occurrences;
 	}();
 	
-	auto prefix_pos = 0, suffix_pos = 0;
+	std::size_t prefix_pos = 0, suffix_pos = 0;
 	bool first_iter = true;
 	while ((prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, _src_format, suffix_pos)) != _src_format.npos)
 	/*while ((prefix_pos = _src_format.find(_CPF_TOKEN_PREFIX, suffix_pos)) != _src_format.npos)*/
 	{
 		if(first_iter && prefix_pos != 0)
 		{
-			_cpf_types::string_vector default_attrib{ "!" };
+			_cpf_type::str_vec default_attrib{ "!" };
 			meta.insert(std::make_pair(0u, std::make_pair(default_attrib, _src_format.substr(0u, prefix_pos))));
 			first_iter = false;
 		}
@@ -234,16 +234,14 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 		
 		if(suffix_pos == _src_format.npos)
 		{
-			std::ostringstream convert;
-			convert << prefix_pos;
-			throw _cpf_types::error(std::string("invalid attribute at position: ").append(convert.str()).c_str());
+			throw _cpf_type::error("invalid token encountered");
 		}
 
 		auto next_prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, _src_format, suffix_pos);
 		auto attibs_str = _src_format.substr(prefix_pos + 1, (suffix_pos - 1) - prefix_pos);
 
-		_cpf_types::string_vector subseq_str_attribs;
-		_cpf_types::_string_type_ current_attrib;
+		_cpf_type::str_vec subseq_str_attribs;
+		_cpf_type::str current_attrib;
 
 		for(auto c = std::begin(attibs_str); c != std::end(attibs_str); ++c)
 		{
@@ -271,7 +269,7 @@ _cpf_types::meta_format_type _cpf_process_format_string(
 
 	if (meta.empty())
 	{
-		meta.insert(std::make_pair(0u, std::make_pair(_cpf_types::string_vector({ "!" }), src_format)));
+		meta.insert(std::make_pair(0u, std::make_pair(_cpf_type::str_vec({ "!" }), src_format)));
 	}
 
 	if (encountered_esc_seq_on_parse)

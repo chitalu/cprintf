@@ -7,7 +7,7 @@
 #define SYSTXTATTIB_UNDEF ("undef")
 #endif
 
-#include "_cpf_types.h"
+#include "_cpf_type.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -15,8 +15,6 @@
 /*
 	
 */
-extern void _cpf_except_on_condition(bool condition, std::string _err_msg);
-
 enum class ext_ASCII : unsigned char
 {
 	euro = 0x80,

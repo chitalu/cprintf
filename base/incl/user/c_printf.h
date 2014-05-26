@@ -91,34 +91,34 @@ decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 /*
 	@return number of printf argument tokens "%" in a given string
 */
-extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_types::_string_type_ & obj, 
-													const _cpf_types::_string_type_ & str);
+extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_type::str & obj, 
+													const _cpf_type::str & str);
 
 /*
 	print the substring preceding an argument specifier in a sub-format-string
 */
-extern _cpf_types::_string_type_ _cpf_print_pre_arg_str(_cpf_types::stream strm,
-														_cpf_types::_string_type_& printed_string_,
+extern _cpf_type::str _cpf_print_pre_arg_str(_cpf_type::stream strm,
+														_cpf_type::str& printed_string_,
 														std::size_t& ssp_,
-														const _cpf_types::attributes attr);
+														const _cpf_type::attribs attr);
 
 /*
 	print the substring proceding an argument specifier in a sub-format-string 
 */
-extern void _cpf_print_post_arg_str(_cpf_types::stream strm,
-									_cpf_types::_string_type_& printed_string_,
+extern void _cpf_print_post_arg_str(_cpf_type::stream strm,
+									_cpf_type::str& printed_string_,
 									std::size_t& ssp_,
 									bool &more_args_on_iter,
-									_cpf_types::meta_format_type::const_iterator &msd_iter);
+									_cpf_type::meta_format_type::const_iterator &msd_iter);
 
 /*
 	print non-argument specifying format string i.e where the implmentation
 	need not invoke printf with any avariadic arguments.
 */
-extern void _cpf_print_non_arg_str(	_cpf_types::stream strm,
-									_cpf_types::_string_type_& printed_string_,
+extern void _cpf_print_non_arg_str(	_cpf_type::stream strm,
+									_cpf_type::str& printed_string_,
 									std::size_t& ssp_,
-									_cpf_types::meta_format_type::const_iterator &msd_iter);
+									_cpf_type::meta_format_type::const_iterator &msd_iter);
 
 /*
 	recursion terminating function (counterpart to _cpf_call with variadic arguments). 
@@ -126,10 +126,10 @@ extern void _cpf_print_non_arg_str(	_cpf_types::stream strm,
 	string and no arguments.
 */
 extern void _cpf_call_(	
-	_cpf_types::stream strm,
-	const _cpf_types::meta_format_type::const_iterator &end_point_comparator,
-	_cpf_types::meta_format_type::const_iterator &msd_iter,
-	const _cpf_types::_string_type_ printed_string,
+	_cpf_type::stream strm,
+	const _cpf_type::meta_format_type::const_iterator &end_point_comparator,
+	_cpf_type::meta_format_type::const_iterator &msd_iter,
+	const _cpf_type::str printed_string,
 	const std::size_t search_start_pos);
 
 /*
@@ -139,15 +139,15 @@ extern void _cpf_call_(
 */
 template<typename T0, typename ...Ts>
 void _cpf_call_(	
-	_cpf_types::stream strm,
-	const _cpf_types::meta_format_type::const_iterator &end_point_comparator,
-	_cpf_types::meta_format_type::const_iterator &msd_iter,
-    const _cpf_types::_string_type_ printed_string,
+	_cpf_type::stream strm,
+	const _cpf_type::meta_format_type::const_iterator &end_point_comparator,
+	_cpf_type::meta_format_type::const_iterator &msd_iter,
+    const _cpf_type::str printed_string,
 	const std::size_t search_start_pos,
 	T0&& arg0,
     Ts&&... args)
 {
-	_cpf_types::_string_type_ printed_string_ = printed_string;
+	_cpf_type::str printed_string_ = printed_string;
 
 	/*
 		printed string argument-specifier ('%') count
@@ -233,7 +233,7 @@ void _cpf_call_(
 	http://www.cplusplus.com/reference/cstdio/fprintf/
 */
 template<typename... Ts>
-void c_fprintf(_cpf_types::stream strm, const char* format, Ts... args)
+void c_fprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 {
 #if defined(_DEBUG)
 	assert(strm != nullptr && "output stream undefined");
@@ -273,7 +273,7 @@ void c_fprintf(_cpf_types::stream strm, const char* format, Ts... args)
 	should appear in a console.
 */
 template<typename... Ts>
-void c_printf(const char* format, Ts... args)
+void c_printf(_cpf_type::c_str format, Ts... args)
 {
 	c_fprintf(stdout, format, std::forward<Ts>(args)...);
 }
@@ -286,8 +286,8 @@ void c_printf(const char* format, Ts... args)
 	see c_fprintf documentation for more info.
 */
 template<typename... Ts>
-void c_fprintf_t(	_cpf_types::stream strm, 
-					const char* format, std::tuple<Ts...> args_tup)
+void c_fprintf_t(	_cpf_type::stream strm, 
+					_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
@@ -304,7 +304,7 @@ void c_fprintf_t(	_cpf_types::stream strm,
 	see c_printf documentation for more info.
 */
 template<typename... Ts>
-void c_printf_t(const char* format, std::tuple<Ts...> args_tup)
+void c_printf_t(_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 {
 	c_fprintf_t(stdout, format, std::forward<std::tuple<Ts...>>(args_tup));
 }
@@ -317,8 +317,8 @@ R"debug_str(
 >> dbg print 
 @build:		%s-%s 
 @file:		%s
-@line-number:	%d
 @function:	%s
+@line-number:	%d
 
 log:
 )debug_str";
@@ -350,8 +350,8 @@ struct _cpf_dbg_fpath_separator
 */
 
 #define __print_stat_str\
-	std::string const& pathname = __FILE__;\
-	auto fname =  std::string(\
+	_cpf_type::str const& pathname = __FILE__;\
+	auto fname =  _cpf_type::str(\
 	std::find_if(pathname.rbegin(), pathname.rend(),\
 	_cpf_dbg_fpath_separator()).base(),\
 	pathname.end());\

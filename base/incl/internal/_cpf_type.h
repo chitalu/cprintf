@@ -15,6 +15,12 @@
 #define _CPF_DISABLE 0x00
 #define _CPF_ENABLE 0xFF
 
+namespace _cpf_type
+{
+	typedef std::string str;
+	typedef const char* c_str;
+}
+
 /*
 	flag to specify whether colour configuration is enabled or not.
 	by default this value is set to [enabled].
@@ -33,34 +39,32 @@ extern std::uint8_t _cpf_newline_config;
 
 struct _cpf_err{
 private:
-	const char* msg;
+	_cpf_type::c_str msg;
 public:
 	_cpf_err(void):msg("_cpf_err"){}
 	_cpf_err(const char* _msg):msg(_msg){}
 	~_cpf_err(void){}
 
-	inline const char* what(void){return msg;}
+	inline _cpf_type::c_str what(void){ return msg; }
 };
 
-namespace _cpf_types
+namespace _cpf_type
 {
-	typedef std::string _string_type_;
-
 #ifdef _WIN32
 	typedef WORD colour;
 #else
-	typedef std::string colour;
+	typedef _cpf_type::str colour;
 #endif
 }
 
-namespace _cpf_types
+namespace _cpf_type
 {
 	typedef _cpf_err error;
-	typedef std::pair<_cpf_types::_string_type_, _cpf_types::_string_type_> str_pair;
-	typedef std::vector<_cpf_types::_string_type_> string_vector;
-	typedef string_vector attributes;
-	typedef std::map<std::size_t, std::pair<string_vector, _cpf_types::_string_type_>> meta_format_type;
-	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
+	typedef std::pair<_cpf_type::str, _cpf_type::str> str_pair;
+	typedef std::vector<_cpf_type::str> str_vec;
+	typedef str_vec attribs;
+	typedef std::map<std::size_t, std::pair<str_vec, _cpf_type::str>> meta_format_type;
+	typedef std::map<const _cpf_type::str, _cpf_type::colour> colour_token_map;
 	
 	typedef FILE* stream;
 }

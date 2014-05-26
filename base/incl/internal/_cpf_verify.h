@@ -1,20 +1,20 @@
 #ifndef _CPF_VERIFY_H
 #define _CPF_VERIFY_H
 
-#include "_cpf_types.h"
+#include "_cpf_type.h"
 #include "_cpf_type_norm.h"
 #include <assert.h>
 
 /*
 
 */
-extern void _cpf_verify(const char* format);
+extern void _cpf_verify(_cpf_type::c_str format);
 
 /*
 
 */
 template<class T, typename... Ts> void
-_cpf_verify(const char* format, const T& farg, const Ts&&... args)
+_cpf_verify(_cpf_type::c_str format, const T& farg, const Ts&&... args)
 {
 	for (; *format; ++format)
 	{
@@ -44,7 +44,7 @@ _cpf_verify(const char* format, const T& farg, const Ts&&... args)
 		return _cpf_verify(++format, std::forward<Ts>(args)...);
 	}
 
-	throw _cpf_types::error("Too few format specifiers.");
+	throw _cpf_type::error("Too few format specifiers.");
 }
 
 #endif /*#ifndef _CPF_VERIFY_H*/

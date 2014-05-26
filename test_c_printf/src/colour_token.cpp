@@ -26,7 +26,7 @@ TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 		_CPF_OSTR_PRINT(printf("%s", t_str3));
 		ASSERT_NO_THROW(c_printf(t_str3));
 	}
-	catch (_cpf_types::error& e)
+	catch (_cpf_type::error& e)
 	{
 		printf("%s", e.what());
 		e;
@@ -50,7 +50,7 @@ TEST(Text_Colour_Formatting_Tokens, basic_mapping_syntax)
 		_CPF_OSTR_PRINT(printf("%s", t_str2));
 		ASSERT_NO_THROW(c_printf(t_str2));
 	}
-	catch (_cpf_types::error& e)
+	catch (_cpf_type::error& e)
 	{
 		printf("%s", e.what());
 		e;
@@ -60,7 +60,7 @@ TEST(Text_Colour_Formatting_Tokens, basic_mapping_syntax)
 TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)
 {
 	int count = 0;
-	for(auto i : _cpf_colour_token_vals )
+	for(auto i : _cpf_std_token_vals )
 	{
 		ASSERT_NO_THROW(c_printf(
 	    std::string("/").append(i.first).append("]").append("%s").append("/!]\t").c_str(), 

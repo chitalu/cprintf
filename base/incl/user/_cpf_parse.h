@@ -1,7 +1,7 @@
 #ifndef _CPF_PARSE_H
 #define _CPF_PARSE_H
 
-#include "_cpf_types.h"
+#include "_cpf_type.h"
 
 /*
 	as indicated by name, this function takes the source 
@@ -13,7 +13,7 @@
 	symbolic string token representing the colour the second (format substring)
 	element in the pair is to be.
 */
-extern _cpf_types::meta_format_type _cpf_process_format_string(
-	const _cpf_types::_string_type_ &fstring);
+extern _cpf_type::meta_format_type _cpf_process_format_string(
+	const _cpf_type::str &fstring);
 
 #endif

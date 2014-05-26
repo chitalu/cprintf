@@ -2,8 +2,8 @@
 
 bool encountered_esc_seq_on_parse = false;
 
-std::size_t _cpf_find(	const _cpf_types::_string_type_& _what, 
-						const _cpf_types::_string_type_& _where,
+std::size_t _cpf_find(	const _cpf_type::str& _what, 
+						const _cpf_type::str& _where,
 						const std::size_t _offset,
 						const char& _esc_char)
 {
