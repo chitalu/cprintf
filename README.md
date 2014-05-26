@@ -22,22 +22,18 @@ the argument layout as specified within the format string.
 
 For numerous reasons the functionailty available on the Windows operating 
 system is limited in comparison to that of the *nix family of operating 
-systems. This includes specifying text attributes with the following 
-traits:
--	boldness 
--	blinking
--	clearing screen
--	extended dim colour specification
--	256 colour support
+systems (subject to terminal). This includes specifying text attributes with the following traits:
 
-	and more ...   
+* boldness 
+* blinking
+* extended dim colour specification
+* 256 colour support
+* and more ...   
 
 
 Thank you and I hope you enjoy using it in your projects.
 
-- Floyd Chitalu
-
-Sample code:
+Below is some sample code:
 
 
 ```
@@ -58,3 +54,4 @@ std::get<0>(mytuple) = "You";
 c_printf_t("%s is %s: %d", mytuple);
 ```
 
+- *Floyd Chitalu*
