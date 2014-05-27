@@ -53,13 +53,80 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 		_cpf_config_terminal(strm, attr);
 	}
 
-	ssp_ = printed_string_.find_first_of("%", ssp_);
+	ssp_ = _cpf_find("%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
 	{
 		fprintf(strm, "%s", printed_string_.substr(0, ssp_).c_str());
 	}
 
-	auto offset = 2;
+	auto is_in = [=](const char& _target, const std::initializer_list<char>& _list)->bool
+	{
+		for (auto &i : _list)
+		{
+			if (i == _target)
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+
+	/* format specifiers beging with % and end with a space*/
+	auto space_pos = printed_string_.find(' ', ssp_);
+	std::size_t offset = 0;
+	for (const auto &bfs : std_format_specifiers)
+	{
+		if (printed_string_[ssp_ + 1] == bfs)
+		{
+			offset = 2;
+			break;
+		}
+	}
+
+	if (offset == 0)
+	{
+		std::string specifier;
+		bool parsed_complete_f_spec = false;
+		for (const auto &xfst : extended_format_specifier_terminators)
+		{
+			auto ps = printed_string_.substr(ssp_ + 1);
+	
+			auto _max = (ps.size());
+			for (auto i(0u); i < _max; ++i)
+			{
+				auto crnt_char = ps[i];
+				if (isalnum(crnt_char) || is_in(crnt_char, intermediate_format_specifers) || crnt_char == xfst)
+				{
+					specifier.append({ crnt_char });
+
+					if (crnt_char == xfst || is_in(crnt_char, extended_format_specifier_terminators))
+					{
+						parsed_complete_f_spec = true;
+						break;
+					}
+				}
+				else
+				{
+					throw _cpf_type::error("invalid format specifier detail");
+				}
+
+				//last iteration
+				if (i == (_max - 1) && !is_in(crnt_char, extended_format_specifier_terminators))
+				{
+					throw _cpf_type::error("invalid format specifier");
+				}	
+			}
+			if (parsed_complete_f_spec)
+			{
+				break;
+			}
+
+			specifier.clear();
+		}
+
+		offset = specifier.size() + 1;
+	}
+
 	auto fstr = printed_string_.substr(ssp_, offset);
 	ssp_ += offset;
 	return fstr;
@@ -83,6 +150,11 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 			printed_string_.clear();
 		}
 		std::advance(msd_iter, 1);
+
+		if (msd_iter._Ptr->_Isnil && _cpf_newline_config == _CPF_ENABLE)
+		{
+			fprintf(strm, "\n");
+		}
 	}
 }
 

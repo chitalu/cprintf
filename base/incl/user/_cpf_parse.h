@@ -28,6 +28,51 @@ THE SOFTWARE.
 #include "_cpf_type.h"
 
 /*
+	text attribute token escape sequences..
+*/
+extern const std::initializer_list<_cpf_type::str> attribute_escape_sequences;
+
+/*
+
+%c print a singlecharacter
+%d print a decimal (base 10) number
+%e print an exponential floating-point number
+%f print a floating-point number
+%g print a general-format floating-point number
+%i print an integer in base 10
+%o print a number in octal (base 8)
+%s print a string of characters
+%u print an unsigned decimal (base 10) number
+%x print a number in hex idecimal (base 16)
+%% print a percent sign (\% also works)
+
+*/
+extern const std::initializer_list<char> std_format_specifiers;
+
+/*
+	'd', 'f', 's', 'e', 'o', 'x'
+*/
+extern const std::initializer_list<char> extended_format_specifier_terminators;
+
+/*
+	'+', '-', '.', '*', '#', 'l'
+*/
+extern const std::initializer_list<char> intermediate_format_specifers;
+
+/*
+
+\a audible alert (bell)
+\b backspace
+\f form feed
+\n newline (linefeed)
+\r carriage return
+\t tab
+\v vertical tab
+
+*/
+extern const std::initializer_list<char> escape_characters;
+
+/*
 	as indicated by name, this function takes the source 
 	format string and which then is subsequently passed through various
 	parsing stages. On return, the function yeilds a map of [key] type

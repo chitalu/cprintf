@@ -35,7 +35,10 @@ THE SOFTWARE.
 extern void _cpf_verify(_cpf_type::c_str format);
 
 /*
-
+	verifies that the format string contains arguments which
+	match the given % sequence(s) in the correct order.
+	note that this is only able to test those format specifiers
+	found in "std_format_specifiers"
 */
 template<class T, typename... Ts> void
 _cpf_verify(_cpf_type::c_str format, const T& farg, const Ts&&... args)
@@ -52,23 +55,47 @@ _cpf_verify(_cpf_type::c_str format, const T& farg, const Ts&&... args)
 		case 'f':
 			assert(std::is_floating_point<T>::value);
 			break;
+		case 'e':
+			assert(std::is_floating_point<T>::value);
+			break;
+		case 'g':
+			assert(std::is_floating_point<T>::value);
+			break;
 		case 'd':
 			assert(std::is_integral<T>::value);
 			break;
+		case 'i':
+			assert(std::is_integral<T>::value);
+			break;
+		case 'o':
+			assert(std::is_integral<T>::value);
+			break;
+		case 'u':
+			assert(std::is_integral<T>::value);
+			break;
 		case 'c':
+			assert(std::is_integral<T>::value);
+			break;
+		case 'x':
+			assert(std::is_integral<T>::value);
+			break;
+		case 'l': //note that this is actually in "intermediate_format_specifers"
+			assert(std::is_integral<T>::value);
+			break;
+		case '#': //note that this is actually in "intermediate_format_specifers"
 			assert(std::is_integral<T>::value);
 			break;
 		case 's':
 			assert(std::is_pointer<T>::value);
 			break;
 		default:
-			printf("warning: unsupported formatter: %c\n", f);
+			fprintf(stderr, "warning: unsupported formatter: %c\n", f);
 			break;
 		}
 		return _cpf_verify(++format, std::forward<Ts>(args)...);
 	}
 
-	throw _cpf_type::error("Too few format specifiers.");
+	throw _cpf_type::error("format specifier (%) count does not match argument count");
 }
 
 #endif /*#ifndef _CPF_VERIFY_H*/

@@ -101,21 +101,4 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 	/*underline*/ "/uln]"\
 	/*blink*/ "/blk]"\
 	/*reverse*/ "/rvs]"\
-	/*hidden*/ "/hid]"\
-
-#define ATTRIB_COL_TOKEN_EXAMPLES \
-	"/&32f]"\
-	"/&uln.24f]"\
-	"/&dim.75b]"\
-	"/&bld.24f.128b]"\
-	"/&bld.y!b]"\
-
-/*
-	this should find all strings that match exactly those specifed
-	and prefix then with a smart formatter.
-	*/
-#define SUB_STRING_FORMAT_TAGGING\
-	"/$mystring|y!]"\
-	"/$mystring1;mystring2|r;b!]"\
-	"/$mystring1;mystring2|g!]"\
-	"/$mystring1;mystring2|bld.r;b!]"
+	/*hidden*/ "/hid]"

@@ -36,7 +36,21 @@ THE SOFTWARE.
 std::uint8_t _cpf_colour_config = _CPF_ENABLE;
 std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
-const _cpf_type::str esc_seqs[] = { "`/", "`]", "`/$", "`|", "`;", "``" };
+const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
+	"`/", "`]", "`/$", "`|", "`;", "``" 
+};
+const std::initializer_list<char> std_format_specifiers = { 
+	'c', 'd', 'e', 'E', 'f', 'g', 'i', 'o', 's', 'u', 'x' 
+};
+const std::initializer_list<char> extended_format_specifier_terminators = { 
+	'd', 'f', 's', 'e', 'o', 'x' 
+};
+const std::initializer_list<char> intermediate_format_specifers = { 
+	'+', '-', '.', '*', '#', 'l' 
+};
+const std::initializer_list<char> escape_characters = { 
+	'\a', '\b', '\f', '\n', '\r', '\t', '\v' 
+};
 
 
 void str_replace(_cpf_type::str& subject, const _cpf_type::str& search, const _cpf_type::str& replace)
@@ -51,7 +65,7 @@ void str_replace(_cpf_type::str& subject, const _cpf_type::str& search, const _c
 
 void purge_str_esc_sequences(_cpf_type::str &src)
 {
-	for (auto &es : esc_seqs)
+	for (auto &es : attribute_escape_sequences)
 	{
 		str_replace(src, es, es.substr(1));
 	}

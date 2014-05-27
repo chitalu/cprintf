@@ -11,7 +11,7 @@ TEST(Tag_Map_token, using_two_to_one_tag_map)
 {
 	auto t_str = "/$s3;s1|b*] test s1 foo s2 bar also s3 baz\n";
 	_CPF_OSTR_PRINT(printf("%s", t_str));
-	ASSERT_NO_THROW(c_printf( t_str));
+	ASSERT_NO_THROW(c_printf("/$s3;s1|b*] test s1 foo s2 bar also s3 baz\n"));
 }
 
 TEST(Tag_Map_token, using_two_to_two_tag_map)

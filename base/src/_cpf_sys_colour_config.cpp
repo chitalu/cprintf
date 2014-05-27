@@ -92,7 +92,7 @@ extern "C" const _cpf_type::str_vec _cpf_std_tokens= {
 	"c*c*", "c*r*", "c*g*", "c*y*", "c*m*", "c*b*", "c*w*", /*cyan*/
 	"w*w*", "w*r*", "w*g*", "w*y*", "w*m*", "w*c*", "w*b*" /*white*/
 
-#ifndef _WIN32 //attribute
+#ifndef _WIN32 //attributes
 	, "bld", "dim", "uln", "blk",	"rvs",	"hid",	
 	"!bld",	"!dim",	"!uln",	"!blk",	"!rvs",	"!hid",
 #endif /*#ifndef _WIN32*/
@@ -440,7 +440,7 @@ extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_va
 
 	{	"r*r*",	"\x1B[0;91;101m" },
 	{	"r*g*",	"\x1B[0;91;102m" },
-	{	"r*b*",	"\x1B[0;31;104m" },
+	{	"r*b*",	"\x1B[0;91;104m" },
 	{	"r*y*",	"\x1B[0;91;103m" },
 	{	"r*m*",	"\x1B[0;91;105m" },
 	{	"r*c*",	"\x1B[0;91;106m" },

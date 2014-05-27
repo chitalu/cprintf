@@ -8,11 +8,11 @@ TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 	try
 	{
 
-		c_printf("%d this /y*]is %s edd", 28, "floyd");
+		c_printf("%d foo /y*]bar %s baz", 28, "yellow");
 
 		auto t_str = "left hand side /r*] right hand side";
 		_CPF_OSTR_PRINT(printf("%s", t_str));
-		ASSERT_NO_THROW(c_printf(t_str));
+		ASSERT_NO_THROW(c_printf("left hand side /r*] right hand side"));
 
 		auto t_str1 = "left hand side /#y*] right /!]hand side";
 		_CPF_OSTR_PRINT(printf("%s", t_str1));
