@@ -49,7 +49,7 @@ const std::initializer_list<char> intermediate_format_specifers = {
 	'+', '-', '.', '*', '#', 'l' 
 };
 const std::initializer_list<char> escape_characters = { 
-	'\a', '\b', '\f', '\n', '\r', '\t', '\v' 
+	'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'
 };
 
 

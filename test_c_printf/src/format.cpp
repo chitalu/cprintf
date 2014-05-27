@@ -12,10 +12,13 @@ TEST(Format_specifiers, std_formatting)
 		c_printf("Decimals: %d %ld\n", 1977, 650000L);
 		c_printf("Preceding with blanks: %10d \n", 1977);
 		c_printf("Preceding with zeros: %010d \n", 1977);
-		c_printf("Some different radices:/c*] %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
+		auto args_of_100 = std::make_tuple(100, 100, 100, 100, 100);
+		c_printf_t("Some different radices:/c*] %d %x %o %#x %#o \n", args_of_100);
 		c_printf("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
 		c_printf("%s \n", "A string");
 		c_printf("%-5s", "ab");
+
+		c_printf("tuple /#y*]element/!] test: %d", std::get<0>(args_of_100));
 	}
 	catch (_cpf_type::error& e)
 	{
