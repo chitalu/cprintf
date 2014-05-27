@@ -54,4 +54,26 @@ std::get<0>(mytuple) = "You";
 c_printf_t("%s is %s: %d", mytuple);
 ```
 
+Below are more examples taken from [http://www.cplusplus.com/reference/cstdio/printf/](http://www.cplusplus.com/reference/cstdio/printf/)
+
+
+```
+#!C++
+
+c_printf("Characters:/y*] %c %c \n", 'a', 65);
+c_printf("Decimals: %d %ld\n", 1977, 650000L);
+c_printf("Preceding with blanks: %10d \n", 1977);
+c_printf("Preceding with zeros: %010d \n", 1977);
+auto args_of_100 = std::make_tuple(100, 100, 100, 100, 100);
+c_printf_t("Some different radices:/c*] %d %x %o %#x %#o \n", args_of_100);
+c_printf("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
+c_printf("%s \n", "A string");
+c_printf("%-5s", "ab");
+
+c_printf("tuple /#y*]element/!] test: %d", std::get<0>(args_of_100));
+```
+
+Results:
+![cpf.png](https://bitbucket.org/repo/aRe8Gp/images/2141127256-cpf.png)
+
 - *Floyd Chitalu*
