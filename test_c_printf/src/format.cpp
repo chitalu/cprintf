@@ -18,7 +18,7 @@ TEST(Format_specifiers, std_formatting)
 		c_printf("%s \n", "A string");
 		c_printf("%-5s", "ab");
 
-		c_printf("tuple /#y*]element/!] test: %d", std::get<0>(args_of_100));
+		c_printf("tuple /y*]element/!] test: %d", std::get<0>(args_of_100));
 	}
 	catch (_cpf_type::error& e)
 	{

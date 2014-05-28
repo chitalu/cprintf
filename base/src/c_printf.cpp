@@ -151,10 +151,12 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 		}
 		std::advance(msd_iter, 1);
 
+		/*
+		TODO: this only work for windows
 		if (msd_iter._Ptr->_Isnil && _cpf_newline_config == _CPF_ENABLE)
 		{
 			fprintf(strm, "\n");
-		}
+		}*/
 	}
 }
 

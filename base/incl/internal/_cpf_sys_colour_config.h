@@ -94,11 +94,3 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 
 //http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
 #define CURSOR_POS_TOKEN "/@10-20]"
-
-#define ATTRIBUTE_TOKEN \
-	/*bold*/ "/bld]"\
-	/*dim*/ "/dim]"\
-	/*underline*/ "/uln]"\
-	/*blink*/ "/blk]"\
-	/*reverse*/ "/rvs]"\
-	/*hidden*/ "/hid]"

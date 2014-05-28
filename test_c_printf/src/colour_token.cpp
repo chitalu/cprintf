@@ -39,11 +39,11 @@ TEST(Text_Colour_Formatting_Tokens, basic_mapping_syntax)
 	{
 		c_printf_dbg("test debug");
 		auto t_str = "%d is /$first `;argument;second;foo|r*;#c*;b*] the first ;argument. %s is the second. now changing to foo";
-		_CPF_OSTR_PRINT(printf("%s", t_str, 28, "floyd"));
+		_CPF_OSTR_PRINT(printf(t_str, 28, "floyd"));
 		ASSERT_NO_THROW(c_printf(t_str, 28, "floyd"));
 
 		auto t_str1 = "%d is `/$first;second;foo|g*] the first argument. %s is the second. now changing to foo";
-		_CPF_OSTR_PRINT(printf("%s", t_str1, 28, "floyd"));
+		_CPF_OSTR_PRINT(printf(t_str1, 28, "floyd"));
 		ASSERT_NO_THROW(c_printf(t_str1, 28, "floyd"));
 
 		auto t_str2 = "escape chars `/!] hello";
@@ -76,28 +76,28 @@ TEST(Text_Colour_Formatting_Tokens, stardard_fg_bg_colour_test)
 
 TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_foreground)
 {
-	auto t_str = "test full spectrum /&32f]colour token\n";
+	auto t_str = "test full spectrum /32f]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf( t_str));
 }
 
 TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_background)
 {
-	auto t_str = "test full spectrum /&bld;32b]colour token\n";
+	auto t_str = "test full spectrum /bld.32b]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf( t_str));
 }
 
 TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_foreground_with_attribute)
 {
-	auto t_str = "test full spectrum /&bld;32f]colour token\n";
+	auto t_str = "test full spectrum /bld.32f]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf( t_str));
 }
 
 TEST(Text_Colour_Formatting_Tokens, basic_full_colour_spectrum_background_with_attribute)
 {
-	auto t_str = "test full spectrum /&32b]colour token\n";
+	auto t_str = "test full spectrum /32b]colour token\n";
 	_CPF_OSTR_PRINT(printf("%s\n", t_str));
 	ASSERT_NO_THROW(c_printf( t_str));
 }
@@ -109,7 +109,7 @@ TEST(Text_Colour_Formatting_Tokens, full_foreground_colour_spectrum_test)
 	{
 		std::stringstream ss;
 		ss << i;
-		auto frmt = std::string("/&").append(ss.str()).append("f]").append("%s").append("/!]\t").c_str();
+		auto frmt = std::string("/").append(ss.str()).append("f]").append("%s").append("/!]\t").c_str();
 		ASSERT_NO_THROW(c_printf( frmt, ss.str().c_str()));
 	    if((++count % 4) == 0)
 	    {
@@ -125,7 +125,7 @@ TEST(Text_Colour_Formatting_Tokens, full_background_colour_spectrum_test)
 	{
 		std::stringstream ss;
 		ss << i;
-		auto frmt = std::string("/&").append(ss.str()).append("b]").append("%s").append("/!]\t").c_str();
+		auto frmt = std::string("/").append(ss.str()).append("b]").append("%s").append("/!]\t").c_str();
 		ASSERT_NO_THROW(c_printf( frmt, ss.str().c_str()));
 	    if((++count % 4) == 0)
 	    {
@@ -143,8 +143,8 @@ TEST(Text_Colour_Formatting_Tokens, full_fg_bg_colour_spectrum_test)
 		{
 			std::stringstream ss;
 			ss << i << "f;" << j << "b";
-			auto frmt = std::string("/&").append(ss.str()).append("]").append("%s").append("/!]\t").c_str();
-			ASSERT_NO_THROW(c_printf( frmt, ss.str().c_str()));
+			auto frmt = "/"+ ss.str()+"]"+"%s"+"/!]\t";
+			ASSERT_NO_THROW(c_printf( frmt.c_str(), ss.str().c_str()));
 		    if((++count % 8) == 0)
 		    {
 		        printf("\n");
