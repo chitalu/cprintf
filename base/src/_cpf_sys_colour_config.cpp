@@ -477,6 +477,13 @@ bool _cpf_is_fstream(_cpf_type::stream strm)
 	return is_fstream;
 }
 
+#if _WIN32
+
+HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
+
+#endif
+
 _cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_token)
 {
 	auto at_size = attrib_token.size();
@@ -507,6 +514,32 @@ _cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_tok
 	return colour_str;
 }
 
+void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_str)
+{
+	auto comma_pos = attrib_str.find(',');
+	auto horizontal_pos_str = attrib_str.substr(0, comma_pos);
+	auto vertical_pos_str = attrib_str.substr(comma_pos + 1);
+
+	auto horizontal_pos = atoi(horizontal_pos_str.c_str());
+	auto vertical_pos = atoi(vertical_pos_str.c_str());
+
+#ifdef _WIN32
+	COORD coords;
+	coords.X = static_cast<SHORT>(horizontal_pos);
+	coords.Y= static_cast<SHORT>(vertical_pos);
+	BOOL result = SetConsoleCursorPosition(
+		strm == stdout ? stdout_handle : stderr_handle, 
+		coords);
+
+	if (!result)
+	{
+		throw _cpf_type::error("invalid coordinates");
+	}
+#else
+
+#endif
+}
+
 extern "C" void _cpf_config_terminal(_cpf_type::stream strm,
 	const _cpf_type::attribs& attribs)
 {
@@ -529,6 +562,31 @@ extern "C" void _cpf_config_terminal(_cpf_type::stream strm,
 		return false;
 	};
 
+	auto is_cursor_pos_attrib = [&](const _cpf_type::str& attrib)
+	{
+		bool value = isdigit(attrib[0]) && (attrib.find(',') != attrib.npos);
+
+		if (value)
+		{
+			auto num_commas = std::count(attrib.begin(), attrib.end(), ',');
+			if (num_commas != 1)
+			{
+				throw _cpf_type::error(std::string("invalid cursor position specifier: " + attrib).c_str());
+			}
+
+			for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
+			{
+				//if any value in the attribute is not a digit and its not a comma 
+				if (!isdigit(*c) && *c != ',')
+				{
+					throw _cpf_type::error(std::string("invalid character in cursor position specifier: " + attrib).c_str());
+				}
+			}
+		}
+
+		return value;
+	};
+
 	auto safely_get_terminal_value = [&](const _cpf_type::str& colour_key)->_cpf_type::colour
 	{
 		auto terminal_value = _cpf_std_token_vals.find(colour_key);
@@ -547,40 +605,48 @@ extern "C" void _cpf_config_terminal(_cpf_type::stream strm,
 		{
 			auto c_repr = *a;
 
-			auto is_bmct = is_bitmap_colour_token(*a);
+			if (is_cursor_pos_attrib(c_repr))
+			{
+				set_cursor_position(strm, c_repr);
+			}
+			else /*is_cursor_pos_attrib*/
+			{
+
+				auto is_bmct = is_bitmap_colour_token(*a);
 
 #ifdef _WIN32
-			if (is_bmct)
-			{
-				//because windows does not support that.
-				continue;
-			}
+				if (is_bmct)
+				{
+					//because windows does not support that.
+					continue;
+				}
 
-			HANDLE hnd = nullptr;
-			if (strm == stdout)
-			{
-				hnd = GetStdHandle(STD_OUTPUT_HANDLE);
-			}
-			else if (strm == stderr)
-			{
-				hnd = GetStdHandle(STD_ERROR_HANDLE);
-			}
-			assert(hnd != nullptr);
-			SetConsoleTextAttribute(hnd, safely_get_terminal_value(c_repr));
+				HANDLE hnd = nullptr;
+				if (strm == stdout)
+				{
+					hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+				}
+				else if (strm == stderr)
+				{
+					hnd = GetStdHandle(STD_ERROR_HANDLE);
+				}
+				assert(hnd != nullptr);
+				SetConsoleTextAttribute(hnd, safely_get_terminal_value(c_repr));
 #else
-			_cpf_type::str fstr;
+				_cpf_type::str fstr;
 
-			if(is_bmct)
-			{
-				fstr = get_terminal_bitmap_colour_value(c_repr);
-			}
-			else
-			{
-				fstr = safely_get_terminal_value(c_repr);
-			}
+				if(is_bmct)
+				{
+					fstr = get_terminal_bitmap_colour_value(c_repr);
+				}
+				else
+				{
+					fstr = safely_get_terminal_value(c_repr);
+				}
 
-			fprintf(strm, "%s",	fstr.c_str());
+				fprintf(strm, "%s",	fstr.c_str());
 #endif
+			}/*is_cursor_pos_attrib*/
 		}
 	}
 }

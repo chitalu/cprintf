@@ -7,7 +7,6 @@ TEST(Text_Colour_Formatting_Tokens, basic_syntax)
 {
 	try
 	{
-
 		c_printf("%d foo /y*]bar %s baz", 28, "yellow");
 
 		auto t_str = "left hand side /r*] right hand side";

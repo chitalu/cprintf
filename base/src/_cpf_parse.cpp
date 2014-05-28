@@ -37,7 +37,7 @@ std::uint8_t _cpf_colour_config = _CPF_ENABLE;
 std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
-	"`/", "`]", "`/$", "`|", "`;", "``" 
+	"`/", "`]", "`/$", "`|", "`;", "``", "`/@"
 };
 const std::initializer_list<char> std_format_specifiers = { 
 	'c', 'd', 'e', 'E', 'f', 'g', 'i', 'o', 's', 'u', 'x' 
@@ -259,7 +259,6 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 	std::size_t prefix_pos = 0, suffix_pos = 0;
 	bool first_iter = true;
 	while ((prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, _src_format, suffix_pos)) != _src_format.npos)
-	/*while ((prefix_pos = _src_format.find(_CPF_TOKEN_PREFIX, suffix_pos)) != _src_format.npos)*/
 	{
 		if(first_iter && prefix_pos != 0)
 		{
