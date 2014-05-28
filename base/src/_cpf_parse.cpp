@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #include "_cpf_parse.h"
-#include "_cpf_sys_colour_config.h"
+#include "_cpf_config.h"
 #include "_cpf_find.h"
 #include <cstdio>
 #include <stdlib.h>     /* atoi */

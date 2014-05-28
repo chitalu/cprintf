@@ -1,5 +1,5 @@
 #include "cpf_test_common.h"
-#include "_cpf_sys_colour_config.h"
+#include "_cpf_config.h"
 
 #include <sstream>
 

@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #include "c_printf.h"
-#include "_cpf_sys_colour_config.h"
+#include "_cpf_config.h"
 #include "_cpf_find.h"
 
 /*text attributes before a call was made to c_printf*/
