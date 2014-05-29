@@ -7,7 +7,7 @@ PROJECT (c_printf)
 
 MESSAGE(STATUS "beginning ${CMAKE_PROJECT_NAME} setup...")
 
-#set_target_properties(${TARGET} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS})
+OPTION (BASE_BUILD "build the c_printf library alone without gtest or test_c_printf" OFF)
 
 SET(CMAKE_BUILD_TYPE Debug)
 
@@ -15,7 +15,6 @@ SET (c_printf_VERSION_STRING "1.0.0")
 SET (c_printf_VERSION_MAJOR 1)
 SET (c_printf_VERSION_MINOR 0)
 SET (c_printf_VERSION_PATCH 0)
-
 
 MESSAGE(STATUS "mapping library source files")
 
@@ -53,11 +52,9 @@ IF(WIN32)
     #
 
     MESSAGE(STATUS "setting up windows compiler")
-    #SET (CMAKE_CXX_FLAGS "-WX")
 
-    SET(LIB_FILE_EXT "lib")
     SET(c_printf_LIB_FILE_PATH 
-    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_PROJECT_NAME}.lib")
 
     ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
@@ -65,34 +62,45 @@ ELSEIF(UNIX)
     # setup GCC 
     #
     MESSAGE(STATUS "setting up GCC")
-    SET (CMAKE_CXX_FLAGS "-std=gnu++11 -pthread") #"pthread" is necessary for gtest to build
 
-    SET(LIB_FILE_EXT "a")
-    SET(c_printf_LIB_FILE_PATH 
-    "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${LIB_FILE_EXT}")
+    IF (NOT BASE_BUILD)
+    
+        SET (CMAKE_CXX_FLAGS "-std=gnu++11 -pthread") #"pthread" is necessary for gtest to build
+        SET(c_printf_LIB_FILE_PATH 
+        "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.a") 
+
+    ELSE(NOT BASE_BUILD)
+
+        SET (CMAKE_CXX_FLAGS "-std=gnu++11")
+        SET(c_printf_LIB_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.a") 
+
+    ENDIF(NOT BASE_BUILD)
 ENDIF()
 
-MESSAGE (STATUS "unpacking google test files")
+IF (NOT BASE_BUILD)
+    MESSAGE (STATUS "unpacking google test files")
 
-SET(GTEST_ZIP_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/gtest-1.7.0.zip")
-SET(GTEST_EXTRACTION_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0")
+    SET(GTEST_ZIP_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/gtest-1.7.0.zip")
+    SET(GTEST_EXTRACTION_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0")
 
-IF(WIN32)
-    SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest/${CMAKE_BUILD_TYPE}")
-ELSEIF(UNIX)
-    SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-ENDIF()
+    IF(WIN32)
+        SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest/${CMAKE_BUILD_TYPE}")
+    ELSEIF(UNIX)
+        SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    ENDIF()
 
-SET(GTEST_INCLUDE_DIR "${GTEST_EXTRACTION_DIR}/include") 
+    SET(GTEST_INCLUDE_DIR "${GTEST_EXTRACTION_DIR}/include") 
 
-execute_process( 
-    COMMAND "${CMAKE_COMMAND}" -E tar xvf ${GTEST_ZIP_FILE_PATH}
-    OUTPUT_QUIET
-)
+    EXECUTE_PROCESS( 
+        COMMAND "${CMAKE_COMMAND}" -E tar xvf ${GTEST_ZIP_FILE_PATH}
+        OUTPUT_QUIET
+    )
 
-MESSAGE (STATUS "unpacked google test files to: ${GTEST_EXTRACTION_DIR}")
+    MESSAGE (STATUS "unpacked google test files to: ${GTEST_EXTRACTION_DIR}")
 
-ADD_SUBDIRECTORY(gtest)
-ADD_SUBDIRECTORY(test_c_printf)
+    ADD_SUBDIRECTORY(gtest)
+    ADD_SUBDIRECTORY(test_c_printf)
+
+ENDIF(NOT BASE_BUILD)
 
 MESSAGE(STATUS "${CMAKE_PROJECT_NAME} has been built successfully")

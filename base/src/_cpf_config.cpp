@@ -31,6 +31,8 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 
 #endif
 
+_cpf_type::attribs _cpf_current_text_attribs;
+
 bool _cpf_is_fstream(_cpf_type::stream strm)
 {
 	bool is_fstream = true;
