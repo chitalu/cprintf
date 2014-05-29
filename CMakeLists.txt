@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 2.8)
 
 #
+# If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
+# and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
+# to Debug prior to calling PROJECT()
+#
+IF(DEFINED CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+ELSE()
+   SET(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+ENDIF()
+
+#
 #   project
 #
 PROJECT (c_printf)
@@ -8,8 +19,6 @@ PROJECT (c_printf)
 MESSAGE(STATUS "beginning ${CMAKE_PROJECT_NAME} setup...")
 
 OPTION (BASE_BUILD "build the c_printf library alone without gtest or test_c_printf" OFF)
-
-SET(CMAKE_BUILD_TYPE Debug)
 
 SET (c_printf_VERSION_STRING "1.0.0")
 SET (c_printf_VERSION_MAJOR 1)
@@ -24,16 +33,19 @@ file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/base/src/*.cpp")
 #
 #   debug/ release specific settings
 #
-IF(CMAKE_BUILD_TYPE MATCHES Debug)
-    MESSAGE(STATUS "creating debug build")
+IF(${CMAKE_BUILD_TYPE} MATCHES Release)
+
+    MESSAGE(STATUS "creating RELEASE build")
+    REMOVE_DEFINITIONS(-D_DEBUG)
+
+ELSE(${CMAKE_BUILD_TYPE} MATCHES Debug)
+
+    MESSAGE(STATUS "creating DEBUG build")
 
     IF(UNIX)
         ADD_DEFINITIONS(-D_DEBUG)
     ENDIF(UNIX)
-ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
-    MESSAGE(STATUS "create release build")
 
-    REMOVE_DEFINITIONS(-D_DEBUG)
 ENDIF()
 
 SET (BASE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/base/incl")
