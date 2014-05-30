@@ -20,7 +20,29 @@ TEST(Cursor_position, setting_position_and_colour)
 
 TEST(Cursor_position, setting_multiple_positions_with_colour)
 {
-	c_printf("all /15,7]/r*y*]over /4,7]/y*]the/10,10]place");
+	std::srand((int)time(NULL));
+
+	for (auto i(0); i < 250; ++i)
+	//while (1)
+	{
+		unsigned char h = std::rand()%50;
+		unsigned char w = std::rand()%25;
+		char charachter = std::rand()%10 + 5;
+
+		//do{ charachter = std::rand() % 100; } while (charachter == '\"');
+
+		char buf[512];
+		try
+		{
+			sprintf(buf, "/g*]/%d,%d] %c", h, w, charachter);
+		}
+		catch (_cpf_type::error e)
+		{
+			_asm int 3;
+		}
+			c_printf(buf);
+	}
+		//c_printf("/c*]%c", std::rand() % 100);
 }
 
 TEST(Cursor_position, map_string_to_pos_and_colour)
@@ -30,9 +52,9 @@ TEST(Cursor_position, map_string_to_pos_and_colour)
 
 TEST(Cursor_position, printing_value_at_same_location)
 {
-	for (int i = 0; i < 10000; ++i)
+	for (int i = 0; i < 100000; ++i)
 	{
-		c_printf("/0,0]%d", i);
+		c_printf("/0,10]/c*]%d/!]/m*] <- awesome huh", i);
 	}
 }
 
