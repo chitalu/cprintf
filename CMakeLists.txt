@@ -6,9 +6,16 @@ cmake_minimum_required(VERSION 2.8)
 # to Debug prior to calling PROJECT()
 #
 IF(DEFINED CMAKE_BUILD_TYPE)
-   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+   SET  (   CMAKE_BUILD_TYPE 
+            ${CMAKE_BUILD_TYPE} 
+            CACHE STRING 
+            "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
+        )
 ELSE()
-   SET(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+   SET  (   CMAKE_BUILD_TYPE Debug 
+            CACHE STRING 
+            "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
+        )
 ENDIF()
 
 #
@@ -16,19 +23,48 @@ ENDIF()
 #
 PROJECT (c_printf)
 
-MESSAGE(STATUS "beginning ${CMAKE_PROJECT_NAME} setup...")
-
-OPTION (BASE_BUILD "build the c_printf library alone without gtest or test_c_printf" OFF)
+MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
 
 SET (c_printf_VERSION_STRING "1.0.0")
 SET (c_printf_VERSION_MAJOR 1)
 SET (c_printf_VERSION_MINOR 0)
 SET (c_printf_VERSION_PATCH 0)
 
-MESSAGE(STATUS "mapping library source files")
+IF(WIN32)
+    #
+    # setup visual studio compiler 
+    #
+    MESSAGE(STATUS "configuring windows compiler")
 
-file(GLOB_RECURSE INCL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/base/incl/*.h")
-file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/base/src/*.cpp")
+    #permits for faster builds
+    ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
+
+ELSEIF(UNIX)
+    #
+    # setup GCC 
+    #
+    MESSAGE(STATUS "configuring GNU Compiler Collection")
+    
+    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11") 
+ENDIF()
+
+OPTION (CONFIG_64 "build 64 bit binary" OFF)
+
+IF(CONFIG_64)
+    MESSAGE(STATUS "configured for 64 bit build")
+    SET(BIT_BUILD_CONFIG "64bit")
+    IF(UNIX)
+        #
+        #   configure gcc for 64 bit build
+        #
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+    ENDIF()
+ELSE()
+    MESSAGE(STATUS "configured for 32 bit build")
+    SET(BIT_BUILD_CONFIG "32bit")
+ENDIF()
+
+SET(DESTINATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/bin/${BIT_BUILD_CONFIG}")
 
 #
 #   debug/ release specific settings
@@ -48,71 +84,51 @@ ELSE(${CMAKE_BUILD_TYPE} MATCHES Debug)
 
 ENDIF()
 
-SET (BASE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/base/incl")
-INCLUDE_DIRECTORIES("${BASE_INCLUDE_DIR}/user")
-INCLUDE_DIRECTORIES("${BASE_INCLUDE_DIR}/internal")
-    
-MESSAGE(STATUS "registering library build")
-
-ADD_LIBRARY(${CMAKE_PROJECT_NAME} 
-            ${INCL_FILES} 
-            ${SRC_FILES})
-
+#
+# setup paths 
+#
 IF(WIN32)
-    #
-    # setup visual studio compiler 
-    #
-
-    MESSAGE(STATUS "setting up windows compiler")
-
-    SET(c_printf_LIB_FILE_PATH 
-    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_PROJECT_NAME}.lib")
+   
+    SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+    SET(c_printf_LIB_STATIC "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.lib")
+    SET(c_printf_LIB_SHARED "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.dll")
 
     ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
-    #
-    # setup GCC 
-    #
-    MESSAGE(STATUS "setting up GCC")
-
-    IF (NOT BASE_BUILD)
     
-        SET (CMAKE_CXX_FLAGS "-std=gnu++11 -pthread") #"pthread" is necessary for gtest to build
-        SET(c_printf_LIB_FILE_PATH 
-        "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.a") 
+    SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    SET(c_printf_LIB_STATIC "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.a")
+    SET(c_printf_LIB_SHARED "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.so")
 
-    ELSE(NOT BASE_BUILD)
-
-        SET (CMAKE_CXX_FLAGS "-std=gnu++11")
-        SET(c_printf_LIB_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.a") 
-
-    ENDIF(NOT BASE_BUILD)
 ENDIF()
 
-IF (NOT BASE_BUILD)
-    MESSAGE (STATUS "unpacking google test files")
+MESSAGE(STATUS "mapping library source files")
 
-    SET(GTEST_ZIP_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/gtest-1.7.0.zip")
-    SET(GTEST_EXTRACTION_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0")
+file(GLOB_RECURSE INCL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/incl/*.h")
+file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-    IF(WIN32)
-        SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/gtest/${CMAKE_BUILD_TYPE}")
-    ELSEIF(UNIX)
-        SET(GTEST_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-    ENDIF()
+INCLUDE_DIRECTORIES("incl")
+INCLUDE_DIRECTORIES("incl/internal")
+    
+MESSAGE(STATUS "registering library builds")
 
-    SET(GTEST_INCLUDE_DIR "${GTEST_EXTRACTION_DIR}/include") 
+#
+#   build both static and shared libraries
+#
+SET(static_lib_name ${PROJECT_NAME}_static)
+SET(shared_lib_name ${PROJECT_NAME})
 
-    EXECUTE_PROCESS( 
-        COMMAND "${CMAKE_COMMAND}" -E tar xvf ${GTEST_ZIP_FILE_PATH}
-        OUTPUT_QUIET
-    )
+ADD_LIBRARY(${shared_lib_name} SHARED ${INCL_FILES} ${SRC_FILES})
+ADD_LIBRARY(${static_lib_name} STATIC ${INCL_FILES} ${SRC_FILES})
 
-    MESSAGE (STATUS "unpacked google test files to: ${GTEST_EXTRACTION_DIR}")
+SET_TARGET_PROPERTIES(${static_lib_name}    PROPERTIES 
+                                            OUTPUT_NAME ${static_lib_name}
+                                            PREFIX "") #remove "lib" prefix on output file name
 
-    ADD_SUBDIRECTORY(gtest)
-    ADD_SUBDIRECTORY(test_c_printf)
+SET_TARGET_PROPERTIES(${shared_lib_name}    PROPERTIES 
+                                            OUTPUT_NAME ${shared_lib_name}
+                                            PREFIX "")
 
-ENDIF(NOT BASE_BUILD)
+EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_DIR})
 
-MESSAGE(STATUS "${CMAKE_PROJECT_NAME} has been built successfully")
+INSTALL(TARGETS ${shared_lib_name} ${static_lib_name} DESTINATION ${DESTINATION_DIR})
