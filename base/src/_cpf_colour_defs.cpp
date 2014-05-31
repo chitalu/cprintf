@@ -37,9 +37,7 @@ const auto default_foreground_colour = [&]()->_cpf_type::colour
 
 #endif
 
-_cpf_type::attribs _cpf_current_text_attribs;
-
-extern "C" const _cpf_type::str_vec _cpf_std_tokens= {
+extern "C" const _cpf_type::str_vec _cpf_std_tokens = {
 
 	/*default*/
 	"!",
@@ -102,7 +100,7 @@ extern "C" const _cpf_type::str_vec _cpf_std_tokens= {
 
 const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	/*default*/
-	{ "!",	[&]()->_cpf_type::colour
+	{ "!",	[&](void)->_cpf_type::colour
 			{
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
 				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -116,8 +114,6 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "#r*", (default_foreground_colour | _cpf_Rb | _cpf_bgi) },
 
 	{ "r", (_cpf_Rf) },
-	{ "r*", (_cpf_Rf | _cpf_fgi) },
-
 	{ "rr", (_cpf_Rf | _cpf_Rb) },
 	{ "rb", (_cpf_Rf | _cpf_Bb) },
 	{ "rg", (_cpf_Rf | _cpf_Gb) },
@@ -126,6 +122,7 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "rc", (_cpf_Rf | _cpf_Gb | _cpf_Bb) },
 	{ "rw", (_cpf_Rf | _cpf_Gb | _cpf_Bb | _cpf_Rb) },
 
+	{ "r*", (_cpf_Rf | _cpf_fgi) },
 	{ "r*r", ((_cpf_Rf | _cpf_fgi) | _cpf_Rb) },
 	{ "r*b", ((_cpf_Rf | _cpf_fgi) | _cpf_Bb) },
 	{ "r*g", ((_cpf_Rf | _cpf_fgi) | _cpf_Gb) },
@@ -391,6 +388,45 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
 //http://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+/*<ESC>[{attr};{fg};{bg}m*/
+#define COLOUR_BLOCK(c, i) \
+{	"#"#c"",	"\x1B[0;0;4"#i"m" },\
+{	"#"#c"*",	"\x1B[0;0;10"#i"m" },\
+{	#c "",		"\x1B[0;0;3"#i"m" },\
+{	#c "r",		"\x1B[0;3"#i";41m" },\
+{	#c "g",		"\x1B[0;3"#i";42m" },\
+{	#c "b",		"\x1B[0;3"#i";44m" },\
+{	#c "y",		"\x1B[0;3"#i";43m" },\
+{	#c "m",		"\x1B[0;3"#i";45m" },\
+{	#c "c",		"\x1B[0;3"#i";46m" },\
+{	#c "w",		"\x1B[0;3"#i";47m" },\
+\
+{	#c "*",		"\x1B[0;0;9"#i"m" },\
+{	#c "*r",	"\x1B[0;9"#i";41m" },\
+{	#c "*g",	"\x1B[0;9"#i";42m" },\
+{	#c "*b",	"\x1B[0;9"#i";44m" },\
+{	#c "*y",	"\x1B[0;9"#i";43m" },\
+{	#c "*m",	"\x1B[0;9"#i";45m" },\
+{	#c "*c",	"\x1B[0;9"#i";46m" },\
+{	#c "*w",	"\x1B[0;9"#i";47m" },\
+\
+{	#c "r*",	"\x1B[0;3"#i";101m" },\
+{	#c "g*",	"\x1B[0;3"#i";102m" },\
+{	#c "b*",	"\x1B[0;3"#i";104m" },\
+{	#c "y*",	"\x1B[0;3"#i";103m" },\
+{	#c "m*",	"\x1B[0;3"#i";105m" },\
+{	#c "c*",	"\x1B[0;3"#i";106m" },\
+{	#c "w*",	"\x1B[0;3"#i";107m" },\
+\
+{	#c "*r*",	"\x1B[0;9"#i";101m" },\
+{	#c "*g*",	"\x1B[0;9"#i";102m" },\
+{	#c "*b*",	"\x1B[0;9"#i";104m" },\
+{	#c "*y*",	"\x1B[0;9"#i";103m" },\
+{	#c "*m*",	"\x1B[0;9"#i";105m" },\
+{	#c "*c*",	"\x1B[0;9"#i";106m" },\
+{	#c "*w*",	"\x1B[0;9"#i";107m" },\
+
 extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 
 	/*attributes specifiers*/
@@ -408,89 +444,17 @@ extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_va
 	{	"!hid", 	"\x1B[28m"},
 
 	/*colours*/
-	/*<ESC>[{attr};{fg};{bg}m*/
+	
 	/*default (reset all colours and attribs)*/
 	{ 	"!", 	"\x1B[0;0;0m"},
 
-	{	"r",	"\x1B[0;0;31m" },
-	{	"rr",	"\x1B[0;31;41m" },
-	{	"rg",	"\x1B[0;31;42m" },
-	{	"rb",	"\x1B[0;31;44m" },
-	{	"ry",	"\x1B[0;31;43m" },
-	{	"rm",	"\x1B[0;31;45m" },
-	{	"rc",	"\x1B[0;31;46m" },
-	{	"rw",	"\x1B[0;31;47m" },
-
-	{	"r*",	"\x1B[0;0;91m" },
-	{	"r*r",	"\x1B[0;91;41m" },
-	{	"r*g",	"\x1B[0;91;42m" },
-	{	"r*b",	"\x1B[0;91;44m" },
-	{	"r*y",	"\x1B[0;91;43m" },
-	{	"r*m",	"\x1B[0;91;45m" },
-	{	"r*c",	"\x1B[0;91;46m" },
-	{	"r*w",	"\x1B[0;91;47m" },
-
-	{	"rr*",	"\x1B[0;31;101m" },
-	{	"rg*",	"\x1B[0;31;102m" },
-	{	"rb*",	"\x1B[0;31;104m" },
-	{	"ry*",	"\x1B[0;31;103m" },
-	{	"rm*",	"\x1B[0;31;105m" },
-	{	"rc*",	"\x1B[0;31;106m" },
-	{	"rw*",	"\x1B[0;31;107m" },
-
-	{	"r*r*",	"\x1B[0;91;101m" },
-	{	"r*g*",	"\x1B[0;91;102m" },
-	{	"r*b*",	"\x1B[0;91;104m" },
-	{	"r*y*",	"\x1B[0;91;103m" },
-	{	"r*m*",	"\x1B[0;91;105m" },
-	{	"r*c*",	"\x1B[0;91;106m" },
-	{	"r*w*",	"\x1B[0;91;107m" },
-
-    {	"g",	"\x1B[0;0;32m" },
-	{	"gr",	"\x1B[0;32;41m" },
-	{	"gg",	"\x1B[0;32;42m" },
-	{	"gb",	"\x1B[0;32;44m" },
-	{	"gy",	"\x1B[0;32;43m" },
-	{	"gm",	"\x1B[0;32;45m" },
-	{	"gc",	"\x1B[0;32;46m" },
-	{	"gw",	"\x1B[0;32;47m" },
-
-	{	"g*",	"\x1B[0;0;92m" },
-	{	"g*r",	"\x1B[0;92;41m" },
-	{	"g*g",	"\x1B[0;92;42m" },
-	{	"g*b",	"\x1B[0;92;44m" },
-	{	"g*y",	"\x1B[0;92;43m" },
-	{	"g*m",	"\x1B[0;92;45m" },
-	{	"g*c",	"\x1B[0;92;46m" },
-	{	"g*w",	"\x1B[0;92;47m" },
-
-	{	"gr*",	"\x1B[0;32;101m" },
-	{	"gg*",	"\x1B[0;32;102m" },
-	{	"gb*",	"\x1B[0;32;104m" },
-	{	"gy*",	"\x1B[0;32;103m" },
-	{	"gm*",	"\x1B[0;32;105m" },
-	{	"gc*",	"\x1B[0;32;106m" },
-	{	"gw*",	"\x1B[0;32;107m" },
-
-	{	"g*r*",	"\x1B[0;92;101m" },
-	{	"g*g*",	"\x1B[0;92;102m" },
-	{	"g*b*",	"\x1B[0;92;104m" },
-	{	"g*y*",	"\x1B[0;92;103m" },
-	{	"g*m*",	"\x1B[0;92;105m" },
-	{	"g*c*",	"\x1B[0;92;106m" },
-	{	"g*w*",	"\x1B[0;92;107m" },//
-
-    {	"b",	"\x1B[0;0;34m" },
-	{	"y",	"\x1B[0;0;33m" },
-	{	"m",	"\x1B[0;0;35m" },
-	{	"c",	"\x1B[0;0;36m" },
-	{	"w",	"\x1B[0;0;37m" },
-    
-    {	"b*",	"\x1B[0;0;94m" },
-    {	"y*",	"\x1B[0;0;93m" },
-	{	"m*",	"\x1B[0;0;95m" },
-	{	"c*",	"\x1B[0;0;96m" },
-	{	"w*",	"\x1B[0;0;97m" }
+	COLOUR_BLOCK(r, 1)
+	COLOUR_BLOCK(g, 2)
+	COLOUR_BLOCK(b, 4)
+	COLOUR_BLOCK(y, 3)
+	COLOUR_BLOCK(m, 5)
+	COLOUR_BLOCK(c, 6)
+	COLOUR_BLOCK(c, 7)
 };
 
 #endif /*#ifdef _WIN32*/

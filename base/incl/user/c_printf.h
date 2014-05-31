@@ -337,7 +337,7 @@ void c_printf_t(_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 
 const auto _cpf_debug_pre_str =
 R"debug_str(
-/$%s;%d|m*]
+/$%s;%d|c*]
 >> dbg print 
 @build:		%s-%s 
 @file:		%s

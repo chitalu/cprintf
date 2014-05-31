@@ -22,7 +22,7 @@ TEST(Cursor_position, setting_multiple_positions_with_colour)
 {
 	std::srand((int)time(NULL));
 
-	for (auto i(0); i < 250; ++i)
+	for (auto i(0); i < 250000; ++i)
 	//while (1)
 	{
 		unsigned char h = std::rand()%50;
@@ -38,7 +38,6 @@ TEST(Cursor_position, setting_multiple_positions_with_colour)
 		}
 		catch (_cpf_type::error e)
 		{
-			_asm int 3;
 		}
 			c_printf(buf);
 	}

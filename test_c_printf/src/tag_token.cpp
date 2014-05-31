@@ -38,8 +38,7 @@ TEST(Tag_Map_token, using_only_tag_token_inhibitor)
 
 TEST(Tag_Map_token, basic_cplusplus_code_tag)
 {
-	auto t_str =
-		R"code_str(
+	auto t_str = R"code_str(
 /$int;char;float;unsigned;return|b*]
 int main(int argc, char** argv)
 {
