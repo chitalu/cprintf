@@ -390,7 +390,7 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 //http://misc.flogisoft.com/bash/tip_colors_and_formatting
 
 /*<ESC>[{attr};{fg};{bg}m*/
-#define COLOUR_BLOCK(c, i) \
+#define REG_COLOUR_VALUES(c, i) \
 {	"#"#c"",	"\x1B[0;0;4"#i"m" },\
 {	"#"#c"*",	"\x1B[0;0;10"#i"m" },\
 {	#c "",		"\x1B[0;0;3"#i"m" },\
@@ -448,13 +448,13 @@ extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_va
 	/*default (reset all colours and attribs)*/
 	{ 	"!", 	"\x1B[0;0;0m"},
 
-	COLOUR_BLOCK(r, 1)
-	COLOUR_BLOCK(g, 2)
-	COLOUR_BLOCK(b, 4)
-	COLOUR_BLOCK(y, 3)
-	COLOUR_BLOCK(m, 5)
-	COLOUR_BLOCK(c, 6)
-	COLOUR_BLOCK(c, 7)
+	REG_COLOUR_VALUES(r, 1)
+	REG_COLOUR_VALUES(g, 2)
+	REG_COLOUR_VALUES(b, 4)
+	REG_COLOUR_VALUES(y, 3)
+	REG_COLOUR_VALUES(m, 5)
+	REG_COLOUR_VALUES(c, 6)
+	REG_COLOUR_VALUES(c, 7)
 };
 
 #endif /*#ifdef _WIN32*/
