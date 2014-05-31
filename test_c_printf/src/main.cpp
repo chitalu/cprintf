@@ -18,7 +18,7 @@ int main(int argc, char ** argv)
 //    /*int count = 0;
 //    for(auto i : _cpf_colour_token_vals )
 //    {
-//        c_printf(stdout, 
+//        c_printf( 
 //        std::string("/").append(i.first).append("]").append("%s").append("/!]\t").c_str(), 
 //        i.first.c_str());
 //        if((++count % 4) == 0)
@@ -51,18 +51,18 @@ int main(int argc, char ** argv)
 //}
 //)test_string";
 //
-//	c_printf(stdout, tag_token_test_string1, 10);
+//	c_printf( tag_token_test_string1, 10);
 //	/*
 //		block space token tests
 //	*/
 //
-//	c_printf(stdout, "block space:\n/¬5<i am yellow /b!]foo /g!]bar /c!]baz /!] default\n>=y!¬]");
+//	c_printf( "block space:\n/{5<i am yellow /b!]foo /g!]bar /c!]baz /!] default\n>=y!¬]");
 //
-//	c_printf(stdout, "block space:\n/¬5<i am number /w!][%d] /b!]foo /g!]bar /c!]baz /!] default\n>=c!¬]", 1, 2, 3, 4, 5);
+//	c_printf( "block space:\n/{5<i am number /w!][%d] /b!]foo /g!]bar /c!]baz /!] default\n>=c!¬]", 1, 2, 3, 4, 5);
 //
 //
 //	try{
-//		c_printf(stdout, "wrong block space: /¬0<foo>=r!r!¬]");
+//		c_printf( "wrong block space: /{0<foo>=r!r!¬]");
 //	}
 //	catch (std::invalid_argument& e){
 //		c_printf(stderr, "exception caught: \n/m!]%s/!]", e.what());
@@ -70,15 +70,15 @@ int main(int argc, char ** argv)
 //
 //	int i = 1;
 //#ifdef __gnu_linux__
-//    c_printf(stdout, "random text\n");
+//    c_printf( "random text\n");
 //    //sleep(2);
-//    c_printf(stdout, "/cs]text erased clearing screen\n");
+//    c_printf( "/cs]text erased clearing screen\n");
 //
-//    c_printf(stdout, "normal : /bld]bold/!]\n");
-//    c_printf(stdout, "normal : /dim]dim/!]\n");
-//    c_printf(stdout, "normal : /blk]blink/!]\n");
-//    c_printf(stdout, "normal : /rvs]reverse/!]\n");
-//    c_printf(stdout, "normal : /hid]hidden/!]\n");
+//    c_printf( "normal : /bld]bold/!]\n");
+//    c_printf( "normal : /dim]dim/!]\n");
+//    c_printf( "normal : /blk]blink/!]\n");
+//    c_printf( "normal : /rvs]reverse/!]\n");
+//    c_printf( "normal : /hid]hidden/!]\n");
 //#endif
 //	/*auto test_str1 = 
 //R"test_string(
@@ -136,9 +136,9 @@ int main(int argc, char ** argv)
 //
 //)test_string";
 //
-//	c_printf(stdout, test_str1, 10u, 10.0f, "hello world!");
+//	c_printf( test_str1, 10u, 10.0f, "hello world!");
 //
-//	c_printf(stdout, "writing in /r!]red\n");
+//	c_printf( "writing in /r!]red\n");
 //	
 //	auto test_str2 = 
 //R"test_foo(
@@ -173,7 +173,7 @@ int main(int argc, char ** argv)
 //
 //)test_foo";
 //
-//	c_printf(stdout, test_str2, 7);
+//	c_printf( test_str2, 7);
 //
 //auto test_str3 = 
 //R"test_foo(
@@ -188,6 +188,6 @@ int main(int argc, char ** argv)
 //
 //	)test_foo";
 //    
-//	c_printf(stdout, test_str3);*/
+//	c_printf( test_str3);*/
 //	return 0;
 //}

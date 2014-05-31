@@ -1,3 +1,4 @@
+/*
 
 Copyright (C) 2014 Floyd Mulenga Chitalu jnr									
 
@@ -17,4 +18,21 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM(S), DAMAGE(S) OR OTHER		
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,	
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN		
-THE SOFTWARE.																	
+THE SOFTWARE.	
+
+*/
+
+#include "_cpf_verify.h"
+#include <string>
+
+extern void _cpf_verify(_cpf_type::c_str format)
+{
+	for (; *format; ++format)
+	{
+		if (*format != '%' || *++format == '%')
+		{
+			continue;
+		}
+		throw _cpf_type::error("bad format specifier");
+	}
+}

@@ -22,9 +22,33 @@ THE SOFTWARE.
 
 */
 
-#include "_cpf_type_norm.h"
+#ifndef _CPF_TYPE_NORM_H
+#define _CPF_TYPE_NORM_H
 
-_cpf_type::c_str normalize_arg(const	_cpf_type::str& arg)
+#include "_cpf_type.h"
+#include <type_traits>
+
+template<class T>
+typename std::enable_if<std::is_integral<T>::value, T>::type
+normalize_arg(const T arg)
 {
-	return	arg.c_str();
+	return arg;
 }
+
+template<class T>
+typename std::enable_if<std::is_floating_point<T>::value, T>::type
+normalize_arg(const T arg)
+{
+	return arg;
+}
+
+template<class T>
+typename std::enable_if<std::is_pointer<T>::value, T>::type
+normalize_arg(const T arg)
+{
+	return arg;
+}
+
+extern _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
+
+#endif

@@ -1,3 +1,4 @@
+/*
 
 Copyright (C) 2014 Floyd Mulenga Chitalu jnr									
 
@@ -17,4 +18,24 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM(S), DAMAGE(S) OR OTHER		
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,	
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN		
-THE SOFTWARE.																	
+THE SOFTWARE.	
+
+*/
+
+#ifndef _CPF_CONFIG_H
+#define _CPF_CONFIG_H
+
+#include "_cpf_colour_defs.h"
+
+extern "C" _cpf_type::attribs _cpf_current_text_attribs;
+
+/*
+	configure system terminal settings
+
+	@strm 	- output stream
+	@attr - text attribute vector
+*/
+extern "C" void _cpf_config_terminal(	_cpf_type::stream strm,
+										const _cpf_type::attribs& attr);
+
+#endif

@@ -1,3 +1,4 @@
+/*
 
 Copyright (C) 2014 Floyd Mulenga Chitalu jnr									
 
@@ -17,4 +18,26 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM(S), DAMAGE(S) OR OTHER		
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,	
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN		
-THE SOFTWARE.																	
+THE SOFTWARE.	
+
+*/
+
+#ifndef CPF_FIND_H
+#define CPF_FIND_H
+
+#include "_cpf_common.h"
+
+/*
+	optimizer. 
+	they simply prevent execution of code i.e sanitizing
+	output strings by removing escape sequences, when it 
+	is not necessary.
+*/
+extern bool encountered_esc_seq_on_parse;
+
+extern std::size_t _cpf_find(	const _cpf_type::str& _what, 
+								const _cpf_type::str& _where,
+								const std::size_t _offset=0,
+								const char& _esc_char='`');
+
+#endif

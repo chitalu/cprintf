@@ -1,58 +1,44 @@
+/*
+
+Copyright (C) 2014 Floyd Mulenga Chitalu jnr									
+
+Permission is hereby granted, free of charge, to obtain a copy					
+of this software, to deal in the Software without restriction, including		
+without limitation the rights to [use], [copy], [modify], [merge], [publish],	
+[distribute], [sublicense], and/or [sell] copies of the Software, and to		
+permit persons to whom the Software is furnished to do so, subject to			
+the following conditions:														
+																				
+The above copyright notice and this permission notice shall be included in		
+all copies or substantial portions of the Software.								
+																				
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR		
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,		
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE		
+AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM(S), DAMAGE(S) OR OTHER		
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,	
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN		
+THE SOFTWARE.	
+
+*/
+
 #ifndef _CPF_COMMON_H
 #define _CPF_COMMON_H
 
-#include <stdexcept>
-#include <utility>
-#include <algorithm>
-#include <assert.h>
-
-#include <vector>
-#include <map>
-#include <string>
-
 #ifdef _WIN32
 #define SYSTXTATTIB_UNDEF (0xFF)
-
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-
-#include <Windows.h>
-
-#undef VC_EXTRALEAN
-#undef WIN32_LEAN_AND_MEAN
-
-
 #else
 #define SYSTXTATTIB_UNDEF ("undef")
 #endif
 
-namespace _cpf_types
-{
-	typedef std::string _string_type_;
+#include "_cpf_type.h"
 
-#ifdef _WIN32
-	typedef WORD colour;
-#else
-	typedef std::string colour;
-#endif
-}
-
-namespace _cpf_types
-{
-	typedef int error;
-	typedef std::pair<_cpf_types::_string_type_, _cpf_types::_string_type_> str_pair;
-	typedef std::map<std::size_t, str_pair> meta_format_type;
-	typedef std::map<const _cpf_types::_string_type_, _cpf_types::colour> colour_token_map;
-	typedef std::vector<_cpf_types::_string_type_> string_vector;
-	typedef FILE* stream;
-}
-
+#include <stdexcept>
+#include <algorithm>
 
 /*
 	
 */
-extern void _cpf_except_on_condition(bool condition, std::string _err_msg);
-
 enum class ext_ASCII : unsigned char
 {
 	euro = 0x80,
