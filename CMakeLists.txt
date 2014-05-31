@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
 #
-# If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
-# and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
-# to Debug prior to calling PROJECT()
+#   If the user specifies -DCMAKE_BUILD_TYPE on the command line, take 
+#   their definition and dump it in the cache along with proper documentation, 
+#   otherwise set CMAKE_BUILD_TYPE to Debug prior to calling PROJECT()
 #
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET  (   CMAKE_BUILD_TYPE 
