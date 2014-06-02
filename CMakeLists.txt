@@ -90,15 +90,13 @@ ENDIF()
 IF(WIN32)
    
     SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
-    SET(c_printf_LIB_STATIC "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.lib")
-    SET(c_printf_LIB_SHARED "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.dll")
+    SET(c_printf_LIB_PATH "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.lib")
 
     ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
     
     SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-    SET(c_printf_LIB_STATIC "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.a")
-    SET(c_printf_LIB_SHARED "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.so")
+    SET(c_printf_LIB_PATH "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.a")
 
 ENDIF()
 
@@ -113,22 +111,13 @@ INCLUDE_DIRECTORIES("incl/internal")
 MESSAGE(STATUS "registering library builds")
 
 #
-#   build both static and shared libraries
+#   build as static library
 #
-SET(static_lib_name ${PROJECT_NAME}_static)
-SET(shared_lib_name ${PROJECT_NAME})
+ADD_LIBRARY(${PROJECT_NAME} STATIC ${INCL_FILES} ${SRC_FILES})
 
-ADD_LIBRARY(${shared_lib_name} SHARED ${INCL_FILES} ${SRC_FILES})
-ADD_LIBRARY(${static_lib_name} STATIC ${INCL_FILES} ${SRC_FILES})
-
-SET_TARGET_PROPERTIES(${static_lib_name}    PROPERTIES 
-                                            OUTPUT_NAME ${static_lib_name}
-                                            PREFIX "") #remove "lib" prefix on output file name
-
-SET_TARGET_PROPERTIES(${shared_lib_name}    PROPERTIES 
-                                            OUTPUT_NAME ${shared_lib_name}
-                                            PREFIX "")
+SET_TARGET_PROPERTIES(${PROJECT_NAME}    PROPERTIES 
+                                        PREFIX "") #remove "lib" prefix on output file name on linux
 
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_DIR})
 
-INSTALL(TARGETS ${shared_lib_name} ${static_lib_name} DESTINATION ${DESTINATION_DIR})
+INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${DESTINATION_DIR})
