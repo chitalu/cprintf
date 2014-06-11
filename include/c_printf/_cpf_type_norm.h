@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef _CPF_TYPE_NORM_H
 #define _CPF_TYPE_NORM_H
 
-#include "internal/_cpf_type.h"
+#include "c_printf/internal/_cpf_type.h"
 #include <type_traits>
 
 template<class T>
