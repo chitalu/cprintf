@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "_cpf_type_norm.h"
+#include "c_printf/_cpf_type_norm.h"
 
 _cpf_type::c_str normalize_arg(const	_cpf_type::str& arg)
 {

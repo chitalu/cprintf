@@ -29,9 +29,10 @@ THE SOFTWARE.
 #include <algorithm>
 #include <cstdarg>
 #include <cassert>
-#include "_cpf_parse.h"
-#include "_cpf_type_norm.h"
-#include "internal/_cpf_verify.h"
+
+#include "c_printf/_cpf_parse.h"
+#include "c_printf/_cpf_type_norm.h"
+#include "c_printf/internal/_cpf_verify.h"
 
 template <std::size_t...>
 struct indices
