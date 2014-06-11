@@ -29,16 +29,14 @@ THE SOFTWARE.
 /*text attributes before a call was made to c_printf*/
 _cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTIB_UNDEF;
 
-extern "C" std::size_t _cpf_get_num_arg_specifiers(
-	const _cpf_type::str & obj, 
-	const _cpf_type::str & target)
+extern "C" std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 {
 	std::size_t n = 0;
 	_cpf_type::str::size_type pos = 0;
-	while ((pos = _cpf_find(target, obj, pos, '%')) != _cpf_type::str::npos)
+	while ((pos = _cpf_find("%", obj, pos, '%')) != _cpf_type::str::npos)
 	{
-		n++;
-		pos += target.size();
+		++n;
+		++pos;
 	}
 	return n;
 }
@@ -48,7 +46,7 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 													std::size_t& ssp_,
 													const _cpf_type::attribs attr)
 {
-	if (_cpf_colour_config == _CPF_ENABLE)
+	if (_cpf_attrib_config == _CPF_ENABLE)
 	{
 		_cpf_config_terminal(strm, attr);
 	}
@@ -136,12 +134,13 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 								_cpf_type::str& printed_string_,
 								std::size_t& ssp_,
 								bool &more_args_on_iter,
-								_cpf_type::meta_format_type::const_iterator &msd_iter)
+								_cpf_type::meta_format_type::const_iterator &msd_iter,
+								const _cpf_type::meta_format_type::const_iterator &end_point_comparator)
 {
 	printed_string_ = printed_string_.substr(ssp_);
 	ssp_ = 0;
 
-	more_args_on_iter = _cpf_get_num_arg_specifiers(printed_string_, "%") > 0;
+	more_args_on_iter = _cpf_get_num_arg_specifiers(printed_string_) > 0;
 	if (!more_args_on_iter)
 	{
 		if (!printed_string_.empty())
@@ -151,12 +150,14 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 		}
 		std::advance(msd_iter, 1);
 
-		/*
-		TODO: this only work for windows
-		if (msd_iter._Ptr->_Isnil && _cpf_newline_config == _CPF_ENABLE)
+		if (msd_iter == end_point_comparator && _cpf_newline_config == _CPF_ENABLE)
 		{
+			/*
+				if we have reached the end and printed the entire 
+				format string, automatically print a if enabled
+			*/	
 			fprintf(strm, "\n");
-		}*/
+		}
 	}
 }
 
@@ -165,7 +166,7 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 							std::size_t& ssp_,
 							_cpf_type::meta_format_type::const_iterator &msd_iter)
 {
-	if (_cpf_colour_config == _CPF_ENABLE)
+	if (_cpf_attrib_config == _CPF_ENABLE)
 	{
 		_cpf_config_terminal(strm, msd_iter->second.first);
 	}
@@ -174,9 +175,9 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 	fprintf(strm, "%s", printed_string_.c_str());
 	std::advance(msd_iter, 1);
 
-	while (_cpf_get_num_arg_specifiers(msd_iter->second.second, "%") == 0)
+	while (_cpf_get_num_arg_specifiers(msd_iter->second.second) == 0)
 	{
-		if (_cpf_colour_config == _CPF_ENABLE)
+		if (_cpf_attrib_config == _CPF_ENABLE)
 		{
 			_cpf_config_terminal(strm, msd_iter->second.first);
 		}
@@ -196,7 +197,7 @@ void _cpf_call_(
     {
 		auto nl =	std::distance(msd_iter, end_point_comparator) > 1 && 
 					(_cpf_newline_config == _CPF_ENABLE);
-		if (_cpf_colour_config == _CPF_ENABLE)
+		if (_cpf_attrib_config == _CPF_ENABLE)
 		{
 			_cpf_config_terminal(strm, msd_iter->second.first);
 		}
@@ -205,7 +206,7 @@ void _cpf_call_(
     }
 
 	/*restore defaults*/
-	if (_cpf_colour_config == _CPF_ENABLE)
+	if (_cpf_attrib_config == _CPF_ENABLE)
 	{
 		_cpf_config_terminal(strm, _cpf_type::str_vec({"!"}));
 	}

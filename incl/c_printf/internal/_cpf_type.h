@@ -52,7 +52,7 @@ namespace _cpf_type
 	tokens will remain unmodified and subsequently displayed as is. No 
 	exception will be thrown unless otherwise applicable.
 */
-extern std::uint8_t _cpf_colour_config;
+extern std::uint8_t _cpf_attrib_config;
 
 /*
 	flag to specify whether to automatically include a carridge-return

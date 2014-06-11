@@ -30,8 +30,7 @@ THE SOFTWARE.
 #include <cstdarg>
 #include <cassert>
 
-#include "c_printf/_cpf_parse.h"
-#include "c_printf/_cpf_type_norm.h"
+#include "c_printf/internal/_cpf_parse.h"
 #include "c_printf/internal/_cpf_verify.h"
 
 template <std::size_t...>
@@ -116,8 +115,7 @@ decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 /*
 	@return number of printf argument tokens "%" in a given string
 */
-extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_type::str & obj, 
-													const _cpf_type::str & str);
+extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_type::str & str);
 
 /*
 	print the substring preceding an argument specifier in a sub-format-string
@@ -134,7 +132,8 @@ extern void _cpf_print_post_arg_str(_cpf_type::stream strm,
 									_cpf_type::str& printed_string_,
 									std::size_t& ssp_,
 									bool &more_args_on_iter,
-									_cpf_type::meta_format_type::const_iterator &msd_iter);
+									_cpf_type::meta_format_type::const_iterator &msd_iter,
+									const _cpf_type::meta_format_type::const_iterator &end_point_comparator);
 
 /*
 	print non-argument specifying format string i.e where the implmentation
@@ -177,7 +176,7 @@ void _cpf_call_(
 	/*
 		printed string argument-specifier ('%') count
 	*/
-	const auto pstr_argc = _cpf_get_num_arg_specifiers(printed_string_, "%");
+	const auto pstr_argc = _cpf_get_num_arg_specifiers(printed_string_);
 	
 			/*
 				more printf args to print using "printed_string_" as 
@@ -261,8 +260,13 @@ template<typename... Ts>
 void c_fprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 {
 #if defined(_DEBUG)
-	assert(strm != nullptr && "output stream undefined");
-	assert(format != nullptr && "format string undefined");
+	if(strm == nullptr) throw _cpf_type::error("output stream is undefined (null)");
+	else if (format == nullptr) throw _cpf_type::error("format string is undefined (null)");
+
+	if (_cpf_get_num_arg_specifiers(format) != sizeof...(args))
+	{
+		throw _cpf_type::error("invalid argument count");
+	}
 
 	/*
 		debug-build call signature verification 
@@ -373,7 +377,6 @@ struct _cpf_dbg_fpath_separator
 	And as such, building in release mode results in the macros
 	expanding to [nothing], rendering a client call impotent.
 */
-
 #define __print_stat_str\
 	_cpf_type::str const& pathname = __FILE__;\
 	auto fname =  _cpf_type::str(\
@@ -383,14 +386,14 @@ struct _cpf_dbg_fpath_separator
 	c_fprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, __FUNCTION__, fname.c_str(), __LINE__); \
 
 #ifdef _WIN32
-#define _CPF_DEBUG_BREAK_POINT _asm int 3;
+#define _CPF_FORCE_BREAK_POINT _asm int 3;
 #else
 /*
 	this may not work for all situations and as such I may need to do 
 	something like what is contained here:
 	http://mainisusuallyafunction.blogspot.co.uk/2012/01/embedding-gdb-breakpoints-in-c-source.html
 */
-#define _CPF_DEBUG_BREAK_POINT asm volatile ("int3;");
+#define _CPF_FORCE_BREAK_POINT asm volatile ("int3;");
 #endif
 
 #define c_fprintf_dbg(strm, format, ...) \
@@ -413,19 +416,19 @@ struct _cpf_dbg_fpath_separator
 
 #define c_fprintf_dbg_bp(strm, format, ...) \
 	c_fprintf_dbg(strm, format, ##__VA_ARGS__)\
-	_CPF_DEBUG_BREAK_POINT
+	_CPF_FORCE_BREAK_POINT
 
 #define c_printf_dbg_bp(format, ...) \
 	c_fprintf_dbg(stderr, format, ##__VA_ARGS__)\
-	_CPF_DEBUG_BREAK_POINT
+	_CPF_FORCE_BREAK_POINT
 
 #define c_fprintf_t_dbg_bp(strm, format, tup) \
 	c_fprintf_t_dbg(strm, format, tup)\
-	_CPF_DEBUG_BREAK_POINT
+	_CPF_FORCE_BREAK_POINT
 
 #define c_printf_t_dbg_bp(format, tup) \
 	c_printf_t_dbg(format, tup)\
-	_CPF_DEBUG_BREAK_POINT
+	_CPF_FORCE_BREAK_POINT
 
 #else
 

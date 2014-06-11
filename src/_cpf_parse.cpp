@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "c_printf/_cpf_parse.h"
+#include "c_printf/internal/_cpf_parse.h"
 #include "_cpf_config.h"
 #include "_cpf_find.h"
 #include <cstdio>
@@ -33,7 +33,7 @@ THE SOFTWARE.
 #define _CPF_TOKEN_PREFIX "/"
 #define _CPF_TOKEN_SUFFIX "]"
 
-std::uint8_t _cpf_colour_config = _CPF_ENABLE;
+std::uint8_t _cpf_attrib_config = _CPF_ENABLE;
 std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
@@ -234,14 +234,14 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 {
 	_cpf_type::meta_format_type meta;
 
-	if (_cpf_colour_config == _CPF_DISABLE)
+	if (_cpf_attrib_config == _CPF_DISABLE)
 	{
 		_cpf_type::str_vec default_attrib{ "no-colour" };
 		meta.insert(std::make_pair(0, std::make_pair(default_attrib, src_format)));
 		return meta;
 	}
 
-	_cpf_type::str _src_format = (_cpf_colour_config == _CPF_ENABLE) ? _cpf_map_token_parse(src_format) : src_format;
+	_cpf_type::str _src_format = (_cpf_attrib_config == _CPF_ENABLE) ? _cpf_map_token_parse(src_format) : src_format;
 
 	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
 	{
