@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef _CPF_PARSE_H
 #define _CPF_PARSE_H
 
-#include "_cpf_type.h"
+#include "internal/_cpf_type.h"
 
 /*
 	text attribute token escape sequences..

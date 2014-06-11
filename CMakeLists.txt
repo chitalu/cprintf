@@ -105,8 +105,8 @@ MESSAGE(STATUS "mapping library source files")
 file(GLOB_RECURSE INCL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/incl/*.h")
 file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-INCLUDE_DIRECTORIES("incl")
-INCLUDE_DIRECTORIES("incl/internal")
+INCLUDE_DIRECTORIES("include")
+INCLUDE_DIRECTORIES("include/${PROJECT_NAME}/internal")
     
 MESSAGE(STATUS "registering library builds")
 

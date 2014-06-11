@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <cassert>
 #include "_cpf_parse.h"
 #include "_cpf_type_norm.h"
-#include "_cpf_verify.h"
+#include "internal/_cpf_verify.h"
 
 template <std::size_t...>
 struct indices
