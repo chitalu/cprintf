@@ -341,8 +341,8 @@ R"debug_str(
 /$%s;%d|c*]
 >> dbg print 
 @build:		%s-%s 
-@file:		%s
 @function:	%s
+@file:		%s
 @line-number:	%d
 
 log:
@@ -380,7 +380,7 @@ struct _cpf_dbg_fpath_separator
 	std::find_if(pathname.rbegin(), pathname.rend(),\
 	_cpf_dbg_fpath_separator()).base(),\
 	pathname.end());\
-	c_fprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, fname.c_str(), __LINE__, __FUNCTION__); \
+	c_fprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, __FUNCTION__, fname.c_str(), __LINE__); \
 
 #ifdef _WIN32
 #define _CPF_DEBUG_BREAK_POINT _asm int 3;
