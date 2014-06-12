@@ -95,10 +95,12 @@ IF(WIN32)
     ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
     
-    SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-    SET(c_printf_LIB_PATH "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.a")
+    SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE STRING "binary output directory")
+    SET(c_printf_LIB_PATH "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.a" CACHE STRING "binary output path")
 
 ENDIF()
+
+MESSAGE(STATUS "using c_printf paths: \n${c_printf_LIB_OUTPUT_DIR} \n${c_printf_LIB_PATH}")
 
 MESSAGE(STATUS "mapping library source files")
 
@@ -115,8 +117,10 @@ MESSAGE(STATUS "registering library builds")
 #
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${INCL_FILES} ${SRC_FILES})
 
-SET_TARGET_PROPERTIES(${PROJECT_NAME}    PROPERTIES 
-                                        PREFIX "") #remove "lib" prefix on output file name on linux
+#
+#   remove "lib" prefix on output file name on linux
+#
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_DIR})
 
