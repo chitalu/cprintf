@@ -199,7 +199,7 @@ void _cpf_call_(
 	{
 		auto fstr = _cpf_print_pre_arg_str(strm, printed_string_, ssp_, msd_iter->second.first);
 		fprintf(strm, fstr.c_str(), arg0);
-		_cpf_print_post_arg_str(strm, printed_string_, ssp_, more_args_on_iter, msd_iter);
+		_cpf_print_post_arg_str(strm, printed_string_, ssp_, more_args_on_iter, msd_iter, end_point_comparator);
 		printed_arg0 = true;
 	}
 	else
