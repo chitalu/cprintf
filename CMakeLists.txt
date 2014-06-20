@@ -87,6 +87,9 @@ ENDIF()
 #
 # setup paths 
 #
+
+SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl")
+
 IF(WIN32)
    
     SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}" CACHE STRING "binary output directory")
@@ -102,10 +105,10 @@ ENDIF()
 
 MESSAGE(STATUS "mapping library source files")
 
-file(GLOB_RECURSE INCL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/incl/*.h")
+file(GLOB_RECURSE INCL_FILES "${c_printf_incl_dir}/*.h")
 file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-INCLUDE_DIRECTORIES("incl")
+INCLUDE_DIRECTORIES(${c_printf_incl_dir})
 INCLUDE_DIRECTORIES("incl/${PROJECT_NAME}/internal")
     
 MESSAGE(STATUS "registering library builds")
