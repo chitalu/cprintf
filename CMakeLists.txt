@@ -88,7 +88,7 @@ ENDIF()
 # setup paths 
 #
 
-SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl")
+SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" CACHE STRING "path c_printf headers")
 
 IF(WIN32)
    
