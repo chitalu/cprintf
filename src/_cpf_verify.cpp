@@ -33,6 +33,6 @@ extern void _cpf_verify(_cpf_type::c_str format)
 		{
 			continue;
 		}
-		throw _cpf_type::error("bad format specifier");
+		throw _cpf_type::error("cpf err: bad format specifier");
 	}
 }

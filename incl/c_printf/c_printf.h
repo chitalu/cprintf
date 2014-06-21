@@ -259,13 +259,28 @@ void _cpf_call_(
 template<typename... Ts>
 void c_fprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 {
-#if defined(_DEBUG)
-	if(strm == nullptr) throw _cpf_type::error("output stream is undefined (null)");
-	else if (format == nullptr) throw _cpf_type::error("format string is undefined (null)");
-
-	if (_cpf_get_num_arg_specifiers(format) != sizeof...(args))
+	if (strm == nullptr)
 	{
-		throw _cpf_type::error("invalid argument count");
+		throw _cpf_type::error("cpf err: output stream is undefined (null)");
+	}
+	else if (format == nullptr)
+	{
+		throw _cpf_type::error("cpf err: format string is undefined (null)");
+	}
+
+	auto meta_str_data = _cpf_process_format_string(format);
+
+#if defined(_DEBUG)
+	
+	std::size_t nargs = 0u;
+	for (const auto &i : meta_str_data)
+	{
+		nargs += _cpf_get_num_arg_specifiers(i.second.second);
+	}
+
+	if (nargs != sizeof...(args))
+	{
+		throw _cpf_type::error("cpf err: invalid argument count");
 	}
 
 	/*
@@ -273,7 +288,7 @@ void c_fprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 	*/
 	//_cpf_verify(format, normalize_arg(args)...);
 #endif
-	auto meta_str_data = _cpf_process_format_string(format);
+	
 	auto tsd_iter_begin = meta_str_data.cbegin();
 	auto tsd_iter_end_point_comparator = meta_str_data.cend();
 

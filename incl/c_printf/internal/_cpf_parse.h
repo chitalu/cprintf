@@ -73,14 +73,16 @@ extern const std::initializer_list<char> intermediate_format_specifers;
 extern const std::initializer_list<char> escape_characters;
 
 /*
-	as indicated by name, this function takes the source 
-	format string and which then is subsequently passed through various
+	As indicated by name, this function takes the source 
+	format string which is then subsequently passed through various
 	parsing stages. On return, the function yeilds a map of [key] type
-	std::size_t and [value] type string-pair. The [key] represents the positional
-	offset, within the processed format string, of the second-element-of [value]. 
-	The [value] is one in which the first element is a 
-	symbolic string token representing the colour the second (format substring)
-	element in the pair is to be.
+	std::size_t and [value] type <string-vector : string> pair. The [key] 
+	represents the positional offset, within the source format 
+	string, of the [second]-element-of [value]. 
+	The [value] is one in which the [first] element is a vector of
+	symbolic string tokens the [second] element is to be 
+	formatted with. 
+	The second element of [value] is a substring of the source format string.
 */
 extern _cpf_type::meta_format_type _cpf_process_format_string(
 	const _cpf_type::str &fstring);

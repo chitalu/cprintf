@@ -105,13 +105,13 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 				}
 				else
 				{
-					throw _cpf_type::error("invalid format specifier detail");
+					throw _cpf_type::error("cpf err: invalid format specifier detail");
 				}
 
 				//last iteration
 				if (i == (_max - 1) && !is_in(crnt_char, extended_format_specifier_terminators))
 				{
-					throw _cpf_type::error("invalid format specifier");
+					throw _cpf_type::error("cpf err: invalid format specifier");
 				}	
 			}
 			if (parsed_complete_f_spec)

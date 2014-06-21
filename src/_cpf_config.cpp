@@ -150,7 +150,7 @@ void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_st
 
 	if (!result)
 	{
-		throw _cpf_type::error("invalid coordinates");
+		throw _cpf_type::error("cpf err: invalid coordinates");
 	}
 #else
 	//http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html

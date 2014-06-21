@@ -95,7 +95,7 @@ _cpf_verify(_cpf_type::c_str format, const T& farg, const Ts&&... args)
 		return _cpf_verify(++format, std::forward<Ts>(args)...);
 	}
 
-	throw _cpf_type::error("format specifier (%) count does not match argument count");
+	throw _cpf_type::error("cpf err: format specifier (%) count does not match argument count");
 }
 
 #endif /*#ifndef _CPF_VERIFY_H*/

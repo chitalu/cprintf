@@ -100,7 +100,7 @@ extract_map_token_values(const _cpf_type::str_pair str_frmt_pairs)
 
 	if (num_strings != num_fstrings && num_fstrings != 1)
 	{
-		throw _cpf_type::error("syntax error: key-value pair mismatch");
+		throw _cpf_type::error("cpf err: syntax error: key-value pair mismatch");
 	}
 
 	//mystring1;mystring2;mystring3
@@ -170,7 +170,7 @@ _cpf_type::str _cpf_map_token_parse(
 
 		if (token_suffix_pos == src_format.npos)
 		{
-			throw _cpf_type::error("invalid map token: suffix not found");
+			throw _cpf_type::error("cpf err: invalid map token: suffix not found");
 		}
 
 		/*... if there is one*/
@@ -181,7 +181,7 @@ _cpf_type::str _cpf_map_token_parse(
 		auto pipe_char_pos = _cpf_find("|", raw_token);
 		if (pipe_char_pos == raw_token.npos)
 		{
-			throw _cpf_type::error("invalid map token: key-value pair delimiter '|' is missing");
+			throw _cpf_type::error("cpf err: invalid map token: key-value pair delimiter '|' is missing");
 		}
 		_cpf_type::str_pair map_string(
 			raw_token.substr(0, pipe_char_pos),
@@ -271,7 +271,7 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 		
 		if(suffix_pos == _src_format.npos)
 		{
-			throw _cpf_type::error("invalid token encountered");
+			throw _cpf_type::error("cpf err: invalid token encountered");
 		}
 
 		auto next_prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, _src_format, suffix_pos);
