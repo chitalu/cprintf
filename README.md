@@ -22,8 +22,11 @@ the format string.
 
 **Note**
 
-For numerous reasons, the feature-set available on the Microsoft Windows Operating 
+For various reasons, the feature-set available on the Microsoft Windows Operating 
 System is limited in comparison to that of the Linux Operating System (subject to 
 terminal).
 
 For more info, refer to: http://en.tldp.org/HOWTO/Text-Terminal-HOWTO.html
+
+
+**Go to project Wiki for samples of use**
