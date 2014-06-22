@@ -4,34 +4,32 @@ Welcome to the **c_printf** Project
 
 c_printf is an umbrella name used to encapsulate a group of C++(11/0x) 
 language functions for extended formatted-printing. 
-The project aims to provide a thin auxiallary layer atop that of fprintf.
-Most functionality works, in much a similar manner to that of its patternal
+The purpose to provide a thin auxiallary layer atop that of (f)printf.
+Most functionality works, in much a similar manner, to that of its patternal
 counter-part(s)	i.e printf, fprintf etc. 
 
 Aside from guarranteed type-safety (unlike that of it predecesors) 
-c_printf also introduces the feature of colour token specification. 
-With this, users are able to specify, as part of the format string, the 
-colour of all or some of the format-string-text within console output. 
-Alongside this is also the addition of map tokens which enable users the 
-ability to map specific strings with certain token value(s).
+c_printf also introduces the feature of colour format specification for output 
+directed to a terminal. 
+This functionality effectively permits users the ability to specify--as part of 
+the format string--the colour of all (or some) of the format-string's characters.
 
-Extending on the use of variadic arguments, c_printf also permits users
-the ability to opt for the use of a Tuple object which then acts as a 
-container for the to-be-printed arguments ordered in correspondence with 
-the argument layout as specified within the format string.  
+In taking advantage of variadic templates, the library's interface also provides
+functionality that enables users to opt for the use of a Tuple object as function 
+input. This Tuple then acts as the container for the to-be-printed arguments who's 
+elements are ordered in a corresponding layout with format specifiers (%...) in 
+the format string.  
 
-For numerous reasons the functionailty available on the Windows operating 
-system is limited in comparison to that of the *nix family of operating 
-systems (subject to terminal). This includes specifying text attributes with the following traits:
+**Note**
 
-* boldness 
-* blinking
-* extended dim colour specification
-* 256 colour support
-* and more ...   
+For numerous reasons, the feature-set available on the Microsoft Windows Operating 
+System is limited in comparison to that of the Linux Operating System (subject to 
+terminal).
 
+For more info, refer to: http://en.tldp.org/HOWTO/Text-Terminal-HOWTO.html
+_
 
-Thank you and I hope you enjoy using it in your projects.
+Floyd Mulenga Chitalu.
 
 Below is some sample code:
 
@@ -75,5 +73,3 @@ c_printf("tuple /#y*]element/!] test: %d", std::get<0>(args_of_100));
 
 Results:
 ![cpf.png](https://bitbucket.org/repo/aRe8Gp/images/2141127256-cpf.png)
-
-- *Floyd Chitalu*
