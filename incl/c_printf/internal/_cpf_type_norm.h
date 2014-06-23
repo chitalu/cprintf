@@ -51,4 +51,6 @@ normalize_arg(const T arg)
 
 extern _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
 
+extern _cpf_type::c_str normalize_arg(const _cpf_type::ocl_e& arg);
+
 #endif
