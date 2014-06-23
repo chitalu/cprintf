@@ -72,11 +72,18 @@ public:
 	inline _cpf_type::c_str what(void){ return msg; }
 };
 
+extern const char* opencl_err_to_str(int _v);
 /*
 	opencl error code wrapper type
 */
 struct _cpf_ocl_e{
-	_cpf_ocl_e(int _v) : v_(_v){} int v_;
+	_cpf_ocl_e(int _v) : v_(_v){} 
+	operator const char* (void)
+	{
+		return opencl_err_to_str(v_);
+	}
+
+	int v_;
 };
 
 namespace _cpf_type
