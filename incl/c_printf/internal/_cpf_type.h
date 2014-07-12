@@ -29,6 +29,8 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
+#include "c_printf/internal/_cpf_common.h"
+
 #include <cstdint>
 #include <utility>
 #include <vector>

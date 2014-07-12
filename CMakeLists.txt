@@ -30,34 +30,40 @@ SET (c_printf_VERSION_MAJOR 1)
 SET (c_printf_VERSION_MINOR 0)
 SET (c_printf_VERSION_PATCH 0)
 
-IF(WIN32)
-    #
-    # setup visual studio compiler 
-    #
-    MESSAGE(STATUS "configuring windows compiler")
+#
+#   default is to build as shared library
+#
+OPTION (CPF_STATIC_LIB "build as static library" OFF)
 
-    #permits for faster builds
-    ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
-
-ELSEIF(UNIX)
-    #
-    # setup GCC 
-    #
-    MESSAGE(STATUS "configuring GNU Compiler Collection")
-    
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11") 
+IF (CPF_STATIC_LIB)
+    SET (CPF_PREPROC_DEFS "CPF_BUILD_AS_STATIC")
+ELSE(CPF_STATIC_LIB)
+     SET (CPF_PREPROC_DEFS "CPF_FUNC_EXPORT")
 ENDIF()
 
-OPTION (CONFIG_64 "build 64 bit binary" OFF)
+IF(WIN32)
+    #
+    # setup visual studio compiler flags
+    #
+    SET (CPF_BUILD_FLAGS "")
+    LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
+ELSEIF(UNIX)
+    #
+    # setup GCC flags
+    #
+    SET (CPF_BUILD_FLAGS "-std=gnu++11")
+ENDIF()
 
-IF(CONFIG_64)
+OPTION (CPF_CONFIG_64 "build 64 bit binary" OFF)
+
+IF(CPF_CONFIG_64)
     MESSAGE(STATUS "configured for 64 bit build")
     SET(BIT_BUILD_CONFIG "64bit")
     IF(UNIX)
         #
-        #   configure gcc for 64 bit build
+        #   append gcc for 64 bit build flag
         #
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+        SET(CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -m64")
     ENDIF()
 ELSE()
     MESSAGE(STATUS "configured for 32 bit build")
@@ -75,9 +81,7 @@ IF(${CMAKE_BUILD_TYPE} MATCHES Release)
     REMOVE_DEFINITIONS(-D_DEBUG)
 
 ELSE(${CMAKE_BUILD_TYPE} MATCHES Debug)
-
     MESSAGE(STATUS "creating DEBUG build")
-
     IF(UNIX)
         ADD_DEFINITIONS(-D_DEBUG)
     ENDIF(UNIX)
@@ -87,7 +91,6 @@ ENDIF()
 #
 # setup paths 
 #
-
 SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" CACHE STRING "path c_printf headers")
 
 IF(WIN32)
@@ -95,7 +98,6 @@ IF(WIN32)
     SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}" CACHE STRING "binary output directory")
     SET(c_printf_LIB_PATH "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}.lib" CACHE STRING "binary output path")
 
-    ADD_DEFINITIONS(-DVC_EXTRALEAN -DWIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
     
     SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE STRING "binary output directory")
@@ -103,29 +105,31 @@ ELSEIF(UNIX)
 
 ENDIF()
 
-MESSAGE(STATUS "using c_printf paths: \n${c_printf_LIB_OUTPUT_DIR} \n${c_printf_LIB_PATH}")
-
-MESSAGE(STATUS "mapping library source files")
-
-file(GLOB_RECURSE INCL_FILES "${c_printf_incl_dir}/*.h")
-file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+FILE(GLOB_RECURSE INCL_FILES "${c_printf_incl_dir}/*.h")
+FILE(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 INCLUDE_DIRECTORIES(${c_printf_incl_dir})
 INCLUDE_DIRECTORIES("incl/${PROJECT_NAME}/internal")
-    
-MESSAGE(STATUS "registering library builds")
 
 #
-#   build as static library
+#   add library
 #
-ADD_LIBRARY(${PROJECT_NAME} STATIC ${INCL_FILES} ${SRC_FILES})
+IF(CPF_STATIC_LIB)
+    SET(CPF_LIB_TYPE STATIC)
+ELSE(CPF_STATIC_LIB)
+     SET(CPF_LIB_TYPE SHARED)
+ENDIF(CPF_STATIC_LIB)
 
-#
-#   remove "lib" prefix on output file name on linux
-#
-SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
+ADD_LIBRARY(${PROJECT_NAME} ${CPF_LIB_TYPE} ${INCL_FILES} ${SRC_FILES})
 
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_DIR})
+MESSAGE(STATUS "creating ${CPF_BUILD_FLAGS} build")
+
+SET_TARGET_PROPERTIES(  ${PROJECT_NAME} 
+                        PROPERTIES PREFIX ""
+                        COMPILE_DEFINITIONS ${CPF_PREPROC_DEFS}
+                        COMPILE_FLAGS "${CPF_BUILD_FLAGS}") 
+
+#EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_DIR})
 
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${DESTINATION_DIR})
 

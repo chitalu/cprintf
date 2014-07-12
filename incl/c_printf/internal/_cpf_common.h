@@ -25,9 +25,37 @@ THE SOFTWARE.
 #ifndef _CPF_COMMON_H
 #define _CPF_COMMON_H
 
-#ifdef _WIN32
-#define SYSTXTATTIB_UNDEF (0xFF)
+#ifdef _WIN32 /* windows */
+
+/*
+ * CPF_BUILD_AS_STATIC is defined for static library.
+ * CPF_FUNC_EXPORT  is defined for building the DLL library.
+ */
+
+#ifdef CPF_BUILD_AS_STATIC
+#  define CPF_API extern
 #else
+#  ifdef CPF_FUNC_EXPORT
+#    define CPF_API extern __declspec(dllexport)
+#  else
+#    define CPF_API extern __declspec(dllimport)
+#  endif
+#endif
+
+#define SYSTXTATTIB_UNDEF (0xFF)
+ 
+#else /* UNIX */
+
+#ifdef CPF_BUILD_AS_STATIC
+#  define CPF_API extern
+#else
+#  if defined(__GNUC__) && __GNUC__>=4
+#   define CPF_API extern __attribute__ ((visibility("default")))
+#  else
+#   define CPF_API extern
+#  endif
+#endif
+
 #define SYSTXTATTIB_UNDEF ("undef")
 #endif
 

@@ -37,7 +37,7 @@ const auto default_foreground_colour = [&]()->_cpf_type::colour
 
 #endif
 
-extern "C" const _cpf_type::str_vec _cpf_std_tokens = {
+CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 
 	/*default*/
 	"!",

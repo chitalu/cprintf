@@ -32,7 +32,7 @@ THE SOFTWARE.
 /*
 
 */
-extern void _cpf_verify(_cpf_type::c_str format);
+CPF_API void _cpf_verify(_cpf_type::c_str format);
 
 /*
 	verifies that the format string contains arguments which

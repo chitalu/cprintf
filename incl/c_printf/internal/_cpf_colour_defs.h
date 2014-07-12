@@ -64,7 +64,7 @@ THE SOFTWARE.
 
 #endif /*	#ifdef _WIN32	*/
 
-extern "C" const _cpf_type::str_vec _cpf_std_tokens;
+CPF_API const _cpf_type::str_vec _cpf_std_tokens;
 
 /*
 	tokens available on both windows and linux

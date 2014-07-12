@@ -158,7 +158,7 @@ void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_st
 #endif
 }
 
-extern "C" void _cpf_config_terminal(	_cpf_type::stream strm,
+CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 										const _cpf_type::attribs& attribs)
 {
 	if (_cpf_is_fstream(strm))

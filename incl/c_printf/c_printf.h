@@ -115,12 +115,12 @@ decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 /*
 	@return number of printf argument tokens "%" in a given string
 */
-extern "C" std::size_t _cpf_get_num_arg_specifiers(	const _cpf_type::str & str);
+CPF_API std::size_t _cpf_get_num_arg_specifiers(	const _cpf_type::str & str);
 
 /*
 	print the substring preceding an argument specifier in a sub-format-string
 */
-extern _cpf_type::str _cpf_print_pre_arg_str(_cpf_type::stream strm,
+CPF_API _cpf_type::str _cpf_print_pre_arg_str(_cpf_type::stream strm,
 														_cpf_type::str& printed_string_,
 														std::size_t& ssp_,
 														const _cpf_type::attribs attr);
@@ -128,7 +128,7 @@ extern _cpf_type::str _cpf_print_pre_arg_str(_cpf_type::stream strm,
 /*
 	print the substring proceding an argument specifier in a sub-format-string 
 */
-extern void _cpf_print_post_arg_str(_cpf_type::stream strm,
+CPF_API void _cpf_print_post_arg_str(_cpf_type::stream strm,
 									_cpf_type::str& printed_string_,
 									std::size_t& ssp_,
 									bool &more_args_on_iter,
@@ -139,7 +139,7 @@ extern void _cpf_print_post_arg_str(_cpf_type::stream strm,
 	print non-argument specifying format string i.e where the implmentation
 	need not invoke printf with any avariadic arguments.
 */
-extern void _cpf_print_non_arg_str(	_cpf_type::stream strm,
+CPF_API void _cpf_print_non_arg_str(_cpf_type::stream strm,
 									_cpf_type::str& printed_string_,
 									std::size_t& ssp_,
 									_cpf_type::meta_format_type::const_iterator &msd_iter);
@@ -149,7 +149,7 @@ extern void _cpf_print_non_arg_str(	_cpf_type::stream strm,
 	This is the function executated when c_printf is called with only a format 
 	string and no arguments.
 */
-extern void _cpf_call_(	
+CPF_API void _cpf_call_(
 	_cpf_type::stream strm,
 	const _cpf_type::meta_format_type::const_iterator &end_point_comparator,
 	_cpf_type::meta_format_type::const_iterator &msd_iter,

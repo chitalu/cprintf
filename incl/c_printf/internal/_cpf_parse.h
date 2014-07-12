@@ -30,7 +30,7 @@ THE SOFTWARE.
 /*
 	text attribute token escape sequences..
 */
-extern const std::initializer_list<_cpf_type::str> attribute_escape_sequences;
+CPF_API const std::initializer_list<_cpf_type::str> attribute_escape_sequences;
 
 /*
 
@@ -47,17 +47,17 @@ extern const std::initializer_list<_cpf_type::str> attribute_escape_sequences;
 %% print a percent sign (\% also works)
 
 */
-extern const std::initializer_list<char> std_format_specifiers;
+CPF_API const std::initializer_list<char> std_format_specifiers;
 
 /*
 	'd', 'f', 's', 'e', 'o', 'x'
 */
-extern const std::initializer_list<char> extended_format_specifier_terminators;
+CPF_API const std::initializer_list<char> extended_format_specifier_terminators;
 
 /*
 	'+', '-', '.', '*', '#', 'l'
 */
-extern const std::initializer_list<char> intermediate_format_specifers;
+CPF_API const std::initializer_list<char> intermediate_format_specifers;
 
 /*
 
@@ -70,7 +70,7 @@ extern const std::initializer_list<char> intermediate_format_specifers;
 \v vertical tab
 
 */
-extern const std::initializer_list<char> escape_characters;
+CPF_API const std::initializer_list<char> escape_characters;
 
 /*
 	As indicated by name, this function takes the source 
@@ -84,7 +84,7 @@ extern const std::initializer_list<char> escape_characters;
 	formatted with. 
 	The second element of [value] is a substring of the source format string.
 */
-extern _cpf_type::meta_format_type _cpf_process_format_string(
+CPF_API _cpf_type::meta_format_type _cpf_process_format_string(
 	const _cpf_type::str &fstring);
 
 #endif
