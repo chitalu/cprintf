@@ -1,5 +1,7 @@
 #
 #   Values of interest:
+#
+#   c_printf_incl_dir - header files dir
 #   c_printf_STATIC_LIB_PATH - static library output path
 #   c_printf_SHARED_LIB_PATH - shared library output path
 #
