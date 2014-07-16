@@ -1,14 +1,15 @@
 #
-#   Values of interest:
-#   c_printf_static_lib_path - static library output path
-#   c_printf_shared_lib_path - shared library output path
+#   What need from here:
+#   
+#   c_printf_path - the path to the built project binary (.lib, .dll, .a, or .so)
+#   c_printf_output_dir - the directory in which the built binary resides.
+#   c_printf_incl_dir - project's include directory
 #
-#   CPF_CONFIG_64 - build as 64bit (linux only)
-#
-#
+#   CPF_CONFIG_64 - cmake option to enable building as 64bit, this is for linux only
+#                   visual studio users will need to open there IDE as 64bit via -G
 #
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 #
 #   project
@@ -23,7 +24,7 @@ SET (c_printf_VERSION_MINOR 0)
 SET (c_printf_VERSION_PATCH 0)
 
 #
-#   default is to build as shared library
+#   default is to build as shared library (.dll / .so)
 #
 OPTION (CPF_STATIC_LIB "build as static library" OFF)
 
@@ -33,27 +34,20 @@ ELSE(CPF_STATIC_LIB)
      SET (CPF_PREPROC_DEFS "CPF_FUNC_EXPORT")
 ENDIF()
 
+#
+# set compiler flags
+#
 IF(WIN32)
-    #
-    # setup visual studio compiler flags
-    #
     SET (CPF_BUILD_FLAGS "/WX")
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
-    #
-    # setup GCC flags
-    #
     SET (CPF_BUILD_FLAGS "-std=gnu++11 -Werror")
 ENDIF()
 
 OPTION (CPF_CONFIG_64 "build 64 bit binary" OFF)
 
 IF(CPF_CONFIG_64)
-    #for windows this must be done from command line via -G arg
     IF(UNIX)
-        #
-        #   append gcc for 64 bit build flag
-        #
         SET(CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -m64")
     ENDIF()
 ENDIF()
