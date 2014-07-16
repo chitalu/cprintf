@@ -69,17 +69,6 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens;
 /*
 	tokens available on both windows and linux
 */
-extern const _cpf_type::colour_token_map _cpf_std_token_vals;
-
+CPF_API const _cpf_type::colour_token_map _cpf_std_token_vals;
 
 #endif /*	#ifndef _CPF_SYS_COLOUR_CONFIG_H	*/
-
-/*
-
-#define BLOCK_SPACE_TOKEN "^_6r!|"
-//http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
-#define CURSOR_POS_TOKEN "^@10-20|"
-
-interesting:
-http://bjh21.me.uk/all-escapes/all-escapes.txt
-*/

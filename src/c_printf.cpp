@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "_cpf_find.h"
 
 /*text attributes before a call was made to c_printf*/
-_cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTIB_UNDEF;
+_cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
 
 std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 {

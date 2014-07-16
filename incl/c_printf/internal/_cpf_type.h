@@ -74,7 +74,7 @@ public:
 	inline _cpf_type::c_str what(void){ return msg; }
 };
 
-extern const char* opencl_err_to_str(int _v);
+CPF_API const char* opencl_err_to_str(int _v);
 /*
 	opencl error code wrapper type
 */

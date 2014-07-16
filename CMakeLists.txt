@@ -1,7 +1,7 @@
 #
 #   Values of interest:
-#   c_printf_STATIC_LIB_PATH - static library output path
-#   c_printf_SHARED_LIB_PATH - shared library output path
+#   c_printf_static_lib_path - static library output path
+#   c_printf_shared_lib_path - shared library output path
 #
 #   CPF_CONFIG_64 - build as 64bit (linux only)
 #
@@ -70,32 +70,11 @@ ELSE(${CMAKE_BUILD_TYPE} MATCHES Debug)
 ENDIF()
 
 #
-# setup paths 
+#   user variables
 #
-SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" 
-    CACHE STRING "path c_printf headers")
-
-IF(WIN32)
-   
-    SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}" 
-        CACHE STRING "binary output directory")
-    SET(c_printf_LIB_PATH_NO_EXT "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}" )
-    SET(c_printf_STATIC_LIB_PATH "${c_printf_LIB_PATH_NO_EXT}.lib" 
-        CACHE STRING "static library output path")
-    SET(c_printf_SHARED_LIB_PATH "${c_printf_LIB_PATH_NO_EXT}.dll" 
-        CACHE STRING "shared library output path")
-
-ELSEIF(UNIX)
-    
-    SET(c_printf_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}" 
-        CACHE STRING "library output directory")
-    SET(c_printf_LIB_PATH_NO_EXT "${c_printf_LIB_OUTPUT_DIR}/${PROJECT_NAME}" )
-    SET(c_printf_STATIC_LIB_PATH "${c_printf_LIB_PATH_NO_EXT}.a" 
-        CACHE STRING "static library output path")
-    SET(c_printf_SHARED_LIB_PATH "${c_printf_LIB_PATH_NO_EXT}.so" 
-        CACHE STRING "shared library output path")
-
-ENDIF()
+SET(c_printf_path "$<TARGET_FILE:${PROJECT_NAME}>" CACHE STRING "${PROJECT_NAME} output path")
+SET(c_printf_output_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>" CACHE STRING "${PROJECT_NAME} output dir")
+SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" CACHE STRING "path ${PROJECT_NAME} headers directory")
 
 FILE(GLOB_RECURSE INCL_FILES "${c_printf_incl_dir}/*.h")
 FILE(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
