@@ -108,6 +108,9 @@ namespace _cpf_type
 	typedef std::map<const _cpf_type::str, _cpf_type::colour> colour_token_map;
 	
 	typedef FILE* stream;
+	/*defined in _cpf_config.cpp*/
+	CPF_API const stream std_output_stream;
+	CPF_API const stream std_error_stream;
 }
 
 #endif 
