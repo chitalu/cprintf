@@ -7,6 +7,7 @@
 #
 #   CPF_CONFIG_64 - cmake option to enable building as 64bit, this is for linux only
 #                   visual studio users will need to open there IDE as 64bit via -G
+#   CPF_STATIC_LIB -
 #
 
 cmake_minimum_required(VERSION 3.0)
