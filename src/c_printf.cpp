@@ -28,14 +28,39 @@ THE SOFTWARE.
 
 /*text attributes before a call was made to c_printf*/
 _cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
-
+//c_printf("Characters:\t%c %%\n", 65);
 std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 {
 	std::size_t n = 0;
-	_cpf_type::str::size_type pos = 0;
+	std::int32_t pos = 0;
 	while ((pos = _cpf_find("%", obj, pos, '%')) != _cpf_type::str::npos)
 	{
-		++n;
+		if (pos == obj.size() - 1)
+		{
+			/*this would imply the following: c_printf("foo bar %");*/
+			throw _cpf_type::error("invalid format specifier ('%') position.");
+		}
+		std::int32_t n_ = n;
+
+		/*entering the while loop implies that a '%' was found successfully
+		which means we check whether the proceeding character is a '%'
+		if its not, then we are not attempting to escape the % character
+		using standard printf i.e %%*/
+		if (obj[(pos + 1)] != '%')
+		{
+			/*implies a case when you have %%%_ where "_" is a format specifier such as d -> %%%d*/
+			std::int32_t p_2 = (pos - 2);
+			if (p_2 >= 0)
+			{
+				if (obj[(pos - 2)] == '%')
+				{
+					n_ = ++n;
+				}
+			}
+
+			if (n_ == n)
+				++n;
+		}
 		++pos;
 	}
 	return n;
@@ -145,7 +170,7 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 	{
 		if (!printed_string_.empty())
 		{
-			fprintf(strm, "%s", printed_string_.c_str());
+			fprintf(strm, printed_string_.c_str());
 			printed_string_.clear();
 		}
 		std::advance(msd_iter, 1);
@@ -201,7 +226,7 @@ void _cpf_call_(
 		{
 			_cpf_config_terminal(strm, msd_iter->second.first);
 		}
-		fprintf(strm, nl ? "%s" : "%s\n", msd_iter->second.second.c_str());
+		fprintf(strm, std::string(msd_iter->second.second + (nl ? "" : "\n")).c_str());
 		std::advance(msd_iter, 1);
     }
 

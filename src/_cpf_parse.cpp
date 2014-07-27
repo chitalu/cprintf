@@ -40,10 +40,10 @@ const std::initializer_list<_cpf_type::str> attribute_escape_sequences = {
 	"`/", "`]", "`/$", "`|", "`;", "``", "`/@"
 };
 const std::initializer_list<char> std_format_specifiers = { 
-	'c', 'd', 'e', 'E', 'f', 'g', 'i', 'o', 's', 'u', 'x' 
+	'c', 'd', 'e', 'E', 'f', 'g', 'i', 'o', 's', 'u', 'x', 'X', 'a', 'A'
 };
 const std::initializer_list<char> extended_format_specifier_terminators = { 
-	'd', 'f', 's', 'e', 'o', 'x' 
+	'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u'
 };
 const std::initializer_list<char> intermediate_format_specifers = { 
 	'+', '-', '.', '*', '#', 'l' 
