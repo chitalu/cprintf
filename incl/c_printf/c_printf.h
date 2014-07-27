@@ -400,17 +400,6 @@ struct _cpf_dbg_fpath_separator
 	pathname.end());\
 	c_fprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, __FUNCTION__, fname.c_str(), __LINE__); \
 
-#ifdef _WIN32
-#define _CPF_FORCE_BREAK_POINT _asm int 3;
-#else
-/*
-	this may not work for all situations and as such I may need to do 
-	something like what is contained here:
-	http://mainisusuallyafunction.blogspot.co.uk/2012/01/embedding-gdb-breakpoints-in-c-source.html
-*/
-#define _CPF_FORCE_BREAK_POINT asm volatile ("int3;");
-#endif
-
 #define c_fprintf_dbg(strm, format, ...) \
 	do{\
 	__print_stat_str \
@@ -429,22 +418,6 @@ struct _cpf_dbg_fpath_separator
 #define c_printf_t_dbg(format, tup) \
 	c_fprintf_t_dbg(stderr, format, tup);
 
-#define c_fprintf_dbg_bp(strm, format, ...) \
-	c_fprintf_dbg(strm, format, ##__VA_ARGS__)\
-	_CPF_FORCE_BREAK_POINT
-
-#define c_printf_dbg_bp(format, ...) \
-	c_fprintf_dbg(stderr, format, ##__VA_ARGS__)\
-	_CPF_FORCE_BREAK_POINT
-
-#define c_fprintf_t_dbg_bp(strm, format, tup) \
-	c_fprintf_t_dbg(strm, format, tup)\
-	_CPF_FORCE_BREAK_POINT
-
-#define c_printf_t_dbg_bp(format, tup) \
-	c_printf_t_dbg(format, tup)\
-	_CPF_FORCE_BREAK_POINT
-
 #else
 
 /*do nothing*/
@@ -452,10 +425,6 @@ struct _cpf_dbg_fpath_separator
 #define c_printf_dbg(format, ...) 
 #define c_fprintf_t_dbg(strm, format, tup) 
 #define c_printf_t_dbg(format, tup) 
-#define c_fprintf_dbg_bp(strm, format, ...)
-#define c_printf_dbg_bp(format, ...)
-#define c_fprintf_t_dbg_bp(strm, format, tup)
-#define c_printf_t_dbg_bp(format, tup)
 
 #endif
 
