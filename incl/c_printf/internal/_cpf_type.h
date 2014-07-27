@@ -54,14 +54,14 @@ namespace _cpf_type
 	tokens will remain unmodified and subsequently displayed as is. No 
 	exception will be thrown unless otherwise applicable.
 */
-extern std::uint8_t _cpf_attrib_config;
+CPF_API std::uint8_t _cpf_attrib_config;
 
 /*
 	flag to specify whether to automatically include a carridge-return
 	at the end of the format string or not. Default behaviour is 
 	to include.
 */
-extern std::uint8_t _cpf_newline_config;
+CPF_API std::uint8_t _cpf_newline_config;
 
 struct _cpf_err{
 private:

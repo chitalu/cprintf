@@ -226,7 +226,7 @@ void _cpf_call_(
 		{
 			_cpf_config_terminal(strm, msd_iter->second.first);
 		}
-		fprintf(strm, std::string(msd_iter->second.second + (nl ? "" : "\n")).c_str());
+		fprintf(strm, std::string(msd_iter->second.second + (nl ? "\n" : "")).c_str());
 		std::advance(msd_iter, 1);
     }
 
