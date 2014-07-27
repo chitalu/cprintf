@@ -25,6 +25,19 @@ THE SOFTWARE.
 #include "_cpf_colour_defs.h"
 #include <assert.h>
 
+//TODO: FIGURE OUT HOW TO DO THIS!!!
+/*
+	return current foreground and background colour
+*/
+_cpf_type::colour _cpf_get_crnt_sys_sttribs(void)
+{
+#ifdef _WIN32 //attribute
+	return 0;
+#else
+	return "";
+#endif
+}
+
 #ifdef _WIN32 //attribute
 const auto default_foreground_colour = [&]()->_cpf_type::colour
 {
@@ -34,7 +47,7 @@ const auto default_foreground_colour = [&]()->_cpf_type::colour
 	return static_cast<_cpf_type::colour>(a % 16);
 }();
 #else
-
+	//TODO: FIGURE OUT HOW TO DO THIS!!!
 #endif
 
 CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
@@ -98,6 +111,9 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 
 #ifdef _WIN32
 
+/*
+	TODO: CLEAN UP WINDOWS MACROS, TOO MUCH REPETITION!
+*/
 const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	/*default*/
 	{ "!",	[&](void)->_cpf_type::colour

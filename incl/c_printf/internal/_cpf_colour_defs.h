@@ -71,4 +71,10 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens;
 */
 CPF_API const _cpf_type::colour_token_map _cpf_std_token_vals;
 
+/*
+	@returns current system terminal colour values
+	foreground and background respectively...
+*/
+CPF_API _cpf_type::colour _cpf_get_crnt_sys_sttribs(void);
+
 #endif /*	#ifndef _CPF_SYS_COLOUR_CONFIG_H	*/
