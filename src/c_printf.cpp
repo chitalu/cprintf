@@ -170,7 +170,15 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 	{
 		if (!printed_string_.empty())
 		{
+#ifdef __gnu_linux__
+/*see: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html*/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
 			fprintf(strm, printed_string_.c_str());
+#ifdef __gnu_linux__
+#pragma GCC diagnostic pop
+#endif
 			printed_string_.clear();
 		}
 		std::advance(msd_iter, 1);
@@ -226,7 +234,17 @@ void _cpf_call_(
 		{
 			_cpf_config_terminal(strm, msd_iter->second.first);
 		}
+
+#ifdef __gnu_linux__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
+
 		fprintf(strm, std::string(msd_iter->second.second + (nl ? "\n" : "")).c_str());
+
+#ifdef __gnu_linux__
+#pragma GCC diagnostic pop
+#endif
 		std::advance(msd_iter, 1);
     }
 
