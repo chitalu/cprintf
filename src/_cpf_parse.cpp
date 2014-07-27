@@ -34,7 +34,7 @@ THE SOFTWARE.
 #define _CPF_TOKEN_SUFFIX "]"
 
 std::uint8_t _cpf_attrib_config = _CPF_ENABLE;
-std::uint8_t _cpf_newline_config = _CPF_DISABLE;
+std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
 	"`/", "`]", "`/$", "`|", "`;", "``"
