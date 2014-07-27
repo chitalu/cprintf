@@ -74,19 +74,6 @@ public:
 	inline _cpf_type::c_str what(void){ return msg; }
 };
 
-CPF_API const char* opencl_err_to_str(int _v);
-/*
-	opencl error code wrapper type
-*/
-struct _cpf_ocl_e{
-	_cpf_ocl_e(int _v) : v_(_v){} 
-	operator const char* (void)
-	{
-		return opencl_err_to_str(v_);
-	}
-
-	int v_;
-};
 
 namespace _cpf_type
 {
@@ -100,7 +87,6 @@ namespace _cpf_type
 namespace _cpf_type
 {
 	typedef _cpf_err error;
-	typedef _cpf_ocl_e ocl_e;
 	typedef std::pair<_cpf_type::str, _cpf_type::str> str_pair;
 	typedef std::vector<_cpf_type::str> str_vec;
 	typedef str_vec attribs;

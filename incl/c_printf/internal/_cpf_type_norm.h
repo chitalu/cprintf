@@ -49,8 +49,6 @@ normalize_arg(const T arg)
 	return arg;
 }
 
-extern _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
-
-//extern _cpf_type::c_str normalize_arg(const _cpf_type::ocl_e& arg);
+CPF_API _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
 
 #endif

@@ -37,14 +37,29 @@ std::uint8_t _cpf_attrib_config = _CPF_ENABLE;
 std::uint8_t _cpf_newline_config = _CPF_ENABLE;
 
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
-	"`/", "`]", "`/$", "`|", "`;", "``", "`/@"
+	"`/", "`]", "`/$", "`|", "`;", "``"
 };
 const std::initializer_list<char> std_format_specifiers = { 
-	'c', 'd', 'e', 'E', 'f','F', 'g', 'G', 'i', 'o', 's', 'u', 'x', 'X', 'a', 'A'
+	'c', 'd', 'e', 'E', 'f', 'F', 'g', 'G', 'i', 'o', 's', 'u', 'x', 'X', 'a', 'A', 'p', 'n'
 };
+
+/*
+These are characters that terminate a format specifier:
+
+%#x
+%.6i
+%05.2f
+*/
 const std::initializer_list<char> extended_format_specifier_terminators = { 
 	'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u'
 };
+
+/*
+These are characters that typically contained in format specifiers:
+
+%.6i
+%05.2f
+*/
 const std::initializer_list<char> intermediate_format_specifers = { 
 	'+', '-', '.', '*', '#', 'l' 
 };
@@ -52,7 +67,9 @@ const std::initializer_list<char> escape_characters = {
 	'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'
 };
 
-
+/*
+	searches "subject" for "search" and replaces it with "replace"
+*/
 void str_replace(_cpf_type::str& subject, const _cpf_type::str& search, const _cpf_type::str& replace)
 {
 	size_t pos = 0;
@@ -71,7 +88,7 @@ void purge_str_esc_sequences(_cpf_type::str &src)
 	}
 }
 
-//	/$mystring1;mystring2|bld.r;b!]
+//	/$mystring1;mystring2|bld.r;b*]
 std::map<_cpf_type::str, _cpf_type::str>
 extract_map_token_values(const _cpf_type::str_pair str_frmt_pairs)
 {
