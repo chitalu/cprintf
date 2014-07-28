@@ -22,13 +22,13 @@ THE SOFTWARE.
 
 */
 
-#include "c_printf/c_printf.h"
+#include "cprintf/cprintf.h"
 #include "_cpf_config.h"
 #include "_cpf_find.h"
 
-/*text attributes before a call was made to c_printf*/
+/*text attributes before a call was made to cprintf*/
 _cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
-//c_printf("Characters:\t%c %%\n", 65);
+//cprintf("Characters:\t%c %%\n", 65);
 std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 {
 	std::size_t n = 0;
@@ -37,7 +37,7 @@ std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 	{
 		if (pos == obj.size() - 1)
 		{
-			/*this would imply the following: c_printf("foo bar %");*/
+			/*this would imply the following: cprintf("foo bar %");*/
 			throw _cpf_type::error("invalid format specifier ('%') position.");
 		}
 		std::int32_t n_ = n;

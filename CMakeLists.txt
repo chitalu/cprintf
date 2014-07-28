@@ -1,9 +1,9 @@
 #
 #   What need from here:
 #   
-#   c_printf_path - the path to the built project binary (.lib, .dll, .a, or .so)
-#   c_printf_output_dir - the directory in which the built binary resides.
-#   c_printf_incl_dir - project's include directory
+#   cprintf_path - the path to the built project binary (.lib, .dll, .a, or .so)
+#   cprintf_output_dir - the directory in which the built binary resides.
+#   cprintf_incl_dir - project's include directory
 #
 #   CPF_CONFIG_64 - cmake option to enable building as 64bit, this is for linux only
 #                   visual studio users will need to open there IDE as 64bit via -G
@@ -15,15 +15,15 @@ cmake_minimum_required(VERSION 3.0)
 #
 #   project
 #
-PROJECT (c_printf)
+PROJECT (cprintf)
 
 MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
 
-SET (c_printf_MAJOR 1)
-SET (c_printf_MINOR 0)
-SET (c_printf_PATCH 0)
+SET (cprintf_MAJOR 1)
+SET (cprintf_MINOR 0)
+SET (cprintf_PATCH 0)
 
-SET (c_printf_VERSION_STRING "${c_printf_MAJOR}.${c_printf_MINOR}.${c_printf_PATCH}")
+SET (cprintf_VERSION_STRING "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
 
 #
 #   default is to build as shared library (.dll / .so)
@@ -68,14 +68,14 @@ ENDIF()
 #
 #   user variables
 #
-SET(c_printf_path "$<TARGET_FILE:${PROJECT_NAME}>" CACHE STRING "${PROJECT_NAME} output path")
-SET(c_printf_output_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>" CACHE STRING "${PROJECT_NAME} output dir")
-SET(c_printf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" CACHE STRING "path ${PROJECT_NAME} headers directory")
+SET(cprintf_path "$<TARGET_FILE:${PROJECT_NAME}>" CACHE STRING "${PROJECT_NAME} output path")
+SET(cprintf_output_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>" CACHE STRING "${PROJECT_NAME} output dir")
+SET(cprintf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" CACHE STRING "path ${PROJECT_NAME} headers directory")
 
-FILE(GLOB_RECURSE INCL_FILES "${c_printf_incl_dir}/*.h")
+FILE(GLOB_RECURSE INCL_FILES "${cprintf_incl_dir}/*.h")
 FILE(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-INCLUDE_DIRECTORIES(${c_printf_incl_dir})
+INCLUDE_DIRECTORIES(${cprintf_incl_dir})
 INCLUDE_DIRECTORIES("incl/${PROJECT_NAME}/internal")
 
 #

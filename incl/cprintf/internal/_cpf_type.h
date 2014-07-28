@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
-#include "c_printf/internal/_cpf_common.h"
+#include "cprintf/internal/_cpf_common.h"
 
 #include <cstdint>
 #include <utility>
@@ -50,7 +50,7 @@ namespace _cpf_type
 /*
 	flag to specify whether colour configuration is enabled or not.
 	by default this value is set to [enabled].
-	if disabled, format strings containing c_printf approved text formatting
+	if disabled, format strings containing cprintf approved text formatting
 	tokens will remain unmodified and subsequently displayed as is. No 
 	exception will be thrown unless otherwise applicable.
 */

@@ -30,8 +30,8 @@ THE SOFTWARE.
 #include <cstdarg>
 #include <cassert>
 
-#include "c_printf/internal/_cpf_parse.h"
-#include "c_printf/internal/_cpf_verify.h"
+#include "cprintf/internal/_cpf_parse.h"
+#include "cprintf/internal/_cpf_verify.h"
 
 template <std::size_t...>
 struct indices
@@ -146,7 +146,7 @@ CPF_API void _cpf_print_non_arg_str(_cpf_type::stream strm,
 
 /*
 	recursion terminating function (counterpart to _cpf_call with variadic arguments). 
-	This is the function executated when c_printf is called with only a format 
+	This is the function executated when cprintf is called with only a format 
 	string and no arguments.
 */
 CPF_API void _cpf_call_(
@@ -159,7 +159,7 @@ CPF_API void _cpf_call_(
 /*
 	recursive call to process the format string as well as every argument provided.
 	note: this function is not executed if no variadic arguments are respecified.
-	using c_fprintf_t and c_printf_t guarrantees the execution of this function.
+	using cfprintf_t and cprintf_t guarrantees the execution of this function.
 */
 template<typename T0, typename ...Ts>
 void _cpf_call_(	
@@ -257,7 +257,7 @@ void _cpf_call_(
 	http://www.cplusplus.com/reference/cstdio/fprintf/
 */
 template<typename... Ts>
-void c_fprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
+void cfprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 {
 	if (strm == nullptr)
 	{
@@ -317,40 +317,40 @@ void c_fprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 	should appear in a console.
 */
 template<typename... Ts>
-void c_printf(_cpf_type::c_str format, Ts... args)
+void cprintf(_cpf_type::c_str format, Ts... args)
 {
-	c_fprintf(stdout, format, std::forward<Ts>(args)...);
+	cfprintf(stdout, format, std::forward<Ts>(args)...);
 }
 
 /*
 	Instead of accepting variadic arguments this function expects a tuple
 	object. Elements of this object must abide the same restrictions
-	imposed on those permitted to c_fprintf. 
+	imposed on those permitted to cfprintf. 
 
-	see c_fprintf documentation for more info.
+	see cfprintf documentation for more info.
 */
 template<typename... Ts>
-void c_fprintf_t(	_cpf_type::stream strm, 
+void cfprintf_t(	_cpf_type::stream strm, 
 					_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 	
-	apply_tuple(c_fprintf<Ts...>, call_args);
+	apply_tuple(cfprintf<Ts...>, call_args);
 }
 
 /*
 	Instead of accepting variadic arguments this function expects a tuple
 	object. Elements of this object must abide the same restrictions
-	imposed on those permitted to c_printf. 
+	imposed on those permitted to cprintf. 
 	all output is directed to stdout.
 
-	see c_printf documentation for more info.
+	see cprintf documentation for more info.
 */
 template<typename... Ts>
-void c_printf_t(_cpf_type::c_str format, std::tuple<Ts...> args_tup)
+void cprintf_t(_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 {
-	c_fprintf_t(stdout, format, std::forward<std::tuple<Ts...>>(args_tup));
+	cfprintf_t(stdout, format, std::forward<std::tuple<Ts...>>(args_tup));
 }
 
 #ifdef _DEBUG
@@ -385,8 +385,8 @@ struct _cpf_dbg_fpath_separator
 /*
 	The following are auxillary macros ideal for debugging purposes.
 	All output is streamed to standard error.
-	Users may use these just as they would c_printf,
-	c_fprintf, c_printf_t, and c_fprintf_t. Permissions
+	Users may use these just as they would cprintf,
+	cfprintf, cprintf_t, and cfprintf_t. Permissions
 	and limitations imposed reflect those of the aforementioned.
 	Macro expansion will only occur in client debug builds and non else.
 	And as such, building in release mode results in the macros
@@ -398,33 +398,33 @@ struct _cpf_dbg_fpath_separator
 	std::find_if(pathname.rbegin(), pathname.rend(),\
 	_cpf_dbg_fpath_separator()).base(),\
 	pathname.end());\
-	c_fprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, __FUNCTION__, fname.c_str(), __LINE__); \
+	cfprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, __FUNCTION__, fname.c_str(), __LINE__); \
 
-#define c_fprintf_dbg(strm, format, ...) \
+#define cfprintf_dbg(strm, format, ...) \
 	do{\
 	__print_stat_str \
-	c_fprintf(strm, format, ##__VA_ARGS__);\
+	cfprintf(strm, format, ##__VA_ARGS__);\
 	}while (0);
 
-#define c_printf_dbg(format, ...) \
-	c_fprintf_dbg(stderr, format, ##__VA_ARGS__)
+#define cprintf_dbg(format, ...) \
+	cfprintf_dbg(stderr, format, ##__VA_ARGS__)
 
-#define c_fprintf_t_dbg(strm, format, tup) \
+#define cfprintf_t_dbg(strm, format, tup) \
 	do{\
 	__print_stat_str \
-	c_fprintf_t(strm, format, tup); \
+	cfprintf_t(strm, format, tup); \
 	} while (0);\
 
-#define c_printf_t_dbg(format, tup) \
-	c_fprintf_t_dbg(stderr, format, tup);
+#define cprintf_t_dbg(format, tup) \
+	cfprintf_t_dbg(stderr, format, tup);
 
 #else
 
 /*do nothing*/
-#define c_fprintf_dbg(strm, format, ...) 
-#define c_printf_dbg(format, ...) 
-#define c_fprintf_t_dbg(strm, format, tup) 
-#define c_printf_t_dbg(format, tup) 
+#define cfprintf_dbg(strm, format, ...) 
+#define cprintf_dbg(format, ...) 
+#define cfprintf_t_dbg(strm, format, tup) 
+#define cprintf_t_dbg(format, tup) 
 
 #endif
 

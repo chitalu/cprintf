@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "c_printf/internal/_cpf_parse.h"
+#include "cprintf/internal/_cpf_parse.h"
 #include "_cpf_config.h"
 #include "_cpf_find.h"
 #include <cstdio>
