@@ -19,10 +19,11 @@ PROJECT (c_printf)
 
 MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
 
-SET (c_printf_VERSION_STRING "1.0.0")
-SET (c_printf_VERSION_MAJOR 1)
-SET (c_printf_VERSION_MINOR 0)
-SET (c_printf_VERSION_PATCH 0)
+SET (c_printf_MAJOR 1)
+SET (c_printf_MINOR 0)
+SET (c_printf_PATCH 0)
+
+SET (c_printf_VERSION_STRING "${c_printf_MAJOR}.${c_printf_MINOR}.${c_printf_PATCH}")
 
 #
 #   default is to build as shared library (.dll / .so)

@@ -53,13 +53,21 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 #else /* UNIX */
 
 #ifdef CPF_BUILD_AS_STATIC
-#  define CPF_API extern
+#  	define CPF_API extern
 #else
-#  if defined(__GNUC__) && __GNUC__>=4
-#   define CPF_API extern __attribute__ ((visibility("default")))
-#  else
-#   define CPF_API extern
-#  endif
+#  	ifdef CPF_FUNC_EXPORT
+#  		if defined(__GNUC__) && __GNUC__>=4
+#   		define CPF_API extern __attribute__ ((visibility("default")))
+#		else
+#   		#pragma warning Unknown dynamic link import/export semantics.
+#  		endif
+#  	else
+#		if defined(__GNUC__) && __GNUC__>=4
+#   		define CPF_API 
+#		else
+#   		#pragma warning Unknown dynamic link import/export semantics.
+#  		endif
+#  	endif
 #endif
 
 #define SYSTXTATTRIB_UNDEF ("undef")
