@@ -71,10 +71,7 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 													std::size_t& ssp_,
 													const _cpf_type::attribs attr)
 {
-	if (_cpf_attrib_config == _CPF_ENABLE)
-	{
-		_cpf_config_terminal(strm, attr);
-	}
+	_cpf_config_terminal(strm, attr);
 
 	ssp_ = _cpf_find("%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
@@ -183,7 +180,7 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 		}
 		std::advance(msd_iter, 1);
 
-		if (msd_iter == end_point_comparator && _cpf_newline_config == _CPF_ENABLE)
+		if (msd_iter == end_point_comparator)
 		{
 			/*
 				if we have reached the end and printed the entire 
@@ -199,10 +196,7 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 							std::size_t& ssp_,
 							_cpf_type::meta_format_type::const_iterator &msd_iter)
 {
-	if (_cpf_attrib_config == _CPF_ENABLE)
-	{
-		_cpf_config_terminal(strm, msd_iter->second.first);
-	}
+	_cpf_config_terminal(strm, msd_iter->second.first);
 
 	ssp_ = 0;
 	fprintf(strm, "%s", printed_string_.c_str());
@@ -210,10 +204,8 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 
 	while (_cpf_get_num_arg_specifiers(msd_iter->second.second) == 0)
 	{
-		if (_cpf_attrib_config == _CPF_ENABLE)
-		{
-			_cpf_config_terminal(strm, msd_iter->second.first);
-		}
+		_cpf_config_terminal(strm, msd_iter->second.first);
+		
 		fprintf(strm, "%s", msd_iter->second.second.c_str());
 		std::advance(msd_iter, 1);
 	}
@@ -228,19 +220,15 @@ void _cpf_call_(
 {
 	while (msd_iter != end_point_comparator)
     {
-		auto nl =	std::distance(msd_iter, end_point_comparator) > 1 && 
-					(_cpf_newline_config == _CPF_ENABLE);
-		if (_cpf_attrib_config == _CPF_ENABLE)
-		{
-			_cpf_config_terminal(strm, msd_iter->second.first);
-		}
+		auto nl = std::distance(msd_iter, end_point_comparator) > 1;
+		_cpf_config_terminal(strm, msd_iter->second.first);
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
-		fprintf(strm, std::string(msd_iter->second.second + (nl ? "\n" : "")).c_str());
+		fprintf(strm, std::string(msd_iter->second.second + (nl ? "" : "\n")).c_str());
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
@@ -249,8 +237,6 @@ void _cpf_call_(
     }
 
 	/*restore defaults*/
-	if (_cpf_attrib_config == _CPF_ENABLE)
-	{
-		_cpf_config_terminal(strm, _cpf_type::str_vec({"!"}));
-	}
+	
+	_cpf_config_terminal(strm, _cpf_type::str_vec({"!"}));
 }

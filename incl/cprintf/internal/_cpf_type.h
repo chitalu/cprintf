@@ -47,22 +47,6 @@ namespace _cpf_type
 	typedef const char* c_str;
 }
 
-/*
-	flag to specify whether colour configuration is enabled or not.
-	by default this value is set to [enabled].
-	if disabled, format strings containing cprintf approved text formatting
-	tokens will remain unmodified and subsequently displayed as is. No 
-	exception will be thrown unless otherwise applicable.
-*/
-CPF_API std::uint8_t _cpf_attrib_config;
-
-/*
-	flag to specify whether to automatically include a carridge-return
-	at the end of the format string or not. Default behaviour is 
-	to include.
-*/
-CPF_API std::uint8_t _cpf_newline_config;
-
 struct _cpf_err{
 private:
 	_cpf_type::c_str msg;
