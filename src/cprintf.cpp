@@ -76,7 +76,14 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 	ssp_ = _cpf_find("%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
 	{
-		fprintf(strm, "%s", printed_string_.substr(0, ssp_).c_str());
+#ifdef __gnu_linux__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
+		fprintf(strm, printed_string_.substr(0, ssp_).c_str());
+#ifdef __gnu_linux__
+#pragma GCC diagnostic pop
+#endif
 	}
 
 	auto is_in = [=](const char& _target, const std::initializer_list<char>& _list)->bool
