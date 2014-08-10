@@ -53,7 +53,7 @@ THE SOFTWARE.
 	cprintf("$r`red");
 */
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
-	"`$", "`r", "`g", "`b", "`y", "`m", "`c", "`w", "`.", "`*"
+	"`$", "`r", "`g", "`b", "`y", "`m", "`c", "`w", "`.", "`*", "``"
 };
 
 #ifdef _WIN32
@@ -119,6 +119,25 @@ void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
 	}
 }
 
+void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &st, _cpf_type::str::size_type &ssp)
+{
+	for (auto i : _cpf_std_tokens)
+	{
+		auto attr_s = s_.substr(ssp, i.size());
+
+		if (attr_s == i)
+		{
+			st += i.size();
+
+			if (s_[ssp + st] == '.')
+			{
+				parse(s_, ++st, ssp);
+			}
+		}
+
+	}
+}
+
 _cpf_type::str parse_format_attributes(	_cpf_type::str const &format_str_, 
 										_cpf_type::str::size_type search_start_pos_,
 										_cpf_type::str::size_type &attrib_end_pos)
@@ -131,16 +150,15 @@ _cpf_type::str parse_format_attributes(	_cpf_type::str const &format_str_,
 				std::find(special_attrib_chars.begin(), special_attrib_chars.end(), c) != special_attrib_chars.end();
 	};
 
-	/*the parsed attribute(s) string...*/
-	_cpf_type::str attribute_string;
 	auto ssp = search_start_pos_;
-	char current_char = format_str_[ssp];
 
-	while (is_valid_attrib_char(current_char))
-	{
-		attribute_string.append({ current_char });
-		current_char = format_str_[++ssp];
-	};
+	/*offset from search start position i.e token occurance position in format string*/
+	_cpf_type::str::size_type offset_pos = 0;
+	
+	parse(format_str_, offset_pos, ssp);
+
+	/*the parsed attribute(s) string...*/
+	_cpf_type::str attribute_string = format_str_.substr(ssp, offset_pos);
 
 	if (attribute_string.size() == 0)
 	{
@@ -157,7 +175,7 @@ invalid token encountered @ %d
 		throw _cpf_type::error(buf);
 	}
 
-	attrib_end_pos = ssp;
+	attrib_end_pos += offset_pos;
 	return attribute_string;
 }
 
@@ -190,7 +208,9 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 			first_iter = false;
 		}
 		
-		auto attibs_str = parse_format_attributes(src_format, token_occurance_pos + 1, attrib_endpos_p1);
+		auto endpoint_offset = token_occurance_pos + 1;
+		auto attibs_str = parse_format_attributes(src_format, token_occurance_pos + 1, endpoint_offset);
+		attrib_endpos_p1 += endpoint_offset;
 		//suffix_pos = _cpf_find(_CPF_TOKEN_SUFFIX, src_format, prefix_pos);
 		
 		/*if(suffix_pos == src_format.npos)
@@ -231,7 +251,7 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 
 	if (meta.empty())
 	{
-		meta.insert(std::make_pair(0u, std::make_pair(_cpf_type::str_vec({ "!" }), src_format)));
+		meta.insert(std::make_pair(0u, std::make_pair(_cpf_type::str_vec({ "?" }), src_format)));
 	}
 
 	purge_meta_esc_sequences(meta);

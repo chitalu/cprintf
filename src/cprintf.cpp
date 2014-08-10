@@ -186,15 +186,6 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 			printed_string_.clear();
 		}
 		std::advance(msd_iter, 1);
-
-		if (msd_iter == end_point_comparator)
-		{
-			/*
-				if we have reached the end and printed the entire 
-				format string, automatically print a if enabled
-			*/	
-			fprintf(strm, "\n");
-		}
 	}
 }
 
@@ -206,14 +197,28 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 	_cpf_config_terminal(strm, msd_iter->second.first);
 
 	ssp_ = 0;
-	fprintf(strm, "%s", printed_string_.c_str());
+
+#ifdef __gnu_linux__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
+	fprintf(strm, printed_string_.c_str());
+#ifdef __gnu_linux__
+#pragma GCC diagnostic pop
+#endif
 	std::advance(msd_iter, 1);
 
 	while (_cpf_get_num_arg_specifiers(msd_iter->second.second) == 0)
 	{
 		_cpf_config_terminal(strm, msd_iter->second.first);
-		
+#ifdef __gnu_linux__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
 		fprintf(strm, "%s", msd_iter->second.second.c_str());
+#ifdef __gnu_linux__
+#pragma GCC diagnostic pop
+#endif
 		std::advance(msd_iter, 1);
 	}
 }
@@ -227,7 +232,6 @@ void _cpf_call_(
 {
 	while (msd_iter != end_point_comparator)
     {
-		auto nl = std::distance(msd_iter, end_point_comparator) > 1;
 		_cpf_config_terminal(strm, msd_iter->second.first);
 
 #ifdef __gnu_linux__
@@ -235,7 +239,7 @@ void _cpf_call_(
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
-		fprintf(strm, std::string(msd_iter->second.second + (nl ? "" : "\n")).c_str());
+		fprintf(strm, msd_iter->second.second.c_str());
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
