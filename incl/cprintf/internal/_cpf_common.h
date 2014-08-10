@@ -78,4 +78,6 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 #include <stdexcept>
 #include <algorithm>
 
+#define CPF_ESC_CHAR ('`')
+
 #endif //_CPF_COMMON_H

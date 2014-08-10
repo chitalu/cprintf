@@ -1,5 +1,5 @@
 #
-#   What need from here:
+#   What you need from here:
 #   
 #   cprintf_path - the path to the built project binary (.lib, .dll, .a, or .so)
 #   cprintf_output_dir - the directory in which the built binary resides.
@@ -10,7 +10,7 @@
 #   CPF_STATIC_LIB -
 #
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8)
 
 #
 #   project

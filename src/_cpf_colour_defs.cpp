@@ -53,7 +53,7 @@ const auto default_foreground_colour = [&]()->_cpf_type::colour
 CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 
 	/*default*/
-	"!",
+	"?",
 
 	/*dim text colour no background*/
 	"r", "g", "b", "y", "m", "c", "w",
@@ -105,7 +105,7 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 
 #ifndef _WIN32 //attributes
 	, "bld", "dim", "uln", "blk",	"rvs",	"hid",	
-	"!bld",	"!dim",	"!uln",	"!blk",	"!rvs",	"!hid",
+	"?bld",	"?dim",	"?uln",	"?blk",	"?rvs",	"?hid",
 #endif /*#ifndef _WIN32*/
 };
 
@@ -116,7 +116,7 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 */
 const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	/*default*/
-	{ "!",	[&](void)->_cpf_type::colour
+	{ "?",	[&](void)->_cpf_type::colour
 			{
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
 				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -452,17 +452,17 @@ extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_va
 	{	"blk", 		"\x1B[5m"},
 	{	"rvs", 		"\x1B[7m"},
 	{	"hid", 		"\x1B[8m"},
-	{	"!bld", 	"\x1B[21m"},
-	{	"!dim", 	"\x1B[22m"},
-	{	"!uln", 	"\x1B[24m"},
-	{	"!blk", 	"\x1B[25m"},
-	{	"!rvs", 	"\x1B[27m"},
-	{	"!hid", 	"\x1B[28m"},
+	{	"?bld", 	"\x1B[21m"},
+	{	"?dim", 	"\x1B[22m"},
+	{	"?uln", 	"\x1B[24m"},
+	{	"?blk", 	"\x1B[25m"},
+	{	"?rvs", 	"\x1B[27m"},
+	{	"?hid", 	"\x1B[28m"},
 
 	/*colours*/
 	
 	/*default (reset all colours and attribs)*/
-	{ 	"!", 	"\x1B[0;0;0m"},
+	{ 	"?", 	"\x1B[0;0;0m"},
 
 	REG_COLOUR_VALUES(r, 1)
 	REG_COLOUR_VALUES(g, 2)

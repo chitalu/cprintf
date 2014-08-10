@@ -245,5 +245,5 @@ void _cpf_call_(
 
 	/*restore defaults*/
 	
-	_cpf_config_terminal(strm, _cpf_type::str_vec({"!"}));
+	_cpf_config_terminal(strm, _cpf_type::str_vec({"?"}));
 }
