@@ -161,6 +161,38 @@ void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_st
 #endif
 }
 
+void clear_terminal_buffer(	_cpf_type::stream strm,
+							const _cpf_type::str& attrib)
+{
+#ifdef _WIN32
+	auto strm_ = strm == stdout ? stdout_handle : stderr_handle;
+	COORD coord = {0, 0};
+	DWORD count;
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(strm_, &csbi);
+
+	FillConsoleOutputCharacter( strm_,
+								' ', 
+								csbi.dwSize.X * csbi.dwSize.Y, 
+								coord, 
+								&count);
+	if (attrib == "!^")
+	{
+		SetConsoleCursorPosition(strm_, coord);
+	}
+
+#else
+	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
+	fprintf(strm, "\x1B[2J");
+
+	if (attrib == "!^")
+	{
+		fprintf(strm, "\x1B[H");
+	}
+#endif
+}
+
 CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 										const _cpf_type::attribs& attribs)
 {
@@ -180,6 +212,10 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 			if (is_cursor_pos_attrib(c_repr))
 			{
 				set_cursor_position(strm, c_repr);
+			}
+			else if (c_repr == "!" || c_repr == "!^") /*clear screen*/
+			{
+				clear_terminal_buffer(strm, c_repr);
 			}
 			else /*is_cursor_pos_attrib*/
 			{
