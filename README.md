@@ -9,7 +9,7 @@ Most functionality works, in much a similar manner, to that of its patternal
 counter-part(s)	i.e printf, fprintf etc. 
 
 Aside from guarranteed type-safety (unlike that of it predecesors) 
-c_printf also introduces the feature of colour format specification for output 
+cprintf also introduces the feature of text-colour specification ($...) for output 
 directed to a terminal. 
 This functionality effectively permits users the ability to specify--as part of 
 the format string--the colour of all (or some) of the format-string's characters.
@@ -27,8 +27,8 @@ expected that changes (sometimes drastic) will be made to the current implementa
 
 The feature-set available on the Microsoft Windows Operating System is limited in 
 comparison to that of the Linux Operating System (subject to terminal). Users wishing
-to target older hardware may be required to limit their use of features available
-for compatilibity.
+to target older hardware interfaces may be required to limit their use of features 
+available for compatilibity.
 
 For more info, refer to: http://en.tldp.org/HOWTO/Text-Terminal-HOWTO.html
 
