@@ -5,13 +5,13 @@
 
 void progress_bar(void)
 {
-	std::size_t c = 0; float m = 40.0f;
+	std::size_t c = 0; float m = 20.0f;
 	std::string bar;
 	while(++c <= m)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		auto progress = (float)c/m * 100;
-		if(((((int)progress/ 100) * 40)  % 5) == 0)
+		if(((((int)progress/ 100) * int(m)))  % 5) == 0)
 		{
 			bar.append("#");
 		}
@@ -42,7 +42,7 @@ void rand_colours(void)
 		unsigned char w = w_(gen);
 
 		char buf[512];
-		sprintf(buf, "$%c*.%d,%d %c", colours[c_(gen)], w, h, charachter);
+		sprintf(buf, "$%c*.$%d,%d %c", colours[c_(gen)], w, h, charachter);
 		cprintf(buf);
 	}
 }
