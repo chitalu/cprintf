@@ -232,6 +232,11 @@ void _cpf_call_(
     }
 }
 
+namespace cpf
+{
+
+}
+
 /*
 	Writes the C string pointed by format to the stream. If format 
 	includes format specifiers (subsequences beginning with %), the 

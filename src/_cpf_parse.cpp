@@ -211,16 +211,9 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 		auto endpoint_offset = token_occurance_pos + 1;
 		auto attibs_str = parse_format_attributes(src_format, token_occurance_pos + 1, endpoint_offset);
 		attrib_endpos_p1 += endpoint_offset;
-		//suffix_pos = _cpf_find(_CPF_TOKEN_SUFFIX, src_format, prefix_pos);
-		
-		/*if(suffix_pos == src_format.npos)
-		{
-			throw _cpf_type::error("cpf err: invalid token encountered");
-		}*/
 
 		auto next_prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1);
-		//auto attibs_str = src_format.substr(prefix_pos + 1, (suffix_pos - 1) - prefix_pos);
-
+	
 		_cpf_type::str_vec subseq_str_attribs;
 		_cpf_type::str current_attrib;
 
