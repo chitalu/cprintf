@@ -34,11 +34,11 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 #ifdef _WIN32 /* windows */
 
 /*
- * CPF_BUILD_AS_STATIC is defined for static library.
+ * CPF_BUILD_AS_SHARED is defined for shared library.
  * CPF_FUNC_EXPORT  is defined for building the DLL library.
  */
 
-#ifdef CPF_BUILD_AS_STATIC
+#ifndef CPF_BUILD_AS_SHARED
 #  define CPF_API extern
 #else
 #  ifdef CPF_FUNC_EXPORT

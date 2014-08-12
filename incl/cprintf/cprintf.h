@@ -275,7 +275,7 @@ void cfprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 
 	auto meta_str_data = _cpf_process_format_string(format);
 
-#if defined(_DEBUG)
+#ifndef NDEBUG
 	
 	std::size_t nargs = 0u;
 	for (const auto &i : meta_str_data)
@@ -358,17 +358,18 @@ void cprintf_t(_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 	cfprintf_t(stdout, format, std::forward<std::tuple<Ts...>>(args_tup));
 }
 
-#ifdef _DEBUG
+#ifndef	NDEBUG
 
 const auto _cpf_debug_pre_str =
 R"debug_str(
-/$%s;%d|c*]
->> dbg print 
-@build:		%s-%s 
-@function:	%s
-@file:		%s
-@line-number:	%d
+$c
+>> cpf debug call 
+@file:	%s
+@built:	%s-%s 
 
+>	@function:	%s
+>	@line:		%d
+$?
 log:
 )debug_str";
 
@@ -403,7 +404,7 @@ struct _cpf_dbg_fpath_separator
 	std::find_if(pathname.rbegin(), pathname.rend(),\
 	_cpf_dbg_fpath_separator()).base(),\
 	pathname.end());\
-	cfprintf(stderr, _cpf_debug_pre_str, __TIME__, __DATE__, __FUNCTION__, fname.c_str(), __LINE__); \
+	cfprintf(stderr, _cpf_debug_pre_str, fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__); \
 
 #define cfprintf_dbg(strm, format, ...) \
 	do{\
@@ -431,6 +432,6 @@ struct _cpf_dbg_fpath_separator
 #define cfprintf_t_dbg(strm, format, tup) 
 #define cprintf_t_dbg(format, tup) 
 
-#endif
+#endif /*#ifndef NDEBUG*/
 
 #endif /* __CPF_H__ */

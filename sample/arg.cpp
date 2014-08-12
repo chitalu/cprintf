@@ -63,7 +63,7 @@ int main(void)
 	}
 	catch (_cpf_type::error &e)
 	{
-		std::cout << e.what() << std::endl;
+		fprintf(stderr, "cprintf sample failed\n%s\n", e.what());
 		exec_ok = false;
 	}
 
