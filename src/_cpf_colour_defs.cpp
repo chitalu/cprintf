@@ -59,13 +59,13 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 	"r", "g", "b", "y", "m", "c", "w",
 
 	/*dim background*/
-	"#r", "#g", "#b", "#y", "#m", "#c", "#w",
+	"r#", "g#", "b#", "y#", "m#", "c#", "w#",
 
 	/*bright text colour no background*/
 	"r*", "g*", "b*", "y*", "m*", "c*", "w*",
 
 	/*bright background*/
-	"#r*", "#g*", "#b*", "#y*", "#m*", "#c*", "#w*",
+	"r*#", "g*#", "b*#", "y*#", "m*#", "c*#", "w*#",
 
 	/*dim text and background colour*/
 	"rr", "rb", "rg", "ry", "rm", "rc", "rw", /*red*/
@@ -126,8 +126,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	},
 
 	/*red*/
-	{ "#r", (default_foreground_colour | _cpf_Rb) },
-	{ "#r*", (default_foreground_colour | _cpf_Rb | _cpf_bgi) },
+	{ "r#", (default_foreground_colour | _cpf_Rb) },
+	{ "r*#", (default_foreground_colour | _cpf_Rb | _cpf_bgi) },
 
 	{ "r", (_cpf_Rf) },
 	{ "rr", (_cpf_Rf | _cpf_Rb) },
@@ -164,8 +164,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "r*w*", ((_cpf_Rf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*green*/
-	{ "#g", (default_foreground_colour | _cpf_Gb) },
-	{ "#g*", (default_foreground_colour | _cpf_Gb | _cpf_bgi) },
+	{ "g#", (default_foreground_colour | _cpf_Gb) },
+	{ "g*#", (default_foreground_colour | _cpf_Gb | _cpf_bgi) },
 
 	{ "g", (_cpf_Gf) },
 	{ "g*", (_cpf_Gf | _cpf_fgi) },
@@ -203,8 +203,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "g*w*", ((_cpf_Gf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*blue*/
-	{ "#b", (default_foreground_colour | _cpf_Gb) },
-	{ "#b*", (default_foreground_colour | _cpf_Gb | _cpf_bgi) },
+	{ "b#", (default_foreground_colour | _cpf_Gb) },
+	{ "b*#", (default_foreground_colour | _cpf_Gb | _cpf_bgi) },
 
 	{ "b", (_cpf_Bf) },
 	{ "b*", (_cpf_Bf | _cpf_fgi) },
@@ -242,8 +242,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "b*w*", ((_cpf_Bf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*yellow*/
-	{ "#y", (default_foreground_colour | (_cpf_Rb | _cpf_Gb)) },
-	{ "#y*", (default_foreground_colour | (_cpf_Rb | _cpf_Gb) | _cpf_bgi) },
+	{ "y#", (default_foreground_colour | (_cpf_Rb | _cpf_Gb)) },
+	{ "y*#", (default_foreground_colour | (_cpf_Rb | _cpf_Gb) | _cpf_bgi) },
 
 	{ "y", (_cpf_Rf | _cpf_Gf) },
 	{ "y*", ((_cpf_Rf | _cpf_Gf) | _cpf_fgi) },
@@ -281,8 +281,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "y*w*", (((_cpf_Rf | _cpf_Gf) | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*magenta*/
-	{ "#m", (default_foreground_colour | (_cpf_Rb | _cpf_Bb)) },
-	{ "#m*", (default_foreground_colour | (_cpf_Rb | _cpf_Bb) | _cpf_bgi) },
+	{ "m#", (default_foreground_colour | (_cpf_Rb | _cpf_Bb)) },
+	{ "m*#", (default_foreground_colour | (_cpf_Rb | _cpf_Bb) | _cpf_bgi) },
 
 	{ "m", (_cpf_Rf | _cpf_Bf) },
 	{ "m*", (_cpf_Rf | _cpf_Bf | _cpf_fgi) },
@@ -320,8 +320,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "m*w*", ((_cpf_Rf | _cpf_Bf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*cyan*/
-	{ "#c", (default_foreground_colour | (_cpf_Gb | _cpf_Bb)) },
-	{ "#c*", (default_foreground_colour | (_cpf_Gb | _cpf_Bb) | _cpf_bgi) },
+	{ "c#", (default_foreground_colour | (_cpf_Gb | _cpf_Bb)) },
+	{ "c*#", (default_foreground_colour | (_cpf_Gb | _cpf_Bb) | _cpf_bgi) },
 
 	{ "c", (_cpf_Gf | _cpf_Bf) },
 	{ "c*", (_cpf_Gf | _cpf_Bf | _cpf_fgi) },
@@ -359,8 +359,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 	{ "c*w*", ((_cpf_Gf | _cpf_Bf | _cpf_fgi) | (_cpf_Gb | _cpf_Bb | _cpf_Rb | _cpf_bgi)) },
 
 	/*white*/
-	{ "#w", (default_foreground_colour | (_cpf_Rb | _cpf_Gb | _cpf_Bb)) },
-	{ "#w*", (default_foreground_colour | (_cpf_Rb | _cpf_Gb | _cpf_Bb) | _cpf_bgi) },
+	{ "w#", (default_foreground_colour | (_cpf_Rb | _cpf_Gb | _cpf_Bb)) },
+	{ "w*#", (default_foreground_colour | (_cpf_Rb | _cpf_Gb | _cpf_Bb) | _cpf_bgi) },
 
 	{ "w", ((_cpf_Rf | _cpf_Gf | _cpf_Bf)) },
 	{ "w*", ((_cpf_Rf | _cpf_Gf | _cpf_Bf) | _cpf_fgi) },
@@ -407,8 +407,8 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 
 /*<ESC>[{attr};{fg};{bg}m*/
 #define REG_COLOUR_VALUES(c, i) \
-{	"#"#c"",	"\x1B[0;0;4"#i"m" },\
-{	"#"#c"*",	"\x1B[0;0;10"#i"m" },\
+{	""#c"",	"\x1B[0;0;4"#i"m" },\
+{	""#c"*",	"\x1B[0;0;10"#i"m" },\
 {	#c "",		"\x1B[0;0;3"#i"m" },\
 {	#c "r",		"\x1B[0;3"#i";41m" },\
 {	#c "g",		"\x1B[0;3"#i";42m" },\

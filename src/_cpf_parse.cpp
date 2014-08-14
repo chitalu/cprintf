@@ -28,16 +28,10 @@ THE SOFTWARE.
 #include <cstdio>
 #include <stdlib.h>     /* atoi */
 #include <algorithm>
+#include <functional> //std::function
 
 #define _CPF_TOKEN_PREFIX "$"
 
-#ifdef _WIN32
-/*warning C4129: '$' : unrecognized character escape sequence...*/
-#pragma warning( push )
-#pragma warning( disable: 4129 )
-#else
-
-#endif
 /*
 	these apply in situations where a user may wish to write a string 
 	of characters where the first is one which may mistakably be 
@@ -53,41 +47,170 @@ THE SOFTWARE.
 	cprintf("$r`red");
 */
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
-	"`$", "`r", "`g", "`b", "`y", "`m", "`c", "`w", "`.", "`*", "``"
+	"`$", "`r", "`g", 
+	"`b", "`y", "`m", 
+	"`c", "`w", "`.", 
+	"`*", "``"
 };
 
-#ifdef _WIN32
-#pragma warning( pop )
-#else
-
-#endif
-
 const std::initializer_list<char> std_format_specifiers = { 
-	'c', 'd', 'e', 'E', 'f', 'F', 'g', 'G', 'i', 'o', 's', 'u', 'x', 'X', 'a', 'A', 'p', 'n'
+	'c', 'd', 'e', 
+	'E', 'f', 'F', 
+	'g', 'G', 'i', 
+	'o', 's', 'u', 
+	'x', 'X', 'a', 
+	'A', 'p', 'n'
 };
 
 /*
 These are characters that terminate a format specifier:
+Characters typically found at the end of a more complex FS
 
 %#x
 %.6i
 %05.2f
 */
 const std::initializer_list<char> extended_format_specifier_terminators = { 
-	'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u'
+	'd', 'f', 's', 
+	'e', 'o', 'x', 
+	'X', 'i', 'u'
 };
 
 /*
-These are characters that typically contained in format specifiers:
+These are characters that typically contained within i.e. in the middle of more 
+complex format specifiers:
 
 %.6i
 %05.2f
 */
 const std::initializer_list<char> intermediate_format_specifers = { 
-	'+', '-', '.', '*', '#', 'l' 
+	'+', '-', '.', 
+	'*', '#', 'l' 
 };
+
 const std::initializer_list<char> escape_characters = { 
-	'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'
+	'\a', '\b', '\f', 
+	'\n', '\r', '\t', 
+	'\v', '\\', '\"', 
+	'\0'
+};
+
+auto col_ids = { 
+	'r', 'g', 'b', 
+	'y', 'm', 'c', 
+	'w' 
+};
+
+/*characters that may precede colour identifiers (r, g, b...)
+and '#' in the case of '*'..*/
+auto col_id_prefs = { '.', '*' };
+
+/*specialised character identifiers*/
+auto schar_ids = 
+{ 
+	'!', '~', 'f', 
+	'b', '&', '#', 
+	'*', '.' 
+};
+
+/*
+	parse-predicate storage type
+*/
+typedef std::map<
+	char,
+	std::function<bool(_cpf_type::str const &, std::size_t const &)>
+> ppred_t;
+
+bool pred_isdigit(_cpf_type::str const &s, std::size_t const &p)
+{
+	return isdigit(s[p]) ? true : false;
+}
+
+bool pred_scrn_clr(_cpf_type::str const &s, std::size_t const &p)
+{
+	return s[p] == '!';
+}
+
+bool pred_colour(_cpf_type::str const &s, std::size_t const &p)
+{
+	/*a colour char may only be preceded by another or any char contained in col_id_prefs...*/
+	return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
+		(std::find(col_id_prefs.begin(), col_id_prefs.end(), s[p]) != col_id_prefs.end());
+}
+
+/*
+	map of predicates for conditional syntax checking based on encountered characters
+	on parsing.
+
+	the returned value from all predicates signifies whether the encountered
+	syntax constitues valid (true) token specification with the format string
+	or not (false). Where a return value of false would, in [most] but not all
+	cases, result in parsing at a particular position in the format string being 
+	recognised as finished.
+	By "position" it is meant the position at which a cprintf syntax token ($)
+	is encountered, incremented by 1 i.e $r, parsing start position in this case 
+	would be at format-string index position of character 'r'.
+
+	note: the argument p accepted by all predicates signifies the positional index
+	preceding the character at the current search position. This "character" 
+	is always the [key]
+*/
+const ppred_t parsing_predicates = {
+	{ '!', pred_scrn_clr },/*screen wipe + reset position to 0,0 in console*/
+	{ '~', pred_scrn_clr },/*screen wipe + retain current position -> !~ -> $!~...*/
+	{ ',', pred_isdigit },
+	{ 'f', pred_isdigit },
+	{ '&', pred_isdigit },
+	{ 'r', pred_colour },
+	{ 'g', pred_colour },
+	/*blue shall use a different predicate*/
+	{ 'y', pred_colour },
+	{ 'm', pred_colour },
+	{ 'c', pred_colour },
+	{ 'w', pred_colour },
+	{
+		'?',
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '?'; }
+	},
+	{
+		'*', /*an asterisk can only be prefixed by colour identifiers*/
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		{
+			return std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end(); /*in r, g, b, ...*/;
+		}
+	},
+	{
+		'.',
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		{
+			//s[p] in r, g, b, ... or is digit or b f & etc
+			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
+				isdigit(s[p]) ||
+				(std::find(schar_ids.begin(), schar_ids.end(), s[p]) != schar_ids.end());
+		}
+	},
+	{
+		'#',
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		{
+			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
+					s[p] == '*';
+		}
+	},
+	{
+		'b',
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		{
+			/*note: this covers the colour blue (...$b[*]...) as well as a token representing
+			a unix bitmap-colour token (...$34b...).
+			in effect, what this means is that the blue colour token shall not be treated
+			in a similar manner as the rest of the colours for reasons of possible ambiguity
+			in parsing...*/
+			return	(isdigit(s[p]) ? true : false) ||
+				std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end() ||
+				(std::find(col_id_prefs.begin(), col_id_prefs.end(), s[p]) != col_id_prefs.end());
+		}
+	}
 };
 
 /*
@@ -119,163 +242,57 @@ void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
 	}
 }
 
-#include <functional>
-
 void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf_type::str::size_type &ssp)
 {
-	typedef std::map<char, std::function<bool(_cpf_type::str const &, std::size_t const &)>> ppred_t;
-	/*
-	map of predicates for conditional syntax checking.
-	returning false means the parsing can stop
-	note: p is the position preceding the character i [key]*/
-	const ppred_t parsing_predicates = {
-		{ 
-			'?', 
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return s[p] == '$';
-			}
-		},
-		{
-			'!', /*screen wipe + reset position to 0,0 in console*/
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return s[p] == '$';
-			}
-		},
-		{
-			'~', /*screen wipe + retain current position -> !~ -> $!~*/
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return s[p] == '!';
-			}
-		},
-		{
-			',',
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return isdigit(s[p]);
-			}
-		},
-		{
-			'f',
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return isdigit(s[p]);
-			}
-		},
-		{
-			'b',
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return isdigit(s[p]);
-			}
-		},
-		{
-			'&',
-				[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return isdigit(s[p]);
-			}
-		},
-		{
-			'*',
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return s[p] /*in r, g, b, ...*/;
-			}
-		}, 
-		{
-			'.',
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return s[p] /*in r, g, b, ... or is digit or b f & etc*/;
-			}
-		},
-		{
-			'#',
-			[&](_cpf_type::str const &s, std::size_t const &p)->bool
-			{
-				return s[p + 1] /*in r, g, b, ...*/;
-			}
-		}
-	};
-
 	std::size_t offset_counter = 0;
-	char c = s_[ssp];//first character after occurrance of "$" or "."
-	ppred_t::const_iterator p_iter;
-	while ((p_iter = parsing_predicates.find(c)) != parsing_predicates.end)
+	char c = s_[ssp];//first character after occurrance of "$" 
+	bool finished = false;
+	ppred_t::const_iterator pred_iter;
+	while (!finished)
 	{
-		/*if character found does abide by parsing rules...*/
-		if (p_iter->second(s_, 1) == false)
+		pred_iter = parsing_predicates.find(c);
+		if (pred_iter != parsing_predicates.end())
 		{
-			throw _cpf_type::error("cpf error: invalid token encountered");
+			do
+			{
+				auto off = ssp + (++offset_counter);
+
+				/*on first iteration, take away only 1 from "off" since
+				character compared to in predicate will not have any other preceding
+				char but "$". All other comparisons involve comparing the 'current'
+				char with the one preceding its position to verify syntax correction
+				*/
+				auto x = (offset_counter) == 1 ? 1 : 2;
+				/*if character found does abide by parsing rules...*/
+				if (pred_iter->second(s_, off - x) == false)
+				{
+					finished = true;
+					break;
+				}
+				c = s_[off];
+			} while ((pred_iter = parsing_predicates.find(c)) != parsing_predicates.end());
 		}
-
-		c = s_[ssp + (++offset_counter)];
+		else if (isdigit(c))
+		{
+			do
+			{
+				auto off = ssp + (++offset_counter);
+				c = s_[off];
+			} while (isdigit(c));
+		}
+		else
+		{
+			finished = true;
+		}
 	}
-	////char c = s_[ssp];//first character after occurrance of "$" or "."
-	//char pre_c = c;//character preceding "c"
-	//auto is_curs_pos_or_bm_col_token = [&](char const &c_)->bool
-	//{
-	//	const auto special_chars = { ',', 'f', 'b', '&' };
-	//	bool valid =  (isdigit(c_) ||
-	//					std::find(special_chars.begin(), special_chars.end(), c_) != special_chars.end());
-	//	if (valid && c_ == 'b')
-	//	{
-	//		valid = isdigit(pre_c) ? true : false;
-	//	}
-	//	return valid;
-	//};
 
-	//if (is_curs_pos_or_bm_col_token(c)) /*specifying cursor position or bitmap colour*/
-	//{
-	//	do
-	//	{
-	//		pre_c = c;
-	//		offset_pos++;
-	//		c = s_[ssp + offset_pos];
-	//	} while (is_curs_pos_or_bm_col_token(c));
-
-	//	/*if we encounter a dot-notation character recurse back again*/
-	//	if (c == '.')
-	//	{
-	//		parse(s_, ++offset_pos, ssp);
-	//	}
-	//}
-	//else/*specifying regular colour token i.e. one contained in _cpf_std_tokens*/
-	//{
-	//	_cpf_type::str::size_type last_matching_offset = 0;
-	//	for (auto i : _cpf_std_tokens)
-	//	{
-	//		auto attr_s = s_.substr(ssp, i.size());
-
-	//		if (attr_s == i)
-	//		{
-	//			last_matching_offset = offset_pos + i.size();
-
-	//			if (s_[ssp + last_matching_offset] == '.')
-	//			{
-	//				parse(s_, ++last_matching_offset, ssp);
-	//			}
-	//		}
-	//	}
-	//	offset_pos = last_matching_offset;
-	//}
+	offset_pos = offset_counter;
 }
 
 _cpf_type::str parse_format_attributes(	_cpf_type::str const &format_str_, 
 										_cpf_type::str::size_type search_start_pos_,
 										_cpf_type::str::size_type &attrib_end_pos)
 {
-	auto is_valid_attrib_char = [&](char const &c)
-	{
-		auto special_attrib_chars = { '.', '*', '#', '?', ',' };
-		return	isdigit(c) || /*implies cursor position attribute*/
-				std::find(_cpf_std_tokens.begin(), _cpf_std_tokens.end(), _cpf_type::str({ c })) != _cpf_std_tokens.end() ||
-				std::find(special_attrib_chars.begin(), special_attrib_chars.end(), c) != special_attrib_chars.end();
-	};
-
 	auto ssp = search_start_pos_;
 
 	/*offset from search start position i.e token occurance position in format string*/

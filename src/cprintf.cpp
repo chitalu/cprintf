@@ -215,7 +215,7 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-		fprintf(strm, "%s", msd_iter->second.second.c_str());
+		fprintf(strm, msd_iter->second.second.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
