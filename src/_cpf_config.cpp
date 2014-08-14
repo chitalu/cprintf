@@ -177,7 +177,7 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 								csbi.dwSize.X * csbi.dwSize.Y, 
 								coord, 
 								&count);
-	if (attrib == "!^")
+	if (attrib == "!~")
 	{
 		SetConsoleCursorPosition(strm_, coord);
 	}
@@ -186,7 +186,7 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
 	fprintf(strm, "\x1B[2J");
 
-	if (attrib == "!^")
+	if (attrib == "!~")
 	{
 		fprintf(strm, "\x1B[H");
 	}

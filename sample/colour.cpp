@@ -6,9 +6,9 @@ int main(void)
 
 	try
 	{
-		cprintf("quux$g green\n");
+		/*cprintf("quux$g green\n");
 
-		cprintf("foo$r.y yellow\n");
+		cprintf("foo$r.y yellow\n");*/
 		cprintf("bar$r.y* yellow\n");
 		cprintf("qux$b.r red\n");
 		cprintf("quux$b.r* red\n");

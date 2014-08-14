@@ -119,56 +119,149 @@ void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
 	}
 }
 
+#include <functional>
+
 void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf_type::str::size_type &ssp)
 {
-	char c = s_[ssp];//first character after occurrance of "$" or "."
-	char pre_c = c;//character preceding "c"
-	auto is_curs_pos_or_bm_col_token = [&](char const &c_)->bool
-	{
-		const auto special_chars = { ',', 'f', 'b', '&' };
-		bool valid =  (isdigit(c_) ||
-						std::find(special_chars.begin(), special_chars.end(), c_) != special_chars.end());
-		if (valid && c_ == 'b')
-		{
-			valid = isdigit(pre_c) ? true : false;
-		}
-		return valid;
-	};
-
-	if (is_curs_pos_or_bm_col_token(c)) /*specifying cursor position or bitmap colour*/
-	{
-		do
-		{
-			pre_c = c;
-			offset_pos++;
-			c = s_[ssp + offset_pos];
-		} while (is_curs_pos_or_bm_col_token(c));
-
-		/*if we encounter a dot-notation character recurse back again*/
-		if (c == '.')
-		{
-			parse(s_, ++offset_pos, ssp);
-		}
-	}
-	else/*specifying regular colour token i.e. one contained in _cpf_std_tokens*/
-	{
-		_cpf_type::str::size_type last_matching_offset = 0;
-		for (auto i : _cpf_std_tokens)
-		{
-			auto attr_s = s_.substr(ssp, i.size());
-
-			if (attr_s == i)
+	typedef std::map<char, std::function<bool(_cpf_type::str const &, std::size_t const &)>> ppred_t;
+	/*
+	map of predicates for conditional syntax checking.
+	returning false means the parsing can stop
+	note: p is the position preceding the character i [key]*/
+	const ppred_t parsing_predicates = {
+		{ 
+			'?', 
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
 			{
-				last_matching_offset = offset_pos + i.size();
-
-				if (s_[ssp + last_matching_offset] == '.')
-				{
-					parse(s_, ++last_matching_offset, ssp);
-				}
+				return s[p] == '$';
+			}
+		},
+		{
+			'!', /*screen wipe + reset position to 0,0 in console*/
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return s[p] == '$';
+			}
+		},
+		{
+			'~', /*screen wipe + retain current position -> !~ -> $!~*/
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return s[p] == '!';
+			}
+		},
+		{
+			',',
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return isdigit(s[p]);
+			}
+		},
+		{
+			'f',
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return isdigit(s[p]);
+			}
+		},
+		{
+			'b',
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return isdigit(s[p]);
+			}
+		},
+		{
+			'&',
+				[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return isdigit(s[p]);
+			}
+		},
+		{
+			'*',
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return s[p] /*in r, g, b, ...*/;
+			}
+		}, 
+		{
+			'.',
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return s[p] /*in r, g, b, ... or is digit or b f & etc*/;
+			}
+		},
+		{
+			'#',
+			[&](_cpf_type::str const &s, std::size_t const &p)->bool
+			{
+				return s[p + 1] /*in r, g, b, ...*/;
 			}
 		}
-		offset_pos = last_matching_offset;
+	};
+
+	std::size_t offset_counter = 0;
+	char c = s_[ssp];//first character after occurrance of "$" or "."
+	ppred_t::const_iterator p_iter;
+	while ((p_iter = parsing_predicates.find(c)) != parsing_predicates.end)
+	{
+		/*if character found does abide by parsing rules...*/
+		if (p_iter->second(s_, 1) == false)
+		{
+			throw _cpf_type::error("cpf error: invalid token encountered");
+		}
+
+		c = s_[ssp + (++offset_counter)];
 	}
+	////char c = s_[ssp];//first character after occurrance of "$" or "."
+	//char pre_c = c;//character preceding "c"
+	//auto is_curs_pos_or_bm_col_token = [&](char const &c_)->bool
+	//{
+	//	const auto special_chars = { ',', 'f', 'b', '&' };
+	//	bool valid =  (isdigit(c_) ||
+	//					std::find(special_chars.begin(), special_chars.end(), c_) != special_chars.end());
+	//	if (valid && c_ == 'b')
+	//	{
+	//		valid = isdigit(pre_c) ? true : false;
+	//	}
+	//	return valid;
+	//};
+
+	//if (is_curs_pos_or_bm_col_token(c)) /*specifying cursor position or bitmap colour*/
+	//{
+	//	do
+	//	{
+	//		pre_c = c;
+	//		offset_pos++;
+	//		c = s_[ssp + offset_pos];
+	//	} while (is_curs_pos_or_bm_col_token(c));
+
+	//	/*if we encounter a dot-notation character recurse back again*/
+	//	if (c == '.')
+	//	{
+	//		parse(s_, ++offset_pos, ssp);
+	//	}
+	//}
+	//else/*specifying regular colour token i.e. one contained in _cpf_std_tokens*/
+	//{
+	//	_cpf_type::str::size_type last_matching_offset = 0;
+	//	for (auto i : _cpf_std_tokens)
+	//	{
+	//		auto attr_s = s_.substr(ssp, i.size());
+
+	//		if (attr_s == i)
+	//		{
+	//			last_matching_offset = offset_pos + i.size();
+
+	//			if (s_[ssp + last_matching_offset] == '.')
+	//			{
+	//				parse(s_, ++last_matching_offset, ssp);
+	//			}
+	//		}
+	//	}
+	//	offset_pos = last_matching_offset;
+	//}
 }
 
 _cpf_type::str parse_format_attributes(	_cpf_type::str const &format_str_, 
