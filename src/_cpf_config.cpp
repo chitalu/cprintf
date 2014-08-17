@@ -40,108 +40,6 @@ const _cpf_type::stream _cpf_type::std_error_stream = stderr;
 
 _cpf_type::attribs _cpf_current_text_attribs;
 
-
-/*
-	stream redirection functionality
-*/
-namespace redir
-{
-	
-#ifdef _WIN32
-	typedef PHANDLE pipe_t;
-	typedef HANDLE stream_handle_t;
-#else
-	typedef int pipe_t;
-	typedef int stream_handle_t;
-#endif
-	stream_handle_t saved_user_stream;
-	pipe_t out_pipe[2];
-
-	/*
-		http://pubs.opengroup.org/onlinepubs/009695399/functions/pipe.html
-	*/
-	void create_pipe()
-	{
-#ifdef _WIN32
-		//create pipe for the console stdout 
-		SECURITY_ATTRIBUTES sa;
-		//http://msdn.microsoft.com/en-gb/library/windows/desktop/aa366877(v=vs.85).aspx
-		SecureZeroMemory(&sa, sizeof(SECURITY_ATTRIBUTES));
-		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-		sa.bInheritHandle = true;
-		sa.lpSecurityDescriptor = NULL;
-		/*
-			http://msdn.microsoft.com/en-gb/library/windows/desktop/aa365152(v=vs.85).aspx
-		*/
-		auto ret = CreatePipe(out_pipe[0], out_pipe[1], &sa, 0);
-
-		if(!ret)
-		{
-			throw _cpf_type::error("cpf err: failed to create system pipe.");
-		}
-#else
-		if (pipe(out_pipe) != 0) 
-		{          
-			throw _cpf_type::error("cpf err: failed to create system pipe.");
-		}
-#endif
-		
-	}
-
-	/*
-	http://pubs.opengroup.org/onlinepubs/009695399/functions/dup.html
-	*/
-	void save_user_stream(_cpf_type::stream strm)
-	{
-#ifdef _WIN32
-		saved_user_stream = GetStdHandle(strm == stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
-#else
-		saved_user_stream = dup(strm == stdout ? STDOUT_FILENO : STDERR_FILENO);
-#endif
-	}
-
-	/* redirect stdout to pipe */
-	void redirect_user_stream(_cpf_type::stream strm)
-	{
-#ifdef _WIN32
-		SetStdHandle(strm == stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE, out_pipe[1]);
-#else
-		dup2(out_pipe[1], strm == stdout ? STDOUT_FILENO : STDERR_FILENO);   
-		close(out_pipe[1]);
-#endif
-		
-	}
-
-	void read_pipe(_cpf_type::stream strm)
-	{
-		const int BUFSIZE = 4096;
-		DWORD dwRead, dwWritten;
-		CHAR chBuf[BUFSIZE];
-		BOOL bSuccess = FALSE;
-
-		for (;;)
-		{
-			bSuccess = ReadFile(out_pipe[0], chBuf, BUFSIZE, &dwRead, NULL);
-			if (!bSuccess || dwRead == 0) break;
-
-			bSuccess = WriteFile(strm == stdout ? stdout_handle : stderr_handle, chBuf,
-				dwRead, &dwWritten, NULL);
-			if (!bSuccess) break;
-		}
-	}
-
-	void reload_user_stream()
-	{
-#ifdef _WIN32
-		SetStdHandle(	saved_user_stream == stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE, 
-						saved_user_stream);
-#else
-		/*fix this!!!!*/
-		saved_user_stream = dup(saved_user_stream == stdout ? STDOUT_FILENO : STDERR_FILENO);
-#endif
-	}
-}
-
 bool _cpf_is_fstream(_cpf_type::stream strm)
 {
 	bool is_fstream = true;
@@ -273,28 +171,40 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 #ifdef _WIN32
 	auto strm_ = strm == stdout ? stdout_handle : stderr_handle;
 	COORD coord = {0, 0};
-	DWORD count;
 
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(strm_, &csbi);
-
-	FillConsoleOutputCharacter( strm_,
-								' ', 
-								csbi.dwSize.X * csbi.dwSize.Y, 
-								coord, 
-								&count);
-	if (attrib == "!~")
+	auto f = [&]()
 	{
+		DWORD count;
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		GetConsoleScreenBufferInfo(strm_, &csbi);
+
+		FillConsoleOutputCharacter(strm_,
+			' ',
+			csbi.dwSize.X * csbi.dwSize.Y,
+			coord,
+			&count);
+	};
+	
+	if (attrib == "!")
+	{
+		f();
 		SetConsoleCursorPosition(strm_, coord);
+	}
+	else // "!~"
+	{
+		f();
 	}
 
 #else
 	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
-	fprintf(strm, "\x1B[2J");
-
+	if(attrib == "!")
+	{
+		fprintf(strm, "\x1B[2J\x1B[H");
+	}
+	
 	if (attrib == "!~")
 	{
-		fprintf(strm, "\x1B[H");
+		fprintf(strm, "\x1B[2J");
 	}
 #endif
 }
@@ -302,9 +212,10 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 										const _cpf_type::attribs& attribs)
 {
+	
 	if (_cpf_is_fstream(strm))
 	{
-		return; //because file streams do not support colour
+		return; //no configurations necessary if writing to file
 	}
 
 	if (_cpf_current_text_attribs != attribs)

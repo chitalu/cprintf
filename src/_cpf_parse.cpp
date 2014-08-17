@@ -110,7 +110,7 @@ auto schar_ids =
 { 
 	'!', '~', 'f', 
 	'b', '&', '#', 
-	'*', '.' 
+	'*', '.', '?'
 };
 
 /*
@@ -170,7 +170,7 @@ const ppred_t parsing_predicates = {
 	{ 'w', pred_colour },
 	{
 		'?',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '?'; }
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
 	},
 	{
 		'*', /*an asterisk can only be prefixed by colour identifiers*/
@@ -246,12 +246,43 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 {
 	std::size_t offset_counter = 0;
 	char c = s_[ssp];//first character after occurrance of "$" 
-	bool finished = false;
-	ppred_t::const_iterator pred_iter;
+	bool finished = false, 
+		checked_if_is_txt_frmt_modifier = false; //$bld $rvs etc..
+	ppred_t::const_iterator pred_iter; //colour and screen wipe parsing predicates iterator
 	while (!finished)
 	{
-		pred_iter = parsing_predicates.find(c);
-		if (pred_iter != parsing_predicates.end())
+		/*we start with checking for text format specifiers first...
+		note: this is only necessary on linux as thats the only platform
+		supporting those txt attribute specifiers i.e $rvs $bld, $?bld*/
+		auto off3 = (ssp + 3);
+		auto off4 = (ssp + 4);
+		auto lst_i = (s_.size() - 1);
+		if ((off4 < lst_i || off3 < lst_i) &&
+			!checked_if_is_txt_frmt_modifier) //if offset does not exceed searched string's last character index...
+		{
+			auto f = [&](_cpf_type::str const &s)
+			{
+				//faster by using backwards iteration (see initialisation of _cpf_std_tokens)
+				if (std::find(_cpf_std_tokens.rbegin(), _cpf_std_tokens.rend(), s) != _cpf_std_tokens.rend())
+				{
+					finished = true;
+					return true;
+				}
+				return false;
+			};
+			
+			if (f(s_.substr(ssp, 3u)) == true)
+			{
+				offset_counter = 3;
+			}
+			else if (f(s_.substr(ssp, 4u)) == true)
+			{
+				offset_counter = 4;
+			}
+
+			checked_if_is_txt_frmt_modifier = true;
+		}
+		else if ((pred_iter = parsing_predicates.find(c)) != parsing_predicates.end())
 		{
 			do
 			{
@@ -283,6 +314,16 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 		else
 		{
 			finished = true;
+		}
+
+		/*
+			if possibly enter an infinite loop...
+			note that we simply use an arbitrary value
+		*/
+		if (offset_counter >= 50) 
+		{
+			finished = true;
+			offset_counter = 0;
 		}
 	}
 
@@ -351,12 +392,24 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 			first_iter = false;
 		}
 		
-		auto endpoint_offset = token_occurance_pos + 1;
-		auto attibs_str = parse_format_attributes(src_format, token_occurance_pos + 1, endpoint_offset);
-		attrib_endpos_p1 += endpoint_offset;
+		auto tokOccPos_1 = token_occurance_pos + 1;
+		_cpf_type::str::size_type off = 0;
+		auto attibs_str = parse_format_attributes(src_format, token_occurance_pos + 1, off);
+		attrib_endpos_p1 = tokOccPos_1 + off;
 
 		auto next_prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1);
-	
+
+		/*
+			if no other cprintf "$" token found, set next_prefix_pos
+			to the last character's index in src_format
+		*/
+		/*if (next_prefix_pos == src_format.npos)
+		{
+			next_prefix_pos = src_format.size() - 1;
+		}*/
+
+		/*vector to hold attributes that are applied to the (sub) string proceeding
+		the token "$"'s occurance position.*/
 		_cpf_type::str_vec subseq_str_attribs;
 		_cpf_type::str current_attrib;
 
