@@ -33,12 +33,12 @@ SET (cprintf_PATCH 0)
 SET (cprintf_VERSION_STRING "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
 
 #
-#   default is to build as shared library (.dll / .so)
+#   default is to build as static library (.dll / .so)
 #
 OPTION (CPF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
 
 #
-#   option to build samples
+#   option to build samples, useful if you wish to learn how to use the library's interface
 #
 OPTION (CPF_BUILD_SAMPLES "build sample projects" OFF)
 
