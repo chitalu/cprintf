@@ -213,39 +213,38 @@ const ppred_t parsing_predicates = {
 	}
 };
 
-/*
-	searches "subject" for "search" and replaces it with "replace"
-*/
-void str_replace(_cpf_type::str& subject, const _cpf_type::str& search, const _cpf_type::str& replace)
-{
-	size_t pos = 0;
-	while ((pos = _cpf_find(search, subject, pos)) != _cpf_type::str::npos)
-	{
-		subject.replace(pos, search.length(), replace);
-		pos += replace.length();
-	}
-}
-
-void purge_str_esc_sequences(_cpf_type::str &src)
-{
-	for (auto &es : attribute_escape_sequences)
-	{
-		str_replace(src, es, es.substr(1));
-	}
-}
-
 void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
 {
+	auto purge_str_esc_sequences = [&](_cpf_type::str &src)
+	{
+		for (auto &es : attribute_escape_sequences)
+		{
+			auto replacew = es.substr(1);
+
+			/* searches "src" for "es" and replaces it with "replacew" */
+			size_t pos = 0;
+			while ((pos = _cpf_find(es, src, pos)) != _cpf_type::str::npos)
+			{
+				src.replace(pos, es.length(), replacew);
+				pos += replacew.length();
+			}
+		}
+	};
+
 	for (auto &e : meta)
 	{
 		purge_str_esc_sequences(e.second.second);
 	}
 }
 
-void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf_type::str::size_type &ssp)
+/*
+	parses "src_string" starting from "ssp" (search start position) and returns an offset via "offset_pos"
+	denoting the size of the substring that represents an attribute specifier.
+*/
+void parse_attribute_specifier(_cpf_type::str const& src_string, _cpf_type::str::size_type &offset_val, _cpf_type::str::size_type &ssp)
 {
 	std::size_t offset_counter = 0;
-	char c = s_[ssp];//first character after occurrance of "$" 
+	char c = src_string[ssp];//first character after occurrance of "$" 
 	bool finished = false, 
 		checked_if_is_txt_frmt_modifier = false; //$bld $rvs etc..
 	ppred_t::const_iterator pred_iter; //colour and screen wipe parsing predicates iterator
@@ -256,7 +255,7 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 		supporting those txt attribute specifiers i.e $rvs $bld, $?bld*/
 		auto off3 = (ssp + 3);
 		auto off4 = (ssp + 4);
-		auto lst_i = (s_.size() - 1);
+		auto lst_i = (src_string.size() - 1);
 		if ((off4 < lst_i || off3 < lst_i) &&
 			!checked_if_is_txt_frmt_modifier) //if offset does not exceed searched string's last character index...
 		{
@@ -271,11 +270,11 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 				return false;
 			};
 			
-			if (f(s_.substr(ssp, 3u)) == true)
+			if (f(src_string.substr(ssp, 3u)) == true)
 			{
 				offset_counter = 3;
 			}
-			else if (f(s_.substr(ssp, 4u)) == true)
+			else if (f(src_string.substr(ssp, 4u)) == true)
 			{
 				offset_counter = 4;
 			}
@@ -295,12 +294,14 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 				*/
 				auto x = (offset_counter) == 1 ? 1 : 2;
 				/*if character found does abide by parsing rules...*/
-				if (pred_iter->second(s_, off - x) == false)
+				if (pred_iter->second(src_string, off - x) == false)
 				{
 					finished = true;
 					break;
 				}
-				c = s_[off];
+
+				c = src_string[off];
+
 			} while ((pred_iter = parsing_predicates.find(c)) != parsing_predicates.end());
 		}
 		else if (isdigit(c))
@@ -308,7 +309,7 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 			do
 			{
 				auto off = ssp + (++offset_counter);
-				c = s_[off];
+				c = src_string[off];
 			} while (isdigit(c));
 		}
 		else
@@ -327,10 +328,11 @@ void parse(_cpf_type::str const& s_, _cpf_type::str::size_type &offset_pos, _cpf
 		}
 	}
 
-	offset_pos = offset_counter;
+	offset_val = offset_counter;
 }
 
-_cpf_type::str parse_format_attributes(	_cpf_type::str const &format_str_, 
+/**/
+_cpf_type::str parse_fstr_for_attrib_specs(	_cpf_type::str const &format_str_, 
 										_cpf_type::str::size_type search_start_pos_,
 										_cpf_type::str::size_type &attrib_end_pos)
 {
@@ -339,7 +341,7 @@ _cpf_type::str parse_format_attributes(	_cpf_type::str const &format_str_,
 	/*offset from search start position i.e token occurance position in format string*/
 	_cpf_type::str::size_type offset_pos = 0;
 	
-	parse(format_str_, offset_pos, ssp);
+	parse_attribute_specifier(format_str_, offset_pos, ssp);
 
 	/*the parsed attribute(s) string...*/
 	_cpf_type::str attribute_string = format_str_.substr(ssp, offset_pos);
@@ -394,19 +396,10 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 		
 		auto tokOccPos_1 = token_occurance_pos + 1;
 		_cpf_type::str::size_type off = 0;
-		auto attibs_str = parse_format_attributes(src_format, token_occurance_pos + 1, off);
+		auto attibs_str = parse_fstr_for_attrib_specs(src_format, token_occurance_pos + 1, off);
 		attrib_endpos_p1 = tokOccPos_1 + off;
 
 		auto next_prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1);
-
-		/*
-			if no other cprintf "$" token found, set next_prefix_pos
-			to the last character's index in src_format
-		*/
-		/*if (next_prefix_pos == src_format.npos)
-		{
-			next_prefix_pos = src_format.size() - 1;
-		}*/
 
 		/*vector to hold attributes that are applied to the (sub) string proceeding
 		the token "$"'s occurance position.*/
