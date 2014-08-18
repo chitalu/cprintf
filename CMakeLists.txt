@@ -16,6 +16,9 @@
 #   CPF_BUILD_SAMPLES:
 #   [option] to build cprintf sample use-cases (default is OFF)
 #
+#   CPF_CLANG_BUILD (linux only):
+#   [option] to build cprintf with clang instead of default GCC
+#
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
@@ -42,6 +45,11 @@ OPTION (CPF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
 #
 OPTION (CPF_BUILD_SAMPLES "build sample projects" OFF)
 
+#
+#   option to use clang instead of default GCC on linux
+#
+OPTION (CPF_CLANG_BUILD "build with clang compiler" OFF )
+
 IF (CPF_BUILD_AS_SHARED_LIB)
     SET (CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT)
 ENDIF()
@@ -54,6 +62,25 @@ IF(WIN32)
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
     SET (CPF_BUILD_FLAGS "-std=gnu++11 -Werror")
+
+    #
+    #   note yet properly setup
+    #
+    IF(CPF_CLANG_BUILD)
+        SET (CMAKE_C_COMPILER             "/usr/bin/clang")
+        SET (CMAKE_C_FLAGS                "-Wall -std=c99")
+        SET (CMAKE_C_FLAGS_DEBUG          "-g")
+        SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+        SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
+        SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+        SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+        SET (CMAKE_CXX_FLAGS                "-Wall")
+        SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
+        SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+        SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+        SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+    ENDIF(CPF_CLANG_BUILD)
 ENDIF()
 
 OPTION (CPF_CONFIG_64 "build 64 bit binary" OFF)
