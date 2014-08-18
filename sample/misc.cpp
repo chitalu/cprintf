@@ -61,6 +61,15 @@ void args_and_colours(void)
 	cprintf("$b*%s\n", "blue");
 }
 
+void buffer_wipe(void)
+{
+	cprintf("screen$r buffer $?.!`clear and reset colour\n");
+	cprintf("screen$r buffer $!`clear\n");
+	cprintf("screen$r buffer $?` reset colour\n");
+
+	cprintf("screen $r buffer $!~ clear but retain cursor position\n");
+}
+
 void standard_tokens(void)
 {
 	auto tokens = {

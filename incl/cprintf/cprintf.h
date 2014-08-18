@@ -305,6 +305,20 @@ void cfprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 		std::forward<Ts>(normalize_arg(args))...);
 }
 
+CPF_API void cpf_config_wide_char_settings(std::uint8_t flag);
+CPF_API std::uint8_t cpf_get_wide_char_settings(void);
+
+template<typename... Ts>
+void cfwprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
+{
+	use smart pointer to restore state in the case that an exception is thrown
+	cpf_config_wide_char_settings(_CPF_ENABLE);
+	cfprintf(	strm, 
+				std::forward<_cpf_type::c_str>(format), 
+				std::forward<Ts>(normalize_arg(args))...);
+	cpf_config_wide_char_settings(_CPF_ENABLE);
+}
+
 /*
 	Writes the C string pointed by format to the standard output (stdout). 
 	If format includes format specifiers (subsequences beginning with %), 
