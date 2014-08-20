@@ -27,7 +27,14 @@ THE SOFTWARE.
 
 #include "_cpf_colour_defs.h"
 
-//CPF_API _cpf_type::attribs _cpf_current_text_attribs;
+
+CPF_API void save_terminal_settings(_cpf_type::stream strm);
+/*boolean is to indicate whether this is the last call to before cprintf finishes
+execution to return*/
+CPF_API void restore_terminal_settings(	_cpf_type::stream strm, 
+										bool finished_cpf_exec = false);
+
+//CPF_API _cpf_type::colour _cpf_current_text_attribs;
 
 /*
 	configure system terminal settings

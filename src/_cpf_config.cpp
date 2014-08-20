@@ -34,6 +34,49 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 #endif
 
 _cpf_type::attribs _cpf_current_text_attribs;
+static bool glob_terminal_state_restored = true;
+
+#ifdef _WIN32
+static _cpf_type::colour saved_terminal_colour;
+#endif
+
+void save_terminal_settings(_cpf_type::stream user_stream)
+{
+#ifdef _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO cbsi;
+	auto s = user_stream == stdout ? stdout_handle : stderr_handle;
+	auto ret_okay = GetConsoleScreenBufferInfo(s, &cbsi);
+
+	if (!ret_okay)
+	{
+		throw _cpf_type::error("cpf fatal error: failed to retrieve terminal attributes");
+	}
+	saved_terminal_colour = cbsi.wAttributes;
+#else
+
+#endif
+	glob_terminal_state_restored = false;
+}
+
+void restore_terminal_settings(_cpf_type::stream user_stream, bool finished_cpf_exec)
+{
+	if (!glob_terminal_state_restored)
+	{
+#ifdef _WIN32
+		auto s = user_stream == stdout ? stdout_handle : stderr_handle;
+		auto ret_okay = SetConsoleTextAttribute(s, saved_terminal_colour);
+		if (!ret_okay)
+		{
+			throw _cpf_type::error("cpf fatal error: failed to restore terminal attributes");
+		}
+#else
+
+#endif
+		/*ternary op guarrantees that console settings will be reset to 
+		values that where originally set befpre calling a cprintf function*/
+		glob_terminal_state_restored = finished_cpf_exec ? true : false;
+	}
+}
 
 bool _cpf_is_fstream(_cpf_type::stream strm)
 {
@@ -228,6 +271,10 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 			else if (c_repr == "!" || c_repr == "!~") /*clear screen*/
 			{
 				clear_terminal_buffer(strm, c_repr);
+			}
+			else if (c_repr == "?") /*restore colour to system default*/
+			{
+				restore_terminal_settings(strm);
 			}
 			else /*is_cursor_pos_attrib*/
 			{

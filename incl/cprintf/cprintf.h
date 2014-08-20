@@ -26,12 +26,14 @@ THE SOFTWARE.
 #define __CPF_H__
 
 #include <tuple>
+#include <memory>
 #include <algorithm>
 #include <cstdarg>
 #include <cassert>
 
 #include "cprintf/internal/_cpf_parse.h"
 #include "cprintf/internal/_cpf_verify.h"
+#include "cprintf/internal/_cpf_config.h"
 
 template <std::size_t...>
 struct indices
@@ -188,8 +190,6 @@ void _cpf_call_(
 			*/
 			printed_arg0 = false;
 
-	
-
 	/*
 		string parsing start position...
 	*/
@@ -297,12 +297,29 @@ void cfprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 	auto tsd_iter_begin = meta_str_data.cbegin();
 	auto tsd_iter_end_point_comparator = meta_str_data.cend();
 
-	_cpf_call_(strm,
-		tsd_iter_end_point_comparator,
-		tsd_iter_begin,
-		tsd_iter_begin->second.second,
-		0,
-		std::forward<Ts>(normalize_arg(args))...);
+	/*
+		
+	*/
+	try
+	{
+		save_terminal_settings(strm);
+
+		/*
+			make actual call to do printing and internal colour configurations
+		*/
+		_cpf_call_(	strm,
+					tsd_iter_end_point_comparator,
+					tsd_iter_begin,
+					tsd_iter_begin->second.second,
+					0,
+					std::forward<Ts>(normalize_arg(args))...);
+	}
+	catch (_cpf_type::error &e)
+	{
+		restore_terminal_settings(strm, true);
+		throw e;
+	}
+	restore_terminal_settings(strm, true);
 }
 
 /*CPF_API void cpf_config_wide_char_settings(std::uint8_t flag);
@@ -352,6 +369,10 @@ template<typename... Ts>
 void cfprintf_t(	_cpf_type::stream strm, 
 					_cpf_type::c_str format, std::tuple<Ts...> args_tup)
 {
+	/*TODO
+	improve this function with std::bind -> #include <functional>
+	http://ideone.com/4DGVCV#view_edit_box
+	*/
 	auto predef_args_tup = std::make_tuple(strm, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 	

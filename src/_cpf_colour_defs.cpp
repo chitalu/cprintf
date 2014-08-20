@@ -52,9 +52,6 @@ const auto default_foreground_colour = [&]()->_cpf_type::colour
 
 CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 
-	/*default*/
-	"?",
-
 	/*dim text colour no background*/
 	"r", "g", "b", "y", "m", "c", "w",
 
@@ -115,16 +112,6 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 	TODO: CLEAN UP WINDOWS MACROS, TOO MUCH REPETITION!
 */
 const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
-	/*default*/
-	{ "?",	[&](void)->_cpf_type::colour
-			{
-				CONSOLE_SCREEN_BUFFER_INFO csbi;
-				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-				auto a = csbi.wAttributes;
-				return static_cast<_cpf_type::colour>(a % 16);
-			}()
-	},
-
 	/*red*/
 	{ "r#", (default_foreground_colour | _cpf_Rb) },
 	{ "r*#", (default_foreground_colour | _cpf_Rb | _cpf_bgi) },
