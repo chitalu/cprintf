@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 /*text attributes before a call was made to cprintf*/
 _cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
+
 //cprintf("Characters:\t%c %%\n", 65);
 std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 {

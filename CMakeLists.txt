@@ -61,7 +61,7 @@ IF(WIN32)
     SET (CPF_BUILD_FLAGS "/WX")
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
-    SET (CPF_BUILD_FLAGS "-std=gnu++11 -Werror")
+    SET (CPF_BUILD_FLAGS "-std=c++0x -Werror")
 
     #
     #   note yet properly setup

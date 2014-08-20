@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "_cpf_colour_defs.h"
 
-CPF_API _cpf_type::attribs _cpf_current_text_attribs;
+//CPF_API _cpf_type::attribs _cpf_current_text_attribs;
 
 /*
 	configure system terminal settings
@@ -36,6 +36,6 @@ CPF_API _cpf_type::attribs _cpf_current_text_attribs;
 	@attr - text attribute vector
 */
 CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
-										const _cpf_type::attribs& attr);
+									const _cpf_type::attribs& attr);
 
 #endif
