@@ -16,6 +16,9 @@
 #   CPF_BUILD_SAMPLES:
 #   [option] to build cprintf sample use-cases (default is OFF)
 #
+#   CPF_BUILD_TESTS:
+#   [option] to build tests projects (also builds a gtest project)
+#
 #   CPF_CLANG_BUILD (linux only):
 #   [option] to build cprintf with clang instead of default GCC
 #
