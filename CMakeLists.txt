@@ -33,7 +33,7 @@ SET (cprintf_MAJOR 1)
 SET (cprintf_MINOR 0)
 SET (cprintf_PATCH 0)
 
-SET (cprintf_VERSION_STRING "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
+SET (cprintf_VERSION "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
 
 #
 #   default is to build as static library (.dll / .so)
@@ -41,9 +41,15 @@ SET (cprintf_VERSION_STRING "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}"
 OPTION (CPF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
 
 #
-#   option to build samples, useful if you wish to learn how to use the library's interface
+#   option to build samples, useful if you wish to learn how to use the library's 
+#   interface
 #
 OPTION (CPF_BUILD_SAMPLES "build sample projects" OFF)
+
+#
+#   option to build test project
+#
+OPTION (CPF_BUILD_TESTS "build tests" OFF )
 
 #
 #   option to use clang instead of default GCC on linux
@@ -62,6 +68,11 @@ IF(WIN32)
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
     SET (CPF_BUILD_FLAGS "-std=c++0x -Werror")
+
+    IF(CPF_BUILD_TESTS)
+        #"pthread" is necessary for gtest to build
+        SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -pthread")
+    ENDIF(CPF_BUILD_TESTS)
 
     #
     #   note yet properly setup
@@ -123,24 +134,58 @@ SET_TARGET_PROPERTIES(  ${PROJECT_NAME} PROPERTIES
                         COMPILE_FLAGS "${CPF_BUILD_FLAGS}") 
 
 IF(CPF_BUILD_SAMPLES)
-    
-    FILE( GLOB SAMPLE_SRC_FILES "sample/*.cpp" )
 
-    FOREACH( sample_src_file ${SAMPLE_SRC_FILES} )
+    MACRO(SUBDIRLIST result curdir)
+        FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+        SET(dirlist "")
+        FOREACH(child ${children})
+            IF(IS_DIRECTORY ${curdir}/${child})
+                LIST(APPEND dirlist ${child})
+            ENDIF()
+        ENDFOREACH()
+        SET(${result} ${dirlist})
+    ENDMACRO()
 
-        GET_FILENAME_COMPONENT(sfname ${sample_src_file} NAME_WE)
-        SET(sample_exe_name "cpf_sample_${sfname}")
-        ADD_EXECUTABLE( ${sample_exe_name} ${sample_src_file} )
-        TARGET_LINK_LIBRARIES( ${sample_exe_name} ${PROJECT_NAME} )
+    SET (samples_dir "${CMAKE_CURRENT_SOURCE_DIR}/smpl")
+
+    SUBDIRLIST(sample_dirs ${samples_dir})
+
+    FOREACH( sample_dir ${sample_dirs} )
+
+        SET(sample_proj_name "cpf_smpl_${sample_dir}")
+
+        ADD_EXECUTABLE( ${sample_proj_name} "${samples_dir}/${sample_dir}/main.cpp" )
+        TARGET_LINK_LIBRARIES( ${sample_proj_name} ${PROJECT_NAME} )
 
         IF(CPF_BUILD_AS_SHARED)
-            ADD_CUSTOM_COMMAND( TARGET ${sample_exe_name} PRE_BUILD
+            ADD_CUSTOM_COMMAND( TARGET ${sample_proj_name} PRE_BUILD
                                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                                ${cprintf_path} $<TARGET_FILE_DIR:${sample_exe_name}>)
+                                ${cprintf_path} $<TARGET_FILE_DIR:${sample_proj_name}>)
         ENDIF(CPF_BUILD_AS_SHARED)
 
-    ENDFOREACH( sample_src_file ${APP_SOURCES} )
+    ENDFOREACH( sample_dir ${sample_dirs} )
 
 ENDIF(CPF_BUILD_SAMPLES)
+
+IF(CPF_BUILD_TESTS)
+
+    ADD_SUBDIRECTORY(test)
+
+    FILE( GLOB test_proj_files "${CMAKE_CURRENT_SOURCE_DIR}/test/src/*")
+    ADD_EXECUTABLE(cpf_test ${test_proj_files})
+
+    SET(cpf_test_includes ${gtest_incl_dir} ${cprintf_incl_dir})
+    SET_TARGET_PROPERTIES(  cpf_test PROPERTIES
+                            INCLUDE_DIRECTORIES "${cpf_test_includes}")
+
+    TARGET_LINK_LIBRARIES( cpf_test ${CMAKE_PROJECT_NAME} gtest)
+
+    IF(CPF_BUILD_AS_SHARED)
+        ADD_CUSTOM_COMMAND( TARGET cpf_test PRE_BUILD
+                            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                            ${cprintf_path} $<TARGET_FILE_DIR:cpf_test>)
+    ENDIF(CPF_BUILD_AS_SHARED)
+
+ENDIF(CPF_BUILD_TESTS)
 
 MESSAGE(STATUS "${PROJECT_NAME} setup done!")
