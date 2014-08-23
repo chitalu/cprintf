@@ -391,6 +391,11 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 //http://stackoverflow.com/questions/3506504/c-code-changes-terminal-text-color-how-to-restore-defaults-linux
 //http://linuxgazette.net/issue65/padala.html
 //http://misc.flogisoft.com/bash/tip_colors_and_formatting
+//http://man7.org/linux/man-pages/man4/console_codes.4.html
+//http://www.linuxquestions.org/questions/programming-9/get-cursor-position-in-c-947833/
+//http://ascii-table.com/ansi-escape-sequences-vt-100.php
+//http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+//http://ispltd.org/mini_howto:ansi_terminal_codes
 
 /*<ESC>[{attr};{fg};{bg}m*/
 #define REG_COLOUR_VALUES(c, i) \
@@ -447,10 +452,6 @@ extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_va
 	{	"?hid", 	"\x1B[28m"},
 
 	/*colours*/
-	
-	/*default (reset all colours and attribs)*/
-	{ 	"?", 	"\x1B[0;0;0m"},
-
 	REG_COLOUR_VALUES(r, 1)
 	REG_COLOUR_VALUES(g, 2)
 	REG_COLOUR_VALUES(b, 4)

@@ -26,11 +26,14 @@ THE SOFTWARE.
 
 #if _WIN32
 
+#include <conio.h> // _getch
+
 HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 
 #else
-
+#include <termios.h>
+#include <unistd.h>
 #endif
 
 _cpf_type::attribs _cpf_current_text_attribs;
@@ -53,7 +56,7 @@ void save_terminal_settings(_cpf_type::stream user_stream)
 	}
 	saved_terminal_colour = cbsi.wAttributes;
 #else
-
+	
 #endif
 	glob_terminal_state_restored = false;
 }
@@ -70,7 +73,7 @@ void restore_terminal_settings(_cpf_type::stream user_stream, bool finished_cpf_
 			throw _cpf_type::error("cpf fatal error: failed to restore terminal attributes");
 		}
 #else
-
+		fprintf(user_stream, "\x1B[0;0;0m");
 #endif
 		/*ternary op guarrantees that console settings will be reset to 
 		values that where originally set befpre calling a cprintf function*/
@@ -216,6 +219,20 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(strm_, &csbi);
 
+		/*
+		Sets the character attributes for a specified number of character cells, 
+		beginning at the specified coordinates in a screen buffer.
+		*/
+		FillConsoleOutputAttribute(strm_, 
+			saved_terminal_colour,
+			csbi.dwSize.X * csbi.dwSize.Y,
+			coord,
+			&count);
+
+		/*
+		Writes a character to the console screen buffer a specified number of times, 
+		beginning at the specified coordinates.
+		*/
 		FillConsoleOutputCharacter(strm_,
 			' ',
 			csbi.dwSize.X * csbi.dwSize.Y,
@@ -247,8 +264,43 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 #endif
 }
 
+#ifndef _WIN32
+/*
+	This code sets the terminal into non-canonical mode, thus disabling line buffering,
+	reads a character from stdin and then restores the old terminal status. For more 
+	info on what else you can do with termios, see ``man termios''
+*/
+int _getch(void) 
+{
+	struct termios	oldt,
+					newt;
+	int ch;
+	tcgetattr(STDIN_FILENO, &oldt);
+	newt = oldt;
+	newt.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	ch = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+	return ch;
+}
+
+#endif
+
+void input_wait(_cpf_type::stream strm, const _cpf_type::str& attrib)
+{
+	if (attrib ==  "|")
+	{
+		_getch();
+	}
+	else // |^
+	{
+		int c;
+		while(c = std::getchar() != '\n');
+	}
+}
+
 CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
-										const _cpf_type::attribs& attribs)
+									const _cpf_type::attribs& attribs)
 {
 	
 	if (_cpf_is_fstream(strm))
@@ -267,6 +319,10 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 			if (is_cursor_pos_attrib(c_repr))
 			{
 				set_cursor_position(strm, c_repr);
+			}
+			else if (c_repr == "|" || c_repr == "|^") /*halt until input*/
+			{
+				input_wait(strm, c_repr);
 			}
 			else if (c_repr == "!" || c_repr == "!~") /*clear screen*/
 			{

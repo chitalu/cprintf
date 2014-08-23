@@ -29,8 +29,12 @@ THE SOFTWARE.
 
 
 CPF_API void save_terminal_settings(_cpf_type::stream strm);
-/*boolean is to indicate whether this is the last call to before cprintf finishes
-execution to return*/
+/*boolean finished_cpf_exec is to indicate whether this is the last call to 
+before cprintf finishes execution to return
+
+by default this function executes only if save_terminal_settings 
+has been previous called (in the current call to cprintf) else it returns
+immidiately. This behaviour can be overridden via force_restore.*/
 CPF_API void restore_terminal_settings(	_cpf_type::stream strm, 
 										bool finished_cpf_exec = false);
 

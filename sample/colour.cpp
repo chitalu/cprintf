@@ -59,6 +59,8 @@ int main(void)
 
 	try
 	{
+		
+
 		cprintf("bar $r*red\n");
 		cprintf("bar $r*r*ed\n");
 		cprintf("bar $r#ed\n");

@@ -316,6 +316,7 @@ void cfprintf(_cpf_type::stream strm, _cpf_type::c_str format, Ts... args)
 	}
 	catch (_cpf_type::error &e)
 	{
+		/*TODO: look into signal interupts. they are not covered here*/
 		restore_terminal_settings(strm, true);
 		throw e;
 	}

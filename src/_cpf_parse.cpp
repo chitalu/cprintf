@@ -51,7 +51,8 @@ const std::initializer_list<_cpf_type::str> attribute_escape_sequences = {
 	"`b", "`y", "`m", 
 	"`c", "`w", "`.", 
 	"`*", "``", "`?"
-	"`!", "`~"
+	"`!", "`~", "`|"
+	"`^", "`f"
 };
 
 const std::initializer_list<char> std_format_specifiers = { 
@@ -111,7 +112,8 @@ auto schar_ids =
 { 
 	'!', '~', 'f', 
 	'b', '&', '#', 
-	'*', '.', '?'
+	'*', '.', '?',
+	'|', '^'
 };
 
 /*
@@ -172,6 +174,14 @@ const ppred_t parsing_predicates = {
 	{
 		'?',
 		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
+	},
+	{
+		'|',
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
+	},
+	{
+		'^',
+		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '|'; }
 	},
 	{
 		'*', /*an asterisk can only be prefixed by colour identifiers*/
