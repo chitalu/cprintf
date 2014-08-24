@@ -70,10 +70,11 @@ IF(WIN32)
     SET (CPF_BUILD_FLAGS "/WX")
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
-    SET (CPF_BUILD_FLAGS "-std=c++0x -Werror")
+    SET (CPF_BUILD_FLAGS "-std=c++11 -Werror")
 
     IF(CPF_BUILD_TESTS)
         #"pthread" is necessary for gtest to build
+        #https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1228201
         SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -pthread")
     ENDIF(CPF_BUILD_TESTS)
 
@@ -136,6 +137,12 @@ SET_TARGET_PROPERTIES(  ${PROJECT_NAME} PROPERTIES
                         COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
                         COMPILE_FLAGS "${CPF_BUILD_FLAGS}") 
 
+#
+#   caching need for use in gtest cmake file
+#
+SET(CPF_BUILD_FLAGS ${CPF_BUILD_FLAGS} CACHE STRING "adopt same compiler flags.")
+SET(CPF_PREPROC_DEFS ${CPF_PREPROC_DEFS} CACHE STRING "adopt same preproc defs.")
+
 IF(CPF_BUILD_SAMPLES)
 
     MACRO(SUBDIRLIST result curdir)
@@ -183,9 +190,11 @@ IF(CPF_BUILD_TESTS)
 
     SET(cpf_test_includes ${gtest_incl_dir} ${cprintf_incl_dir})
     SET_TARGET_PROPERTIES(  cpf_test PROPERTIES
-                            INCLUDE_DIRECTORIES "${cpf_test_includes}")
+                            INCLUDE_DIRECTORIES "${cpf_test_includes}"
+                            COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
+                            COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}")
 
-    TARGET_LINK_LIBRARIES( cpf_test ${CMAKE_PROJECT_NAME} gtest)
+    TARGET_LINK_LIBRARIES( cpf_test cprintf gtest)
 
     IF(CPF_BUILD_AS_SHARED)
         ADD_CUSTOM_COMMAND( TARGET cpf_test PRE_BUILD

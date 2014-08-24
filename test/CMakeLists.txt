@@ -17,8 +17,10 @@ SET(gtest_incl_dir "${gtest_root}/include"
 #
 #   only using two source files from gtest
 #
-SET( gtest_srcs "${gtest_root}/src/gtest-all.cc")# 
+SET( gtest_srcs "${gtest_root}/src/gtest-all.cc")
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${gtest_srcs})
 SET_TARGET_PROPERTIES(  ${PROJECT_NAME} PROPERTIES
-                        INCLUDE_DIRECTORIES "${gtest_incl_dir};${gtest_root}")
+                        INCLUDE_DIRECTORIES "${gtest_incl_dir};${gtest_root}"
+                        COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
+                        COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}")
