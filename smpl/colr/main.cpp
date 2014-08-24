@@ -73,7 +73,7 @@ int main(void)
 #ifdef _WIN32
 		cprintf("quux $64f xterm bitmap colour is ignored\n");
 		cprintf("quux $64b xterm bitmap colour is ignored\n");
-		cprintf("quux $128f.64b xterm bitmap colour is ignored\n");
+		cprintf("quux $128f.16b xterm bitmap colour is ignored\n");
 		cprintf("quux $64& xterm bitmap colour is ignored\n");
 
 		cprintf("note that $bld this text is blue\n");

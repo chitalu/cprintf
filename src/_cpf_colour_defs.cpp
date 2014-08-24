@@ -399,9 +399,10 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 
 /*<ESC>[{attr};{fg};{bg}m*/
 #define REG_COLOUR_VALUES(c, i) \
-{	""#c"",	"\x1B[0;0;4"#i"m" },\
-{	""#c"*",	"\x1B[0;0;10"#i"m" },\
-{	#c "",		"\x1B[0;0;3"#i"m" },\
+{	#c,			"\x1B[0;0;3"#i"m" },\
+{	#c"*",		"\x1B[0;0;10"#i"m" },\
+{	#c"#",		"\x1B[0;0;4"#i"m" },\
+{	#c"*#",		"\x1B[0;30;10"#i"m" },\
 {	#c "r",		"\x1B[0;3"#i";41m" },\
 {	#c "g",		"\x1B[0;3"#i";42m" },\
 {	#c "b",		"\x1B[0;3"#i";44m" },\
@@ -458,7 +459,8 @@ extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_va
 	REG_COLOUR_VALUES(y, 3)
 	REG_COLOUR_VALUES(m, 5)
 	REG_COLOUR_VALUES(c, 6)
-	REG_COLOUR_VALUES(c, 7)
+	REG_COLOUR_VALUES(w, 7)
+
 };
 
 #endif /*#ifdef _WIN32*/
