@@ -52,7 +52,7 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
  
 #else /* UNIX */
 
-#ifdef CPF_BUILD_AS_STATIC
+#ifndef CPF_BUILD_AS_SHARED
 #  	define CPF_API extern
 #else
 #  	ifdef CPF_FUNC_EXPORT

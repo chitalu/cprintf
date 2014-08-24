@@ -46,6 +46,7 @@ THE SOFTWARE.
 
 	cprintf("$r`red");
 */
+
 const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
 	"`$", "`r", "`g", 
 	"`b", "`y", "`m", 
