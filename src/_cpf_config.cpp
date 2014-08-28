@@ -299,38 +299,36 @@ void input_wait(_cpf_type::stream user_stream, const _cpf_type::str& attrib)
 	}
 }
 
-#ifdef _WIN32
-
 void config_text_col(_cpf_type::stream user_stream, _cpf_type::colour user_colour, char col_config_type)
 {
+#ifdef _WIN32
+	auto output_stream_handle = user_stream == stdout ? stdout_handle : stderr_handle;
 	if(col_config_type == 0) //foreground
 	{
 		CONSOLE_SCREEN_BUFFER_INFOEX cbie; //hold info
 
-		//article didn't say this was necessary, but to be on the safe side...
 		cbie.cbSize = sizeof (CONSOLE_SCREEN_BUFFER_INFOEX);
 
-		GetConsoleScreenBufferInfoEx (user_stream == stdout ? stdout_handle : stderr_handle, &cbie); //get info
+		GetConsoleScreenBufferInfoEx (output_stream_handle, &cbie); //get info
 
 		//first, cancel out all foreground attributes
 		//then, set the ones you want (I use bright red)
 		cbie.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cbie.wAttributes |= (FOREGROUND_RED | FOREGROUND_INTENSITY);
+		cbie.wAttributes |= (user_colour);
 
-		SetConsoleScreenBufferInfoEx (user_stream == stdout ? stdout_handle : stderr_handle, &cbie); //pass updated info back
+		SetConsoleScreenBufferInfoEx (output_stream_handle, &cbie); //pass updated info back
 	}
 	else if(col_config_type == 1) //foreground and background
 	{
-
+		SetConsoleTextAttribute(output_stream_handle, user_colour);
 	}
 	else if(col_config_type == 2) //background
 	{
-		SetConsoleTextAttribute(user_stream == stdout ? stdout_handle : stderr_handle, 
-								user_colour);
+		
 	}
-}
 
 #endif
+}
 
 CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 									const _cpf_type::attribs& attribs)
