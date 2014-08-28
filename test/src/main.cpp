@@ -1,6 +1,8 @@
 #include <cprintf/cprintf.h>
 #include <gtest/gtest.h>
 
+#ifdef _WIN32
+
 TEST(BadToken, using_bitmap_fg_tok_on_windows)
 {
 	ASSERT_THROW(	cprintf("cpf test :: $64f xterm bitmap colour is an error\n"), 
@@ -28,6 +30,8 @@ TEST(BadToken, using_bitmap_ampersand_fgbg_tok_on_windows)
 					_cpf_type::error);
 	printf("\n");
 }
+
+#endif
 
 TEST(Arg, printing_std_string)
 {
