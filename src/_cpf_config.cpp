@@ -76,17 +76,17 @@ void restore_terminal_settings(_cpf_type::stream user_stream, bool finished_cpf_
 		fprintf(user_stream, "\x1B[0;0;0m");
 #endif
 		/*ternary op guarrantees that console settings will be reset to 
-		values that where originally set befpre calling a cprintf function*/
+		originals i.e as they were prior to calling a cprintf function*/
 		glob_terminal_state_restored = finished_cpf_exec ? true : false;
 	}
 }
 
-bool _cpf_is_fstream(_cpf_type::stream strm)
+bool _cpf_is_fstream(_cpf_type::stream user_stream)
 {
 	bool is_fstream = true;
 	for (auto s : { stdout, stderr })
 	{
-		if (strm == s)
+		if (user_stream == s)
 		{
 			is_fstream = false;
 			break;
@@ -179,7 +179,7 @@ _cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_tok
 }
 #endif
 
-void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_str)
+void set_cursor_position(_cpf_type::stream user_stream, const _cpf_type::str& attrib_str)
 {
 	auto comma_pos = attrib_str.find(',');
 	auto horizontal_pos_str = attrib_str.substr(0, comma_pos);
@@ -193,7 +193,7 @@ void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_st
 	coords.X = static_cast<SHORT>(horizontal_pos);
 	coords.Y= static_cast<SHORT>(vertical_pos);
 	BOOL result = SetConsoleCursorPosition(
-		strm == stdout ? stdout_handle : stderr_handle, 
+		user_stream == stdout ? stdout_handle : stderr_handle, 
 		coords);
 
 	if (!result)
@@ -202,28 +202,28 @@ void set_cursor_position(_cpf_type::stream strm, const _cpf_type::str& attrib_st
 	}
 #else
 	//http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
-	fprintf(strm, "%s", ("\x1B[" + vertical_pos_str + ";" + horizontal_pos_str+"H").c_str());
+	fprintf(user_stream, "%s", ("\x1B[" + vertical_pos_str + ";" + horizontal_pos_str+"H").c_str());
 #endif
 }
 
-void clear_terminal_buffer(	_cpf_type::stream strm,
+void clear_terminal_buffer(	_cpf_type::stream user_stream,
 							const _cpf_type::str& attrib)
 {
 #ifdef _WIN32
-	auto strm_ = strm == stdout ? stdout_handle : stderr_handle;
+	auto user_stream_ = user_stream == stdout ? stdout_handle : stderr_handle;
 	COORD coord = {0, 0};
 
 	auto f = [&]()
 	{
 		DWORD count;
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(strm_, &csbi);
+		GetConsoleScreenBufferInfo(user_stream_, &csbi);
 
 		/*
 		Sets the character attributes for a specified number of character cells, 
 		beginning at the specified coordinates in a screen buffer.
 		*/
-		FillConsoleOutputAttribute(strm_, 
+		FillConsoleOutputAttribute(user_stream_, 
 			saved_terminal_colour,
 			csbi.dwSize.X * csbi.dwSize.Y,
 			coord,
@@ -233,7 +233,7 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 		Writes a character to the console screen buffer a specified number of times, 
 		beginning at the specified coordinates.
 		*/
-		FillConsoleOutputCharacter(strm_,
+		FillConsoleOutputCharacter(user_stream_,
 			' ',
 			csbi.dwSize.X * csbi.dwSize.Y,
 			coord,
@@ -243,7 +243,7 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 	if (attrib == "!")
 	{
 		f();
-		SetConsoleCursorPosition(strm_, coord);
+		SetConsoleCursorPosition(user_stream_, coord);
 	}
 	else // "!~"
 	{
@@ -254,12 +254,12 @@ void clear_terminal_buffer(	_cpf_type::stream strm,
 	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
 	if(attrib == "!")
 	{
-		fprintf(strm, "\x1B[2J\x1B[H");
+		fprintf(user_stream, "\x1B[2J\x1B[H");
 	}
 	
 	if (attrib == "!~")
 	{
-		fprintf(strm, "\x1B[2J");
+		fprintf(user_stream, "\x1B[2J");
 	}
 #endif
 }
@@ -286,7 +286,7 @@ int _getch(void)
 
 #endif
 
-void input_wait(_cpf_type::stream strm, const _cpf_type::str& attrib)
+void input_wait(_cpf_type::stream user_stream, const _cpf_type::str& attrib)
 {
 	if (attrib ==  "|")
 	{
@@ -299,11 +299,44 @@ void input_wait(_cpf_type::stream strm, const _cpf_type::str& attrib)
 	}
 }
 
-CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
+#ifdef _WIN32
+
+void config_text_col(_cpf_type::stream user_stream, _cpf_type::colour user_colour, char col_config_type)
+{
+	if(col_config_type == 0) //foreground
+	{
+		CONSOLE_SCREEN_BUFFER_INFOEX cbie; //hold info
+
+		//article didn't say this was necessary, but to be on the safe side...
+		cbie.cbSize = sizeof (CONSOLE_SCREEN_BUFFER_INFOEX);
+
+		GetConsoleScreenBufferInfoEx (user_stream == stdout ? stdout_handle : stderr_handle, &cbie); //get info
+
+		//first, cancel out all foreground attributes
+		//then, set the ones you want (I use bright red)
+		cbie.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+		cbie.wAttributes |= (FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		SetConsoleScreenBufferInfoEx (user_stream == stdout ? stdout_handle : stderr_handle, &cbie); //pass updated info back
+	}
+	else if(col_config_type == 1) //foreground and background
+	{
+
+	}
+	else if(col_config_type == 2) //background
+	{
+		SetConsoleTextAttribute(user_stream == stdout ? stdout_handle : stderr_handle, 
+								user_colour);
+	}
+}
+
+#endif
+
+CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 									const _cpf_type::attribs& attribs)
 {
 	
-	if (_cpf_is_fstream(strm))
+	if (_cpf_is_fstream(user_stream))
 	{
 		return; //no configurations necessary if writing to file
 	}
@@ -318,19 +351,19 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 
 			if (is_cursor_pos_attrib(c_repr))
 			{
-				set_cursor_position(strm, c_repr);
+				set_cursor_position(user_stream, c_repr);
 			}
 			else if (c_repr == "|" || c_repr == "|^") /*halt until input*/
 			{
-				input_wait(strm, c_repr);
+				input_wait(user_stream, c_repr);
 			}
 			else if (c_repr == "!" || c_repr == "!~") /*clear screen*/
 			{
-				clear_terminal_buffer(strm, c_repr);
+				clear_terminal_buffer(user_stream, c_repr);
 			}
 			else if (c_repr == "?") /*restore colour to system default*/
 			{
-				restore_terminal_settings(strm);
+				restore_terminal_settings(user_stream);
 			}
 			else /*is_cursor_pos_attrib*/
 			{
@@ -342,8 +375,10 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 					continue;
 				}
 
-				SetConsoleTextAttribute(strm == stdout ? stdout_handle : stderr_handle, 
-										safely_get_terminal_value(c_repr));
+				_cpf_type::colour col = safely_get_terminal_value(c_repr);
+
+				SetConsoleTextAttribute(user_stream == stdout ? stdout_handle : stderr_handle, 
+										col);
 #else
 				_cpf_type::str fstr;
 
@@ -356,7 +391,7 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
 					fstr = safely_get_terminal_value(c_repr);
 				}
 
-				fprintf(strm, "%s",	fstr.c_str());
+				fprintf(user_stream, "%s",	fstr.c_str());
 #endif
 			}/*is_cursor_pos_attrib*/
 		}
