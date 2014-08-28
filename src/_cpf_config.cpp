@@ -329,6 +329,7 @@ void config_text_attribute(	_cpf_type::stream user_stream,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
+	/*colour is controled via Control Sequences*/
 	fprintf(user_stream, user_colour.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
