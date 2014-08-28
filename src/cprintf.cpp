@@ -224,6 +224,12 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 	}
 }
 
+template<>
+void _cpf_print_arg<_cpf_type::str>(_cpf_type::stream strm, _cpf_type::str const &frmt, _cpf_type::str&& arg)
+{
+	fprintf(strm, frmt.c_str(), arg.c_str());
+}
+
 void _cpf_call_(	
 	_cpf_type::stream strm,
 	const _cpf_type::meta_format_type::const_iterator &end_point_comparator,
@@ -249,6 +255,5 @@ void _cpf_call_(
     }
 
 	/*restore defaults*/
-	
 	_cpf_config_terminal(strm, _cpf_type::str_vec({"?"}));
 }

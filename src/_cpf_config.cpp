@@ -31,6 +31,10 @@ THE SOFTWARE.
 HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 
+#define CONFIG_FG (0)
+#define CONFIG_BG (1)
+#define CONFIG_FGBG (2)
+
 #else
 #include <termios.h>
 #include <unistd.h>
@@ -137,12 +141,12 @@ bool is_cursor_pos_attrib(const _cpf_type::str& attrib)
 	return value;
 }
 
-_cpf_type::colour safely_get_terminal_value(const _cpf_type::str& colour_key)
+_cpf_type::colour get_token_value(const _cpf_type::str& colour_key)
 {
 	auto terminal_value = _cpf_std_token_vals.find(colour_key);
 	if (terminal_value == _cpf_std_token_vals.end())
 	{
-		throw _cpf_type::error(_cpf_type::str("invalid attribute token: ").append(colour_key).c_str());
+		throw _cpf_type::error((_cpf_type::str("cpf err: invalid token : ") + colour_key).c_str());
 	}
 	return terminal_value->second;
 }
@@ -286,46 +290,49 @@ int _getch(void)
 
 #endif
 
-void input_wait(_cpf_type::stream user_stream, const _cpf_type::str& attrib)
-{
-	if (attrib ==  "|")
-	{
-		_getch();
-	}
-	else // |^
-	{
-		int c;
-		while(c = std::getchar() != '\n');
-	}
-}
-
-void config_text_col(_cpf_type::stream user_stream, _cpf_type::colour user_colour, char col_config_type)
+void config_text_attribute(	_cpf_type::stream user_stream, 
+							const _cpf_type::colour &user_colour, 
+							std::uint8_t col_config_type = 255)
 {
 #ifdef _WIN32
 	auto output_stream_handle = user_stream == stdout ? stdout_handle : stderr_handle;
-	if(col_config_type == 0) //foreground
+
+	CONSOLE_SCREEN_BUFFER_INFOEX cbie;
+	cbie.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
+	GetConsoleScreenBufferInfoEx(output_stream_handle, &cbie); //get info
+
+	switch (col_config_type)
 	{
-		CONSOLE_SCREEN_BUFFER_INFOEX cbie; //hold info
-
-		cbie.cbSize = sizeof (CONSOLE_SCREEN_BUFFER_INFOEX);
-
-		GetConsoleScreenBufferInfoEx (output_stream_handle, &cbie); //get info
-
-		//first, cancel out all foreground attributes
-		//then, set the ones you want (I use bright red)
+	case CONFIG_FG:
+		/*
+			we must first cancel out all foreground text attributes
+			then set foreground attribute to user-specified colour.
+		*/
 		cbie.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 		cbie.wAttributes |= (user_colour);
 
-		SetConsoleScreenBufferInfoEx (output_stream_handle, &cbie); //pass updated info back
-	}
-	else if(col_config_type == 1) //foreground and background
-	{
+		SetConsoleTextAttribute(output_stream_handle, cbie.wAttributes);
+		break;
+	case CONFIG_BG:
+		cbie.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+		cbie.wAttributes |= (user_colour);
+		SetConsoleTextAttribute(output_stream_handle, cbie.wAttributes);
+		break;
+	case CONFIG_FGBG:
+		cbie.wAttributes = user_colour;
 		SetConsoleTextAttribute(output_stream_handle, user_colour);
+		break;
 	}
-	else if(col_config_type == 2) //background
-	{
-		
-	}
+#else
+
+#ifdef __gnu_linux__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
+	fprintf(user_stream, user_colour.c_str());
+#ifdef __gnu_linux__
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 }
@@ -333,7 +340,6 @@ void config_text_col(_cpf_type::stream user_stream, _cpf_type::colour user_colou
 CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 									const _cpf_type::attribs& attribs)
 {
-	
 	if (_cpf_is_fstream(user_stream))
 	{
 		return; //no configurations necessary if writing to file
@@ -345,51 +351,74 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 
 		for (auto a = std::begin(attribs); a != std::end(attribs); ++a)
 		{
-			auto c_repr = *a;
+			auto tok = *a;
 
-			if (is_cursor_pos_attrib(c_repr))
+			if (is_cursor_pos_attrib(tok))
 			{
-				set_cursor_position(user_stream, c_repr);
+				set_cursor_position(user_stream, tok);
 			}
-			else if (c_repr == "|" || c_repr == "|^") /*halt until input*/
+			else if (tok == "|") /*halt until input*/
 			{
-				input_wait(user_stream, c_repr);
+				_getch();
 			}
-			else if (c_repr == "!" || c_repr == "!~") /*clear screen*/
+			else if (tok == "!" || tok == "!~") /*clear screen*/
 			{
-				clear_terminal_buffer(user_stream, c_repr);
+				clear_terminal_buffer(user_stream, tok);
 			}
-			else if (c_repr == "?") /*restore colour to system default*/
+			else if (tok == "?") /*restore colour to system default*/
 			{
 				restore_terminal_settings(user_stream);
 			}
-			else /*is_cursor_pos_attrib*/
+			else /*set colour attribute(s)*/
 			{
-				auto is_bmct = is_bitmap_colour_token(*a);
+				auto is_bmct = is_bitmap_colour_token(tok);
 #ifdef _WIN32
 				if (is_bmct)
 				{
 					//because windows does not support that.
-					continue;
+					throw _cpf_type::error((_cpf_type::str("cpf err: invalid token : ") + tok).c_str());
 				}
 
-				_cpf_type::colour col = safely_get_terminal_value(c_repr);
+				std::uint8_t config_type;
 
-				SetConsoleTextAttribute(user_stream == stdout ? stdout_handle : stderr_handle, 
-										col);
-#else
-				_cpf_type::str fstr;
-
-				if(is_bmct)
+				/*configuration type is needed to determine which bitwise
+				operations to do on setting colour values in function config_text_attribute*/
+				if (tok.size() == 1 || (tok.size() == 2 && tok[1] == '*'))
 				{
-					fstr = get_terminal_bitmap_colour_value(c_repr);
+					config_type = CONFIG_FG;
+				}
+				else if (tok.size() >= 2 && tok.size() <= 4 && tok[tok.size() - 1] != '#')
+				{
+					config_type = CONFIG_FGBG;
+				}
+				else if (tok[tok.size()-1] == '#')
+				{
+					config_type = CONFIG_BG;
 				}
 				else
 				{
-					fstr = safely_get_terminal_value(c_repr);
+					throw _cpf_type::error((_cpf_type::str("cpf err: invalid token : ") + tok).c_str());
+				}
+				
+				_cpf_type::colour colour_value = get_token_value(tok);
+
+				config_text_attribute(user_stream, colour_value, config_type);
+				
+				/*SetConsoleTextAttribute(user_stream == stdout ? stdout_handle : stderr_handle, 
+										col);*/
+#else
+				_cpf_type::str control_sequence;
+
+				if(is_bmct)
+				{
+					control_sequence = get_terminal_bitmap_colour_value(tok);
+				}
+				else
+				{
+					control_sequence = get_token_value(tok);
 				}
 
-				fprintf(user_stream, "%s",	fstr.c_str());
+				config_text_attribute(user_stream, control_sequence);
 #endif
 			}/*is_cursor_pos_attrib*/
 		}

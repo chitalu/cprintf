@@ -29,14 +29,14 @@ THE SOFTWARE.
 #include <type_traits>
 
 template<class T>
-typename std::enable_if<std::is_integral<T>::value, T>::type
+typename std::enable_if<std::is_integral<T>::value, T/*long*/>::type
 normalize_arg(const T arg)
 {
 	return arg;
 }
 
 template<class T>
-typename std::enable_if<std::is_floating_point<T>::value, T>::type
+typename std::enable_if<std::is_floating_point<T>::value, T/*double*/>::type
 normalize_arg(const T arg)
 {
 	return arg;

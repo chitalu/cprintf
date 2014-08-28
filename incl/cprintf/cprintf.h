@@ -146,6 +146,15 @@ CPF_API void _cpf_print_non_arg_str(_cpf_type::stream strm,
 									std::size_t& ssp_,
 									_cpf_type::meta_format_type::const_iterator &msd_iter);
 
+template<typename T>
+void _cpf_print_arg(_cpf_type::stream strm, _cpf_type::str const &frmt, T&& arg)
+{
+	fprintf(strm, frmt.c_str(), arg);
+}
+
+template<>
+void _cpf_print_arg<_cpf_type::str>(_cpf_type::stream strm, _cpf_type::str const &frmt, _cpf_type::str&& arg);
+
 /*
 	recursion terminating function (counterpart to _cpf_call with variadic arguments). 
 	This is the function executated when cprintf is called with only a format 
@@ -197,8 +206,8 @@ void _cpf_call_(
 
 	if (pstr_argc >= 1)
 	{
-		auto fstr = _cpf_print_pre_arg_str(strm, printed_string_, ssp_, msd_iter->second.first);
-		fprintf(strm, fstr.c_str(), arg0);
+		auto arg_format_str = _cpf_print_pre_arg_str(strm, printed_string_, ssp_, msd_iter->second.first);
+		_cpf_print_arg(strm, arg_format_str, std::forward<T0>(arg0));
 		_cpf_print_post_arg_str(strm, printed_string_, ssp_, more_args_on_iter, msd_iter, end_point_comparator);
 		printed_arg0 = true;
 	}

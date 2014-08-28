@@ -53,7 +53,7 @@ const std::initializer_list<_cpf_type::str> attribute_escape_sequences = {
 	"`c", "`w", "`.", 
 	"`*", "``", "`?"
 	"`!", "`~", "`|"
-	"`^", "`f"
+	"`f", "`l"/*...$bld -> $b`ld*/
 };
 
 const std::initializer_list<char> std_format_specifiers = { 
@@ -179,10 +179,6 @@ const ppred_t parsing_predicates = {
 	{
 		'|',
 		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
-	},
-	{
-		'^',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '|'; }
 	},
 	{
 		'*', /*an asterisk can only be prefixed by colour identifiers*/

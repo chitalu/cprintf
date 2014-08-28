@@ -59,8 +59,6 @@ int main(void)
 
 	try
 	{
-		
-
 		cprintf("bar $r*red\n");
 		cprintf("bar $r*r*ed\n");
 		cprintf("bar $r#ed\n");
@@ -71,11 +69,6 @@ int main(void)
 		cprintf("quux$r.b* blue\n");
 
 #ifdef _WIN32
-		cprintf("quux $64f xterm bitmap colour is ignored\n");
-		cprintf("quux $64b xterm bitmap colour is ignored\n");
-		cprintf("quux $128f.16b xterm bitmap colour is ignored\n");
-		cprintf("quux $64& xterm bitmap colour is ignored\n");
-
 		cprintf("note that $bld this text is blue\n");
 #else
 		cprintf("quux $64f xterm bitmap colour\n");
@@ -84,6 +77,7 @@ int main(void)
 		cprintf("quux $64& xterm bitmap colour\n");
 
 		cprintf("note that $bld this text is bold\n");
+		cprintf("note that $b`ld this text is blue\n");
 #endif
 
 		std::getchar();
@@ -99,7 +93,7 @@ int main(void)
 			}
 		}
 	}
-	catch (_cpf_type::error e)
+	catch (_cpf_type::error &e)
 	{
 		fprintf(stderr, "cprintf sample failed\n%s\n", e.what());
 		exec_ok = false;

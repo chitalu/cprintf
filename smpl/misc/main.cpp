@@ -73,31 +73,20 @@ void buffer_wipe(void)
 void lull_token(void)
 {
 	/*
-	lull tokens
+	lull token
 
-	these do not necesarilly modify proceeding-text
-	attributes. Instead they halt printing of the formating
+	this does not necesarilly modify the proceeding-character's
+	attributes. Instead it halts printing of the format
 	string until keyboard input is recieved.
-	In effective, the format string (from first character to lull
+	In effective, the format string (from first character to the lull
 	token occurance) is printed as normal until a lull token is encountered,
 	which is the point at which the cprintf waits until keypress/ input
 	is recieved.
-
-	note: a subjective lull always appends a newline after input.
 	*/
 
-	/*basic lull token*/
 	cprintf("wait for keypress $|printing rest of string...\n");
 	cprintf("wait for keypress$|.r`rest...\n");
 	cprintf("wait for keypress $r.|`rest...\n");
-
-	/*subjective lull token*/
-	cprintf("type something...: $|^");
-	cprintf("type something...: $y*.|^");
-	cprintf("type something...: $|^ : after...\n");
-	cprintf("type something...: $m*.|^.? : after...\n");
-	cprintf("type something...: $m*.|^ : after...\n");
-	cprintf("my name is: $r*.|^.?i love $g*.|^");
 }
 
 int main(void)
