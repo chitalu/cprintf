@@ -278,13 +278,14 @@ void parse_attribute_specifier(_cpf_type::str const& src_string, _cpf_type::str:
 				return false;
 			};
 			
-			if (f(src_string.substr(ssp, 3u)) == true)
-			{
-				offset_counter = 3;
-			}
-			else if (f(src_string.substr(ssp, 4u)) == true)
+			/*order of if conditions is very important here*/
+			if (f(src_string.substr(ssp, 4u)) == true)
 			{
 				offset_counter = 4;
+			}
+			else if (f(src_string.substr(ssp, 3u)) == true)
+			{
+				offset_counter = 3;
 			}
 
 			checked_if_is_txt_frmt_modifier = true;

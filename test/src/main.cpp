@@ -38,6 +38,7 @@ TEST(Arg, printing_stl_string)
 
 int main(int argc, char **argv)
 {
+	cprintf("foo $r*g* bar!!");
 	::testing::InitGoogleTest(&argc, argv);
 	int ret = RUN_ALL_TESTS();
 	return ret;
