@@ -25,11 +25,14 @@ THE SOFTWARE.
 #ifndef __CPF_H__
 #define __CPF_H__
 
+#ifndef NDEBUG
+#include <cstdarg> //only used by debug functions
+#endif
+
 #include <tuple>
 #include <memory>
 #include <algorithm>
-#include <cstdarg>
-#include <cassert>
+#include <codecvt> //wstring_convert
 
 #include "cprintf/internal/_cpf_parse.h"
 #include "cprintf/internal/_cpf_verify.h"
@@ -153,7 +156,7 @@ namespace cpf
 					cpf::type::str const &format, 
 					T&& arg)
 	{
-		fprintf(ustream, format.c_str(), arg);
+		fwprintf(ustream, format.c_str(), arg);
 	}
 
 	template<>
@@ -226,7 +229,7 @@ namespace cpf
 		}
 
 		bool iter_reached_end = (meta_iter == end_point_comparator);
-		auto i_raw_str = iter_reached_end ? "" : meta_iter->second.second;
+		auto i_raw_str = iter_reached_end ? L"" : meta_iter->second.second;
 
 		/*
 			note: 	only when "arg0" has been passed to fprintf does 
@@ -276,15 +279,11 @@ namespace cpf
 	http://www.cplusplus.com/reference/cstdio/fprintf/
 */
 template<typename... Ts>
-void cfprintf(cpf::type::stream ustream, cpf::type::cstr format, Ts... args)
+void cfwprintf(cpf::type::stream ustream, cpf::type::str format, Ts... args)
 {
 	if (ustream == nullptr)
 	{
-		throw cpf::type::except("cpf err: output stream is undefined (null)");
-	}
-	else if (format == nullptr)
-	{
-		throw cpf::type::except("cpf err: format string is undefined (null)");
+		throw cpf::type::except(L"cpf err: output stream is undefined (null)");
 	}
 
 	auto meta_format = cpf::process_format_string(format);
@@ -299,7 +298,7 @@ void cfprintf(cpf::type::stream ustream, cpf::type::cstr format, Ts... args)
 
 	if (nargs != sizeof...(args))
 	{
-		throw cpf::type::except("cpf err: invalid argument count");
+		throw cpf::type::except(L"cpf err: invalid argument count");
 	}
 
 	/*
@@ -333,6 +332,17 @@ void cfprintf(cpf::type::stream ustream, cpf::type::cstr format, Ts... args)
 	cpf::restore_stream_state(ustream, true);
 }
 
+template<typename... Ts>
+void cfprintf(cpf::type::stream ustream, cpf::type::narrow_str format, Ts... args)
+{
+	/*
+		*\http://en.cppreference.com/w/cpp/locale/codecvt_utf8
+	*/
+	auto converter = std::wstring_convert<std::codecvt_utf8<wchar_t>>();
+	auto multibyte_version = converter.from_bytes(format);
+	cfwprintf(ustream, multibyte_version, args...);
+}
+
 /*
 	Writes the C string pointed by format to the standard output (stdout). 
 	If format includes format specifiers (subsequences beginning with %), 
@@ -350,7 +360,15 @@ void cfprintf(cpf::type::stream ustream, cpf::type::cstr format, Ts... args)
 	should appear in a console.
 */
 template<typename... Ts>
-void cprintf(cpf::type::cstr format, Ts... args)
+void cwprintf(cpf::type::str format, Ts... args)
+{
+	cfwprintf(stdout, format, std::forward<Ts>(args)...);
+}
+
+template<typename... Ts>
+void cprintf(	cpf::type::stream ustream, 
+				cpf::type::narrow_str format, 
+				Ts... args)
 {
 	cfprintf(stdout, format, std::forward<Ts>(args)...);
 }
@@ -363,8 +381,9 @@ void cprintf(cpf::type::cstr format, Ts... args)
 	see cfprintf documentation for more info.
 */
 template<typename... Ts>
-void cfprintf_t(	cpf::type::stream ustream, 
-					cpf::type::cstr format, std::tuple<Ts...> args_tup)
+void cfwprintf_t(	cpf::type::stream ustream, 
+					cpf::type::str format, 
+					std::tuple<Ts...> args_tup)
 {
 	/*TODO
 	improve this function with std::bind -> #include <functional>
@@ -372,7 +391,14 @@ void cfprintf_t(	cpf::type::stream ustream,
 	*/
 	auto predef_args_tup = std::make_tuple(ustream, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
-	
+	cpf::apply_tuple(cfwprintf<Ts...>, call_args);
+}
+
+template<typename... Ts>
+void cfprintf_t(cpf::type::stream ustream, cpf::type::narrow_str format, Ts... args)
+{
+	auto predef_args_tup = std::make_tuple(ustream, format);
+	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 	cpf::apply_tuple(cfprintf<Ts...>, call_args);
 }
 
@@ -385,7 +411,13 @@ void cfprintf_t(	cpf::type::stream ustream,
 	see cprintf documentation for more info.
 */
 template<typename... Ts>
-void cprintf_t(cpf::type::cstr format, cpf::type::arg_pack<Ts...> args_tup)
+void cwprintf_t(cpf::type::str format, cpf::type::arg_pack<Ts...> args_tup)
+{
+	cfwprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
+}
+
+template<typename... Ts>
+void cprintf_t(cpf::type::narrow_str format, cpf::type::arg_pack<Ts...> args_tup)
 {
 	cfprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
@@ -407,29 +439,43 @@ void cprintf_t(cpf::type::cstr format, cpf::type::arg_pack<Ts...> args_tup)
 	auto fname =  cpf::type::str(\
 	std::find_if(pathname.rbegin(), pathname.rend(),fpath_sep_func()).base(),\
 	pathname.end());\
-	cfprintf(stderr, pre_debug_log_str.c_str(), fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__); \
+	cfwprintf(stderr, pre_debug_log_str.c_str(), fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__); \
 
-#define cfprintf_dbg(ustream, format, ...) \
+#define cfwprintf_dbg(ustream, format, ...) \
 	do{\
 	__print_stat_str \
-	cfprintf(ustream, format, ##__VA_ARGS__);\
+	cfwprintf(ustream, format, ##__VA_ARGS__);\
 	}while (0);
 
-#define cprintf_dbg(format, ...) \
-	cfprintf_dbg(stderr, format, ##__VA_ARGS__)
+#define cwprintf_dbg(format, ...) \
+	cfwprintf_dbg(stderr, format, ##__VA_ARGS__)
 
-#define cfprintf_t_dbg(ustream, format, tup) \
+#define cfwprintf_t_dbg(ustream, format, tup) \
 	do{\
 	__print_stat_str \
-	cfprintf_t(ustream, format, tup); \
+	cfwprintf_t(ustream, format, tup); \
 	} while (0);\
 
-#define cprintf_t_dbg(format, tup) \
-	cfprintf_t_dbg(stderr, format, tup);
+#define cwprintf_t_dbg(format, tup) \
+	cfwprintf_t_dbg(stderr, format, tup);
+
+#define cfprintf_dbg(ustream, format, ...) 
+
+#define cprintf_dbg(format, ...) 
+
+#define cfprintf_t_dbg(ustream, format, tup) 
+
+#define cprintf_t_dbg(format, tup) 
+
 
 #else
 
 /*do nothing*/
+#define cfwprintf_dbg(ustream, format, ...) 
+#define cwprintf_dbg(format, ...) 
+#define cfwprintf_t_dbg(ustream, format, tup) 
+#define cwprintf_t_dbg(format, tup) 
+
 #define cfprintf_dbg(ustream, format, ...) 
 #define cprintf_dbg(format, ...) 
 #define cfprintf_t_dbg(ustream, format, tup) 

@@ -45,8 +45,9 @@ namespace cpf
 {
 	namespace type
 	{
-		typedef std::string str;
-		typedef const char* cstr;
+		typedef std::string narrow_str;
+		typedef std::wstring str;
+		typedef const cpf::type::str::allocator_type::value_type* cstr;
 		typedef cpf::type::str::size_type size;
 
 #ifdef _WIN32
@@ -60,8 +61,8 @@ namespace cpf
 		private:
 			cpf::type::cstr msg;
 		public:
-			except(void) :msg("_cpf_err"){}
-			except(const char* _msg) :msg(_msg){}
+			except(void) :msg(L"_cpf_err"){}
+			except(const cpf::type::str::allocator_type::value_type* _msg) :msg(_msg){}
 			~except(void){}
 
 			inline cpf::type::cstr what(void){ return msg; }

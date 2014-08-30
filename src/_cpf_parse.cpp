@@ -49,15 +49,15 @@ THE SOFTWARE.
 */
 
 const std::initializer_list<cpf::type::str> cpf::attribute_escape_sequences = {
-	"`$", "`r", "`g", 
-	"`b", "`y", "`m", 
-	"`c", "`w", "`.", 
-	"`*", "``", "`?"
-	"`!", "`~", "`|"
-	"`f", "`l"/*...$bld -> $b`ld*/
+	L"`$", L"`r", L"`g", 
+	L"`b", L"`y", L"`m", 
+	L"`c", L"`w", L"`.", 
+	L"`*", L"``", L"`?"
+	L"`!", L"`~", L"`|"
+	L"`f", L"`l"/*...$bld -> $b`ld*/
 };
 
-const std::initializer_list<char> cpf::std_format_specifiers = {
+const std::initializer_list<wchar_t> cpf::std_format_specifiers = {
 	'c', 'd', 'e', 
 	'E', 'f', 'F', 
 	'g', 'G', 'i', 
@@ -74,7 +74,7 @@ Characters typically found at the end of a more complex FS
 %.6i
 %05.2f
 */
-const std::initializer_list<char> cpf::extended_format_specifier_terminators = {
+const std::initializer_list<wchar_t> cpf::extended_format_specifier_terminators = {
 	'd', 'f', 's', 
 	'e', 'o', 'x', 
 	'X', 'i', 'u'
@@ -87,12 +87,12 @@ complex format specifiers:
 %.6i
 %05.2f
 */
-const std::initializer_list<char> cpf::intermediate_format_specifers = {
+const std::initializer_list<wchar_t> cpf::intermediate_format_specifers = {
 	'+', '-', '.', 
 	'*', '#', 'l' 
 };
 
-const std::initializer_list<char> cpf::escape_characters = {
+const std::initializer_list<wchar_t> cpf::escape_characters = {
 	'\a', '\b', '\f', 
 	'\n', '\r', '\t', 
 	'\v', '\\', '\"', 
@@ -122,7 +122,7 @@ auto schar_ids =
 	parse-predicate storage type
 */
 typedef std::map<
-	char,
+	wchar_t,
 	std::function<bool(cpf::type::str const &, cpf::type::size const &)>
 > ppred_t;
 
@@ -253,7 +253,7 @@ void purge_meta_esc_sequences(cpf::type::meta& meta)
 void parse_attribute_specifier(cpf::type::str const& src_string, cpf::type::str::size_type &offset_val, cpf::type::str::size_type &ssp)
 {
 	cpf::type::size offset_counter = 0;
-	char c = src_string[ssp];//first character after occurrance of "$" 
+	wchar_t c = src_string[ssp];//first character after occurrance of "$" 
 	bool finished = false, 
 		checked_if_is_txt_frmt_modifier = false; //$bld $rvs etc..
 	ppred_t::const_iterator pred_iter; //colour and screen wipe parsing predicates iterator
@@ -358,15 +358,12 @@ cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_,
 
 	if (attribute_string.size() == 0)
 	{
-		const char* emsg = R"err(
-cpf except: 
-invalid token encountered @ %d
-)err"; 
-		char buf[64]; 
+		const wchar_t* emsg = L"cpf err: invalid token encountered @ %d"; 
+		wchar_t buf[64];
 #ifdef _WIN32
-		sprintf_s(buf, emsg, ssp);
+		swprintf_s(buf, emsg, ssp);
 #else
-		sprintf(buf, emsg, ssp);
+		swprintf(buf, emsg, ssp);
 #endif
 		throw cpf::type::except(buf);
 	}
@@ -385,7 +382,7 @@ cpf::type::meta cpf::process_format_string(
 		cpf::type::size occurrences = 0;
 		cpf::type::str::size_type start = 0;
 
-		while ((start = cpf::search_for(_CPF_TOKEN_PREFIX, src_format, start)) != cpf::type::str::npos)
+		while ((start = cpf::search_for(L"$", src_format, start)) != cpf::type::str::npos)
 		{
 			++occurrences;
 			start++;
@@ -395,11 +392,11 @@ cpf::type::meta cpf::process_format_string(
 	
 	cpf::type::size token_occurance_pos = 0, attrib_endpos_p1 = 0;
 	bool first_iter = true;
-	while ((token_occurance_pos = cpf::search_for(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1)) != src_format.npos)
+	while ((token_occurance_pos = cpf::search_for(L"$", src_format, attrib_endpos_p1)) != src_format.npos)
 	{
 		if (first_iter && token_occurance_pos != 0)
 		{
-			cpf::type::string_vector default_attrib{ "?" };
+			cpf::type::string_vector default_attrib{ L"?" };
 			meta.insert(std::make_pair(0u, std::make_pair(default_attrib, src_format.substr(0u, token_occurance_pos))));
 			first_iter = false;
 		}
@@ -409,7 +406,7 @@ cpf::type::meta cpf::process_format_string(
 		auto attibs_str = parse_fstr_for_attrib_specs(src_format, token_occurance_pos + 1, off);
 		attrib_endpos_p1 = tokOccPos_1 + off;
 
-		auto next_prefix_pos = cpf::search_for(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1);
+		auto next_prefix_pos = cpf::search_for(L"$", src_format, attrib_endpos_p1);
 
 		/*vector to hold attributes that are applied to the (sub) string proceeding
 		the token "$"'s occurance position.*/
@@ -443,7 +440,7 @@ cpf::type::meta cpf::process_format_string(
 
 	if (meta.empty())
 	{
-		meta.insert(std::make_pair(0u, std::make_pair(cpf::type::string_vector({ "?" }), src_format)));
+		meta.insert(std::make_pair(0u, std::make_pair(cpf::type::string_vector({ L"?" }), src_format)));
 	}
 
 	purge_meta_esc_sequences(meta);

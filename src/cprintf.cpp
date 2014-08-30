@@ -30,16 +30,16 @@ THE SOFTWARE.
 cpf::type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
 
 CPF_API const cpf::type::str cpf::pre_debug_log_str =
-R"debug_str(
-$c
->> cpf debug call 
-@file:	%s
-@built:	%s-%s 
-
->	@function:	%s
->	@line:		%d
-$?
-log:
+L"debug_str(\n\
+$c\n\
+>> cpf debug call \n\
+@file:	%s\n\
+@built:	%s-%s \n\
+\
+>	@function:	%s\n\
+>	@line:		%d\n\
+$?\n\
+log:\n\
 )debug_str";
 
 //cprintf("Characters:\t%c %%\n", 65);
@@ -47,12 +47,12 @@ cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
 {
 	cpf::type::size n = 0;
 	std::int32_t pos = 0;
-	while ((pos = cpf::search_for("%", obj, pos, '%')) != cpf::type::str::npos)
+	while ((pos = cpf::search_for(L"%", obj, pos, '%')) != cpf::type::str::npos)
 	{
 		if (pos == obj.size() - 1)
 		{
 			/*this would imply the following: cprintf("foo bar %");*/
-			throw cpf::type::except("invalid format specifier ('%') position.");
+			throw cpf::type::except(L"invalid format specifier ('%') position.");
 		}
 		std::int32_t n_ = n;
 
@@ -87,20 +87,20 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 {
 	cpf::configure(ustream, attr);
 
-	ssp_ = cpf::search_for("%", printed_string_, ssp_, '%');
+	ssp_ = cpf::search_for(L"%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
 	{
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-		fprintf(ustream, printed_string_.substr(0, ssp_).c_str());
+		fwprintf(ustream, printed_string_.substr(0, ssp_).c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
 	}
 
-	auto is_in = [=](const char& _target, const std::initializer_list<char>& _list)->bool
+	auto is_in = [=](const wchar_t& _target, const std::initializer_list<wchar_t>& _list)->bool
 	{
 		for (auto &i : _list)
 		{
@@ -126,7 +126,7 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 
 	if (offset == 0)
 	{
-		std::string specifier;
+		cpf::type::str specifier;
 		bool parsed_complete_f_spec = false;
 		for (const auto &xfst : cpf::extended_format_specifier_terminators)
 		{
@@ -148,13 +148,13 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 				}
 				else
 				{
-					throw cpf::type::except("cpf err: invalid format specifier detail");
+					throw cpf::type::except(L"cpf err: invalid format specifier detail");
 				}
 
 				//last iteration
 				if (i == (_max - 1) && !is_in(crnt_char, cpf::extended_format_specifier_terminators))
 				{
-					throw cpf::type::except("cpf err: invalid format specifier");
+					throw cpf::type::except(L"cpf err: invalid format specifier");
 				}	
 			}
 			if (parsed_complete_f_spec)
@@ -193,7 +193,7 @@ void cpf::write_post_arg_str(	cpf::type::stream ustream,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-			fprintf(ustream, printed_string_.c_str());
+			fwprintf(ustream, printed_string_.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
@@ -216,7 +216,7 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-	fprintf(ustream, printed_string_.c_str());
+	fwprintf(ustream, printed_string_.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
@@ -229,7 +229,7 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-		fprintf(ustream, meta_iter->second.second.c_str());
+		fwprintf(ustream, meta_iter->second.second.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
@@ -242,14 +242,14 @@ void cpf::write_arg<cpf::type::str>(	cpf::type::stream ustream,
 										cpf::type::str const &format, 
 										cpf::type::str&& arg)
 {
-	fprintf(ustream, format.c_str(), arg.c_str());
+	fwprintf(ustream, format.c_str(), arg.c_str());
 }
 
 void cpf::call_(	
 	cpf::type::stream ustream,
 	const cpf::type::meta::const_iterator &end_point_comparator,
 	cpf::type::meta::const_iterator &meta_iter,
-	const cpf::type::str printed_string="",
+	const cpf::type::str printed_string=L"",
 	const cpf::type::size search_start_pos=0)
 {
 	while (meta_iter != end_point_comparator)
@@ -261,7 +261,7 @@ void cpf::call_(
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
-		fprintf(ustream, meta_iter->second.second.c_str());
+		fwprintf(ustream, meta_iter->second.second.c_str());
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
@@ -270,5 +270,5 @@ void cpf::call_(
     }
 
 	/*restore defaults*/
-	configure(ustream, cpf::type::string_vector({"?"}));
+	configure(ustream, cpf::type::string_vector({L"?"}));
 }

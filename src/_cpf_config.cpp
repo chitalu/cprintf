@@ -56,7 +56,7 @@ void cpf::save_stream_state(cpf::type::stream user_stream)
 
 	if (!ret_okay)
 	{
-		throw cpf::type::except("cpf fatal except: failed to retrieve terminal attributes");
+		throw cpf::type::except(L"cpf fatal except: failed to retrieve terminal attributes");
 	}
 	saved_terminal_colour = cbsi.wAttributes;
 #else
@@ -74,10 +74,10 @@ void cpf::restore_stream_state(cpf::type::stream user_stream, bool finished_cpf_
 		auto ret_okay = SetConsoleTextAttribute(s, saved_terminal_colour);
 		if (!ret_okay)
 		{
-			throw cpf::type::except("cpf fatal except: failed to restore terminal attributes");
+			throw cpf::type::except(L"cpf fatal except: failed to restore terminal attributes");
 		}
 #else
-		fprintf(user_stream, "\x1B[0;0;0m");
+		fwprintf(user_stream, L"\x1B[0;0;0m");
 #endif
 		/*ternary op guarrantees that console settings will be reset to 
 		originals i.e as they were prior to calling a cprintf function*/
@@ -124,7 +124,7 @@ bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 	{
 		if (num_commas != 1)
 		{
-			throw cpf::type::except(std::string("invalid cursor position specifier: " + attrib).c_str());
+			throw cpf::type::except(cpf::type::str(L"invalid cursor position specifier: " + attrib).c_str());
 		}
 
 		for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
@@ -133,7 +133,7 @@ bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 			if (!isdigit(*c) && *c != ',')
 			{
 				throw cpf::type::except(
-					std::string("invalid character in cursor position specifier: " + attrib).c_str());
+					cpf::type::str(L"invalid character in cursor position specifier: " + attrib).c_str());
 			}
 		}
 	}
@@ -146,7 +146,7 @@ cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 	auto terminal_value = cpf::std_token_vals.find(colour_key);
 	if (terminal_value == cpf::std_token_vals.end())
 	{
-		throw cpf::type::except((cpf::type::str("cpf err: invalid token : ") + colour_key).c_str());
+		throw cpf::type::except((cpf::type::str(L"cpf err: invalid token : ") + colour_key).c_str());
 	}
 	return terminal_value->second;
 }
@@ -161,27 +161,29 @@ cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_tok
 	auto int_repr = atoi(colour_num.c_str());
 	if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 	{
-		throw _cpf_err(cpf::type::str("invalid attribute token: ").append(attrib_token).c_str());
+		throw _cpf_err(cpf::type::str(L"invalid attribute token: ").append(attrib_token).c_str());
 	}
 
 	cpf::type::str colour_str;
 
 	if (lst_char == 'f')//foreground
 	{
-		colour_str = ("\x1B[38;5;" + colour_num + "m");
+		colour_str = (L"\x1B[38;5;" + colour_num + L"m");
 	}
 	else if (lst_char == 'b') //background
 	{
-		colour_str = ("\x1B[48;5;" + colour_num + "m");
+		colour_str = (L"\x1B[48;5;" + colour_num + L"m");
 	}
 	else // "43&"
 	{
-		colour_str = ("\x1B[38;5;" + colour_num + "m\x1B[48;5;" + colour_num + "m");
+		colour_str = (L"\x1B[38;5;" + colour_num + L"m\x1B[48;5;" + colour_num + L"m");
 	}
 
 	return colour_str;
 }
 #endif
+
+#include <wchar.h> //wcstol
 
 void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& attrib_str)
 {
@@ -190,8 +192,8 @@ void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& at
 	auto vertical_pos_str = attrib_str.substr(comma_pos + 1);
 
 #ifdef _WIN32
-	auto horizontal_pos = atoi(horizontal_pos_str.c_str());
-	auto vertical_pos = atoi(vertical_pos_str.c_str());
+	auto horizontal_pos = wcstol(horizontal_pos_str.c_str(), nullptr, 0);
+	auto vertical_pos = wcstol(vertical_pos_str.c_str(), nullptr, 0);
 
 	COORD coords;
 	coords.X = static_cast<SHORT>(horizontal_pos);
@@ -202,11 +204,11 @@ void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& at
 
 	if (!result)
 	{
-		throw cpf::type::except("cpf err: invalid coordinates");
+		throw cpf::type::except(L"cpf err: invalid coordinates");
 	}
 #else
 	//http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
-	fprintf(user_stream, "%s", ("\x1B[" + vertical_pos_str + ";" + horizontal_pos_str+"H").c_str());
+	fwprintf(user_stream, "%s", (L"\x1B[" + vertical_pos_str + L";" + horizontal_pos_str+ L"H").c_str());
 #endif
 }
 
@@ -244,7 +246,7 @@ void clear_terminal(	cpf::type::stream user_stream,
 			&count);
 	};
 	
-	if (attrib == "!")
+	if (attrib == L"!")
 	{
 		f();
 		SetConsoleCursorPosition(user_stream_, coord);
@@ -258,12 +260,12 @@ void clear_terminal(	cpf::type::stream user_stream,
 	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
 	if(attrib == "!")
 	{
-		fprintf(user_stream, "\x1B[2J\x1B[H");
+		fwprintf(user_stream, L"\x1B[2J\x1B[H");
 	}
 	
 	if (attrib == "!~")
 	{
-		fprintf(user_stream, "\x1B[2J");
+		fwprintf(user_stream, L"\x1B[2J");
 	}
 #endif
 }
@@ -358,15 +360,15 @@ CPF_API void cpf::configure(cpf::type::stream user_stream,
 			{
 				set_cursor_position(user_stream, tok);
 			}
-			else if (tok == "|") /*halt until input*/
+			else if (tok == L"|") /*halt until input*/
 			{
 				_getch();
 			}
-			else if (tok == "!" || tok == "!~") /*clear screen*/
+			else if (tok == L"!" || tok == L"!~") /*clear screen*/
 			{
 				clear_terminal(user_stream, tok);
 			}
-			else if (tok == "?") /*restore colour to system default*/
+			else if (tok == L"?") /*restore colour to system default*/
 			{
 				cpf::restore_stream_state(user_stream);
 			}
@@ -377,7 +379,7 @@ CPF_API void cpf::configure(cpf::type::stream user_stream,
 				if (is_bmct)
 				{
 					//because windows does not support that.
-					throw cpf::type::except((cpf::type::str("cpf err: invalid token : ") + tok).c_str());
+					throw cpf::type::except((cpf::type::str(L"cpf err: invalid token : ") + tok).c_str());
 				}
 
 				std::uint8_t config_type;
@@ -398,7 +400,7 @@ CPF_API void cpf::configure(cpf::type::stream user_stream,
 				}
 				else
 				{
-					throw cpf::type::except((cpf::type::str("cpf err: invalid token : ") + tok).c_str());
+					throw cpf::type::except((cpf::type::str(L"cpf err: invalid token : ") + tok).c_str());
 				}
 				
 				cpf::type::colour colour_value = get_token_value(tok);

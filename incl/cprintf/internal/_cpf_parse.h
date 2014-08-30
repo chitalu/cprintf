@@ -49,17 +49,17 @@ namespace cpf
 	%% print a percent sign (\% also works)
 
 	*/
-	CPF_API const std::initializer_list<char> std_format_specifiers;
+	CPF_API const std::initializer_list<wchar_t> std_format_specifiers;
 
 	/*
 		'd', 'f', 's', 'e', 'o', 'x'
 		*/
-	CPF_API const std::initializer_list<char> extended_format_specifier_terminators;
+	CPF_API const std::initializer_list<wchar_t> extended_format_specifier_terminators;
 
 	/*
 		'+', '-', '.', '*', '#', 'l'
 		*/
-	CPF_API const std::initializer_list<char> intermediate_format_specifers;
+	CPF_API const std::initializer_list<wchar_t> intermediate_format_specifers;
 
 	/*
 
@@ -72,7 +72,7 @@ namespace cpf
 	\v vertical tab
 
 	*/
-	CPF_API const std::initializer_list<char> escape_characters;
+	CPF_API const std::initializer_list<wchar_t> escape_characters;
 
 	/*
 		As indicated by name, this function takes the source
