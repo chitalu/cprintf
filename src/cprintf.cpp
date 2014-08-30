@@ -27,19 +27,32 @@ THE SOFTWARE.
 #include "_cpf_find.h"
 
 /*text attributes before a call was made to cprintf*/
-_cpf_type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
+cpf::type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
+
+CPF_API const cpf::type::str cpf::pre_debug_log_str =
+R"debug_str(
+$c
+>> cpf debug call 
+@file:	%s
+@built:	%s-%s 
+
+>	@function:	%s
+>	@line:		%d
+$?
+log:
+)debug_str";
 
 //cprintf("Characters:\t%c %%\n", 65);
-std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
+cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
 {
-	std::size_t n = 0;
+	cpf::type::size n = 0;
 	std::int32_t pos = 0;
-	while ((pos = _cpf_find("%", obj, pos, '%')) != _cpf_type::str::npos)
+	while ((pos = cpf::search_for("%", obj, pos, '%')) != cpf::type::str::npos)
 	{
 		if (pos == obj.size() - 1)
 		{
 			/*this would imply the following: cprintf("foo bar %");*/
-			throw _cpf_type::error("invalid format specifier ('%') position.");
+			throw cpf::type::except("invalid format specifier ('%') position.");
 		}
 		std::int32_t n_ = n;
 
@@ -67,21 +80,21 @@ std::size_t _cpf_get_num_arg_specifiers(const _cpf_type::str & obj)
 	return n;
 }
 
-_cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
-													_cpf_type::str& printed_string_,
-													std::size_t& ssp_,
-													const _cpf_type::attribs attr)
+cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
+										cpf::type::str& printed_string_,
+										cpf::type::size& ssp_,
+										const cpf::type::attribute_group attr)
 {
-	_cpf_config_terminal(strm, attr);
+	cpf::configure(ustream, attr);
 
-	ssp_ = _cpf_find("%", printed_string_, ssp_, '%');
+	ssp_ = cpf::search_for("%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
 	{
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-		fprintf(strm, printed_string_.substr(0, ssp_).c_str());
+		fprintf(ustream, printed_string_.substr(0, ssp_).c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
@@ -101,8 +114,8 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 
 	/* format specifiers beging with % and end with a space*/
 	auto space_pos = printed_string_.find(' ', ssp_);
-	std::size_t offset = 0;
-	for (const auto &bfs : std_format_specifiers)
+	cpf::type::size offset = 0;
+	for (const auto &bfs : cpf::std_format_specifiers)
 	{
 		if (printed_string_[ssp_ + 1] == bfs)
 		{
@@ -115,7 +128,7 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 	{
 		std::string specifier;
 		bool parsed_complete_f_spec = false;
-		for (const auto &xfst : extended_format_specifier_terminators)
+		for (const auto &xfst : cpf::extended_format_specifier_terminators)
 		{
 			auto ps = printed_string_.substr(ssp_ + 1);
 	
@@ -123,11 +136,11 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 			for (auto i(0u); i < _max; ++i)
 			{
 				auto crnt_char = ps[i];
-				if (isalnum(crnt_char) || is_in(crnt_char, intermediate_format_specifers) || crnt_char == xfst)
+				if (isalnum(crnt_char) || is_in(crnt_char, cpf::intermediate_format_specifers) || crnt_char == xfst)
 				{
 					specifier.append({ crnt_char });
 
-					if (crnt_char == xfst || is_in(crnt_char, extended_format_specifier_terminators))
+					if (crnt_char == xfst || is_in(crnt_char, cpf::extended_format_specifier_terminators))
 					{
 						parsed_complete_f_spec = true;
 						break;
@@ -135,13 +148,13 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 				}
 				else
 				{
-					throw _cpf_type::error("cpf err: invalid format specifier detail");
+					throw cpf::type::except("cpf err: invalid format specifier detail");
 				}
 
 				//last iteration
-				if (i == (_max - 1) && !is_in(crnt_char, extended_format_specifier_terminators))
+				if (i == (_max - 1) && !is_in(crnt_char, cpf::extended_format_specifier_terminators))
 				{
-					throw _cpf_type::error("cpf err: invalid format specifier");
+					throw cpf::type::except("cpf err: invalid format specifier");
 				}	
 			}
 			if (parsed_complete_f_spec)
@@ -160,17 +173,17 @@ _cpf_type::str _cpf_print_pre_arg_str(	_cpf_type::stream strm,
 	return fstr;
 }
 
-void _cpf_print_post_arg_str(	_cpf_type::stream strm,
-								_cpf_type::str& printed_string_,
-								std::size_t& ssp_,
+void cpf::write_post_arg_str(	cpf::type::stream ustream,
+								cpf::type::str& printed_string_,
+								cpf::type::size& ssp_,
 								bool &more_args_on_iter,
-								_cpf_type::meta_format_type::const_iterator &msd_iter,
-								const _cpf_type::meta_format_type::const_iterator &end_point_comparator)
+								cpf::type::meta::const_iterator &meta_iter,
+								const cpf::type::meta::const_iterator &end_point_comparator)
 {
 	printed_string_ = printed_string_.substr(ssp_);
 	ssp_ = 0;
 
-	more_args_on_iter = _cpf_get_num_arg_specifiers(printed_string_) > 0;
+	more_args_on_iter = cpf::get_num_arg_specs(printed_string_) > 0;
 	if (!more_args_on_iter)
 	{
 		if (!printed_string_.empty())
@@ -180,22 +193,22 @@ void _cpf_print_post_arg_str(	_cpf_type::stream strm,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-			fprintf(strm, printed_string_.c_str());
+			fprintf(ustream, printed_string_.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
 			printed_string_.clear();
 		}
-		std::advance(msd_iter, 1);
+		std::advance(meta_iter, 1);
 	}
 }
 
-void _cpf_print_non_arg_str(_cpf_type::stream strm,
-							_cpf_type::str& printed_string_,
-							std::size_t& ssp_,
-							_cpf_type::meta_format_type::const_iterator &msd_iter)
+void cpf::write_non_arg_str(cpf::type::stream ustream,
+							cpf::type::str& printed_string_,
+							cpf::type::size& ssp_,
+							cpf::type::meta::const_iterator &meta_iter)
 {
-	_cpf_config_terminal(strm, msd_iter->second.first);
+	cpf::configure(ustream, meta_iter->second.first);
 
 	ssp_ = 0;
 
@@ -203,57 +216,59 @@ void _cpf_print_non_arg_str(_cpf_type::stream strm,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-	fprintf(strm, printed_string_.c_str());
+	fprintf(ustream, printed_string_.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
-	std::advance(msd_iter, 1);
+	std::advance(meta_iter, 1);
 
-	while (_cpf_get_num_arg_specifiers(msd_iter->second.second) == 0)
+	while (cpf::get_num_arg_specs(meta_iter->second.second) == 0)
 	{
-		_cpf_config_terminal(strm, msd_iter->second.first);
+		cpf::configure(ustream, meta_iter->second.first);
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-		fprintf(strm, msd_iter->second.second.c_str());
+		fprintf(ustream, meta_iter->second.second.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
-		std::advance(msd_iter, 1);
+		std::advance(meta_iter, 1);
 	}
 }
 
 template<>
-void _cpf_print_arg<_cpf_type::str>(_cpf_type::stream strm, _cpf_type::str const &frmt, _cpf_type::str&& arg)
+void cpf::write_arg<cpf::type::str>(	cpf::type::stream ustream, 
+										cpf::type::str const &format, 
+										cpf::type::str&& arg)
 {
-	fprintf(strm, frmt.c_str(), arg.c_str());
+	fprintf(ustream, format.c_str(), arg.c_str());
 }
 
-void _cpf_call_(	
-	_cpf_type::stream strm,
-	const _cpf_type::meta_format_type::const_iterator &end_point_comparator,
-	_cpf_type::meta_format_type::const_iterator &msd_iter,
-	const _cpf_type::str printed_string="",
-	const std::size_t search_start_pos=0)
+void cpf::call_(	
+	cpf::type::stream ustream,
+	const cpf::type::meta::const_iterator &end_point_comparator,
+	cpf::type::meta::const_iterator &meta_iter,
+	const cpf::type::str printed_string="",
+	const cpf::type::size search_start_pos=0)
 {
-	while (msd_iter != end_point_comparator)
+	while (meta_iter != end_point_comparator)
     {
-		_cpf_config_terminal(strm, msd_iter->second.first);
+		cpf::configure(ustream, meta_iter->second.first);
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
-		fprintf(strm, msd_iter->second.second.c_str());
+		fprintf(ustream, meta_iter->second.second.c_str());
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
-		std::advance(msd_iter, 1);
+		std::advance(meta_iter, 1);
     }
 
 	/*restore defaults*/
-	_cpf_config_terminal(strm, _cpf_type::str_vec({"?"}));
+	configure(ustream, cpf::type::string_vector({"?"}));
 }

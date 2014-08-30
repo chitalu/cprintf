@@ -27,9 +27,11 @@ THE SOFTWARE.
 
 #include "_cpf_common.h"
 
-extern std::size_t _cpf_find(	const _cpf_type::str& _what, 
-								const _cpf_type::str& _where,
-								const std::size_t _offset=0,
-								const char& _esc_char = CPF_ESC_CHAR);
-
+namespace cpf
+{
+	CPF_API cpf::type::size search_for(	const cpf::type::str& _what,
+										const cpf::type::str& _where,
+										const cpf::type::size _offset = 0,
+										const char& _esc_char = CPF_ESC_CHAR);
+}
 #endif

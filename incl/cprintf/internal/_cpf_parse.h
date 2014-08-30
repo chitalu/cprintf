@@ -27,64 +27,66 @@ THE SOFTWARE.
 
 #include "cprintf/internal/_cpf_type.h"
 
-/*
-	text attribute token escape sequences..
-*/
-CPF_API const std::initializer_list<_cpf_type::str> attribute_escape_sequences;
+namespace cpf
+{
+	/*
+		text attribute token escape sequences..
+	*/
+	CPF_API const std::initializer_list<type::str> attribute_escape_sequences;
 
-/*
+	/*
 
-%c print a singlecharacter
-%d print a decimal (base 10) number
-%e print an exponential floating-point number
-%f print a floating-point number
-%g print a general-format floating-point number
-%i print an integer in base 10
-%o print a number in octal (base 8)
-%s print a string of characters
-%u print an unsigned decimal (base 10) number
-%x print a number in hex idecimal (base 16)
-%% print a percent sign (\% also works)
+	%c print a singlecharacter
+	%d print a decimal (base 10) number
+	%e print an exponential floating-point number
+	%f print a floating-point number
+	%g print a general-format floating-point number
+	%i print an integer in base 10
+	%o print a number in octal (base 8)
+	%s print a string of characters
+	%u print an unsigned decimal (base 10) number
+	%x print a number in hex idecimal (base 16)
+	%% print a percent sign (\% also works)
 
-*/
-CPF_API const std::initializer_list<char> std_format_specifiers;
+	*/
+	CPF_API const std::initializer_list<char> std_format_specifiers;
 
-/*
-	'd', 'f', 's', 'e', 'o', 'x'
-*/
-CPF_API const std::initializer_list<char> extended_format_specifier_terminators;
+	/*
+		'd', 'f', 's', 'e', 'o', 'x'
+		*/
+	CPF_API const std::initializer_list<char> extended_format_specifier_terminators;
 
-/*
-	'+', '-', '.', '*', '#', 'l'
-*/
-CPF_API const std::initializer_list<char> intermediate_format_specifers;
+	/*
+		'+', '-', '.', '*', '#', 'l'
+		*/
+	CPF_API const std::initializer_list<char> intermediate_format_specifers;
 
-/*
+	/*
 
-\a audible alert (bell)
-\b backspace
-\f form feed
-\n newline (linefeed)
-\r carriage return
-\t tab
-\v vertical tab
+	\a audible alert (bell)
+	\b backspace
+	\f form feed
+	\n newline (linefeed)
+	\r carriage return
+	\t tab
+	\v vertical tab
 
-*/
-CPF_API const std::initializer_list<char> escape_characters;
+	*/
+	CPF_API const std::initializer_list<char> escape_characters;
 
-/*
-	As indicated by name, this function takes the source 
-	format string which is then subsequently passed through various
-	parsing stages. On return, the function yeilds a map of [key] type
-	std::size_t and [value] type <string-vector : string> pair. The [key] 
-	represents the positional offset, within the source format 
-	string, of the [second]-element-of [value]. 
-	The [value] is one in which the [first] element is a vector of
-	symbolic string tokens the [second] element is to be 
-	formatted with. 
-	The second element of [value] is a substring of the source format string.
-*/
-CPF_API _cpf_type::meta_format_type _cpf_process_format_string(
-	const _cpf_type::str &fstring);
+	/*
+		As indicated by name, this function takes the source
+		format string which is then subsequently passed through various
+		parsing stages. On return, the function yeilds a map of [key] type
+		std::size_t and [value] type <string-vector : string> pair. The [key]
+		represents the positional offset, within the source format
+		string, of the [second]-element-of [value].
+		The [value] is one in which the [first] element is a vector of
+		symbolic string tokens the [second] element is to be
+		formatted with.
+		The second element of [value] is a substring of the source format string.
+	*/
+	CPF_API cpf::type::meta process_format_string(const type::str &format_string);
+}
 
 #endif

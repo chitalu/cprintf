@@ -32,7 +32,7 @@ THE SOFTWARE.
 /*
 
 */
-CPF_API void _cpf_verify(_cpf_type::c_str format);
+CPF_API void _cpf_verify(cpf::type::cstr format);
 
 /*
 	verifies that the format string contains arguments which
@@ -41,7 +41,7 @@ CPF_API void _cpf_verify(_cpf_type::c_str format);
 	found in "std_format_specifiers"
 */
 template<class T, typename... Ts> void
-_cpf_verify(_cpf_type::c_str format, const T& farg, const Ts&&... args)
+_cpf_verify(cpf::type::cstr format, const T& farg, const Ts&&... args)
 {
 	for (; *format; ++format)
 	{
@@ -95,7 +95,7 @@ _cpf_verify(_cpf_type::c_str format, const T& farg, const Ts&&... args)
 		return _cpf_verify(++format, std::forward<Ts>(args)...);
 	}
 
-	throw _cpf_type::error("cpf err: format specifier (%) count does not match argument count");
+	throw cpf::type::except("cpf err: format specifier (%) count does not match argument count");
 }
 
 #endif /*#ifndef _CPF_VERIFY_H*/

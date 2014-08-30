@@ -64,17 +64,17 @@ THE SOFTWARE.
 
 #endif /*	#ifdef _WIN32	*/
 
-CPF_API const _cpf_type::str_vec _cpf_std_tokens;
+namespace cpf
+{
 
-/*
-	tokens available on both windows and linux
-*/
-CPF_API const _cpf_type::colour_token_map _cpf_std_token_vals;
+	/*the full standard/ cross platform set of colour tokens
+	that may be used to modify text appearance*/
+	CPF_API const cpf::type::string_vector std_tokens;
 
-/*
-	@returns current system terminal colour values
-	foreground and background respectively...
-*/
-CPF_API _cpf_type::colour _cpf_get_crnt_sys_sttribs(void);
+	/*
+		tokens available on both windows and linux
+	*/
+	CPF_API const cpf::type::token_value_map std_token_vals;
+}
 
 #endif /*	#ifndef _CPF_SYS_COLOUR_CONFIG_H	*/

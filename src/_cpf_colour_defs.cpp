@@ -25,32 +25,7 @@ THE SOFTWARE.
 #include "_cpf_colour_defs.h"
 #include <assert.h>
 
-//TODO: FIGURE OUT HOW TO DO THIS!!!
-/*
-	return current foreground and background colour
-*/
-_cpf_type::colour _cpf_get_crnt_sys_sttribs(void)
-{
-#ifdef _WIN32 //attribute
-	return 0;
-#else
-	return "";
-#endif
-}
-
-#ifdef _WIN32 //attribute
-const auto default_foreground_colour = [&]()->_cpf_type::colour
-{
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	auto a = csbi.wAttributes;
-	return static_cast<_cpf_type::colour>(a % 16);
-}();
-#else
-	//TODO: FIGURE OUT HOW TO DO THIS!!!
-#endif
-
-CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
+CPF_API const cpf::type::string_vector cpf::std_tokens = {
 
 	/*dim text colour no background*/
 	"r", "g", "b", "y", "m", "c", "w",
@@ -111,7 +86,7 @@ CPF_API const _cpf_type::str_vec _cpf_std_tokens = {
 /*
 	TODO: CLEAN UP WINDOWS MACROS, TOO MUCH REPETITION!
 */
-const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
+const std::map<const cpf::type::str, cpf::type::colour> cpf::std_token_vals{
 	/*red*/
 	{ "r#", (_cpf_Rb) },
 	{ "r*#", (_cpf_Rb | _cpf_bgi) },
@@ -436,7 +411,7 @@ const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
 {	#c "*c*",	"\x1B[0;9"#i";106m" },\
 {	#c "*w*",	"\x1B[0;9"#i";107m" },\
 
-extern const std::map<const _cpf_type::str, _cpf_type::colour> _cpf_std_token_vals{
+extern const std::map<const cpf::type::str, cpf::type::colour> cpf::std_token_vals{
 
 	/*attributes specifiers*/
 	{	"bld", 		"\x1B[1m"},

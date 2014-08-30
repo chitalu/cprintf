@@ -24,14 +24,14 @@ THE SOFTWARE.
 
 #include "_cpf_find.h"
 
-std::size_t _cpf_find(	const _cpf_type::str& _what, 
-						const _cpf_type::str& _where,
-						const std::size_t _offset,
-						const char& _esc_char)
+cpf::type::size cpf::search_for(const cpf::type::str& _what, 
+								const cpf::type::str& _where,
+								const cpf::type::size _offset,
+								const char& _esc_char)
 {
 	bool found = false;
 	auto _Off = _offset;
-	std::size_t position = 0;
+	cpf::type::size position = 0;
 
 	while((position = _where.find(_what, _Off)) != _where.npos)
 	{

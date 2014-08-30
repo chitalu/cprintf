@@ -40,14 +40,14 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 #include <unistd.h>
 #endif
 
-_cpf_type::attribs _cpf_current_text_attribs;
+cpf::type::attribute_group _cpf_current_text_attribs;
 static bool glob_terminal_state_restored = true;
 
 #ifdef _WIN32
-static _cpf_type::colour saved_terminal_colour;
+static cpf::type::colour saved_terminal_colour;
 #endif
 
-void save_terminal_settings(_cpf_type::stream user_stream)
+void cpf::save_stream_state(cpf::type::stream user_stream)
 {
 #ifdef _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO cbsi;
@@ -56,7 +56,7 @@ void save_terminal_settings(_cpf_type::stream user_stream)
 
 	if (!ret_okay)
 	{
-		throw _cpf_type::error("cpf fatal error: failed to retrieve terminal attributes");
+		throw cpf::type::except("cpf fatal except: failed to retrieve terminal attributes");
 	}
 	saved_terminal_colour = cbsi.wAttributes;
 #else
@@ -65,7 +65,7 @@ void save_terminal_settings(_cpf_type::stream user_stream)
 	glob_terminal_state_restored = false;
 }
 
-void restore_terminal_settings(_cpf_type::stream user_stream, bool finished_cpf_exec)
+void cpf::restore_stream_state(cpf::type::stream user_stream, bool finished_cpf_exec)
 {
 	if (!glob_terminal_state_restored)
 	{
@@ -74,7 +74,7 @@ void restore_terminal_settings(_cpf_type::stream user_stream, bool finished_cpf_
 		auto ret_okay = SetConsoleTextAttribute(s, saved_terminal_colour);
 		if (!ret_okay)
 		{
-			throw _cpf_type::error("cpf fatal error: failed to restore terminal attributes");
+			throw cpf::type::except("cpf fatal except: failed to restore terminal attributes");
 		}
 #else
 		fprintf(user_stream, "\x1B[0;0;0m");
@@ -85,7 +85,7 @@ void restore_terminal_settings(_cpf_type::stream user_stream, bool finished_cpf_
 	}
 }
 
-bool _cpf_is_fstream(_cpf_type::stream user_stream)
+bool _cpf_is_fstream(cpf::type::stream user_stream)
 {
 	bool is_fstream = true;
 	for (auto s : { stdout, stderr })
@@ -100,7 +100,7 @@ bool _cpf_is_fstream(_cpf_type::stream user_stream)
 }
 
 //i.e 32f or 200b
-bool is_bitmap_colour_token(const _cpf_type::str& attrib)
+bool is_bitmap_colour_token(const cpf::type::str& attrib)
 {
 	for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
 	{
@@ -113,7 +113,7 @@ bool is_bitmap_colour_token(const _cpf_type::str& attrib)
 	return false;
 }
 
-bool is_cursor_pos_attrib(const _cpf_type::str& attrib)
+bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 {
 	auto asize = attrib.size();
 	auto num_commas = std::count(attrib.begin(), attrib.end(), ',');
@@ -124,7 +124,7 @@ bool is_cursor_pos_attrib(const _cpf_type::str& attrib)
 	{
 		if (num_commas != 1)
 		{
-			throw _cpf_type::error(std::string("invalid cursor position specifier: " + attrib).c_str());
+			throw cpf::type::except(std::string("invalid cursor position specifier: " + attrib).c_str());
 		}
 
 		for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
@@ -132,7 +132,7 @@ bool is_cursor_pos_attrib(const _cpf_type::str& attrib)
 			//if any value in the attribute is not a digit and its not a comma 
 			if (!isdigit(*c) && *c != ',')
 			{
-				throw _cpf_type::error(
+				throw cpf::type::except(
 					std::string("invalid character in cursor position specifier: " + attrib).c_str());
 			}
 		}
@@ -141,18 +141,18 @@ bool is_cursor_pos_attrib(const _cpf_type::str& attrib)
 	return value;
 }
 
-_cpf_type::colour get_token_value(const _cpf_type::str& colour_key)
+cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 {
-	auto terminal_value = _cpf_std_token_vals.find(colour_key);
-	if (terminal_value == _cpf_std_token_vals.end())
+	auto terminal_value = cpf::std_token_vals.find(colour_key);
+	if (terminal_value == cpf::std_token_vals.end())
 	{
-		throw _cpf_type::error((_cpf_type::str("cpf err: invalid token : ") + colour_key).c_str());
+		throw cpf::type::except((cpf::type::str("cpf err: invalid token : ") + colour_key).c_str());
 	}
 	return terminal_value->second;
 }
 
 #ifdef __gnu_linux__
-_cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_token)
+cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_token)
 {
 	auto at_size = attrib_token.size();
 	char lst_char = attrib_token[at_size - 1];
@@ -161,10 +161,10 @@ _cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_tok
 	auto int_repr = atoi(colour_num.c_str());
 	if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 	{
-		throw _cpf_err(_cpf_type::str("invalid attribute token: ").append(attrib_token).c_str());
+		throw _cpf_err(cpf::type::str("invalid attribute token: ").append(attrib_token).c_str());
 	}
 
-	_cpf_type::str colour_str;
+	cpf::type::str colour_str;
 
 	if (lst_char == 'f')//foreground
 	{
@@ -183,7 +183,7 @@ _cpf_type::str get_terminal_bitmap_colour_value(const _cpf_type::str& attrib_tok
 }
 #endif
 
-void set_cursor_position(_cpf_type::stream user_stream, const _cpf_type::str& attrib_str)
+void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& attrib_str)
 {
 	auto comma_pos = attrib_str.find(',');
 	auto horizontal_pos_str = attrib_str.substr(0, comma_pos);
@@ -202,7 +202,7 @@ void set_cursor_position(_cpf_type::stream user_stream, const _cpf_type::str& at
 
 	if (!result)
 	{
-		throw _cpf_type::error("cpf err: invalid coordinates");
+		throw cpf::type::except("cpf err: invalid coordinates");
 	}
 #else
 	//http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
@@ -210,8 +210,8 @@ void set_cursor_position(_cpf_type::stream user_stream, const _cpf_type::str& at
 #endif
 }
 
-void clear_terminal_buffer(	_cpf_type::stream user_stream,
-							const _cpf_type::str& attrib)
+void clear_terminal(	cpf::type::stream user_stream,
+							const cpf::type::str& attrib)
 {
 #ifdef _WIN32
 	auto user_stream_ = user_stream == stdout ? stdout_handle : stderr_handle;
@@ -290,8 +290,8 @@ int _getch(void)
 
 #endif
 
-void config_text_attribute(	_cpf_type::stream user_stream, 
-							const _cpf_type::colour &user_colour, 
+void config_text_attribute(	cpf::type::stream user_stream, 
+							const cpf::type::colour &user_colour, 
 							std::uint8_t col_config_type = 255)
 {
 #ifdef _WIN32
@@ -338,19 +338,19 @@ void config_text_attribute(	_cpf_type::stream user_stream,
 #endif
 }
 
-CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
-									const _cpf_type::attribs& attribs)
+CPF_API void cpf::configure(cpf::type::stream user_stream,
+									const cpf::type::attribute_group& attribute_group)
 {
 	if (_cpf_is_fstream(user_stream))
 	{
 		return; //no configurations necessary if writing to file
 	}
 
-	if (_cpf_current_text_attribs != attribs)
+	if (_cpf_current_text_attribs != attribute_group)
 	{
-		_cpf_current_text_attribs = attribs;
+		_cpf_current_text_attribs = attribute_group;
 
-		for (auto a = std::begin(attribs); a != std::end(attribs); ++a)
+		for (auto a = std::begin(attribute_group); a != std::end(attribute_group); ++a)
 		{
 			auto tok = *a;
 
@@ -364,11 +364,11 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 			}
 			else if (tok == "!" || tok == "!~") /*clear screen*/
 			{
-				clear_terminal_buffer(user_stream, tok);
+				clear_terminal(user_stream, tok);
 			}
 			else if (tok == "?") /*restore colour to system default*/
 			{
-				restore_terminal_settings(user_stream);
+				cpf::restore_stream_state(user_stream);
 			}
 			else /*set colour attribute(s)*/
 			{
@@ -377,7 +377,7 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 				if (is_bmct)
 				{
 					//because windows does not support that.
-					throw _cpf_type::error((_cpf_type::str("cpf err: invalid token : ") + tok).c_str());
+					throw cpf::type::except((cpf::type::str("cpf err: invalid token : ") + tok).c_str());
 				}
 
 				std::uint8_t config_type;
@@ -398,18 +398,14 @@ CPF_API void _cpf_config_terminal(	_cpf_type::stream user_stream,
 				}
 				else
 				{
-					throw _cpf_type::error((_cpf_type::str("cpf err: invalid token : ") + tok).c_str());
+					throw cpf::type::except((cpf::type::str("cpf err: invalid token : ") + tok).c_str());
 				}
 				
-				_cpf_type::colour colour_value = get_token_value(tok);
-
+				cpf::type::colour colour_value = get_token_value(tok);
 				config_text_attribute(user_stream, colour_value, config_type);
 				
-				/*SetConsoleTextAttribute(user_stream == stdout ? stdout_handle : stderr_handle, 
-										col);*/
 #else
-				_cpf_type::str control_sequence;
-
+				cpf::type::str control_sequence;
 				if(is_bmct)
 				{
 					control_sequence = get_terminal_bitmap_colour_value(tok);

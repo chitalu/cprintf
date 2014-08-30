@@ -27,26 +27,32 @@ THE SOFTWARE.
 
 #include "_cpf_colour_defs.h"
 
+namespace cpf
+{
+	CPF_API void save_stream_state(cpf::type::stream ustream);
 
-CPF_API void save_terminal_settings(_cpf_type::stream strm);
-/*boolean finished_cpf_exec is to indicate whether this is the last call to 
-before cprintf finishes execution to return
+	/*
+		boolean finished_cpf_exec is to indicate whether this is the last call to 
+		before cprintf finishes execution to return
 
-by default this function executes only if save_terminal_settings 
-has been previous called (in the current call to cprintf) else it returns
-immidiately. This behaviour can be overridden via force_restore.*/
-CPF_API void restore_terminal_settings(	_cpf_type::stream strm, 
+		by default this function executes only if save_stream_state 
+		has been previous called (in the current call to cprintf) else it returns
+		immidiately. This behaviour can be overridden via force_restore.
+	*/
+	CPF_API void restore_stream_state(	cpf::type::stream ustream, 
 										bool finished_cpf_exec = false);
 
-//CPF_API _cpf_type::colour _cpf_current_text_attribs;
+	//CPF_API cpf::type::colour _cpf_current_text_attribs;
 
-/*
-	configure system terminal settings
+	/*
+		configure system terminal settings
 
-	@strm 	- output stream
-	@attr - text attribute vector
-*/
-CPF_API void _cpf_config_terminal(	_cpf_type::stream strm,
-									const _cpf_type::attribs& attr);
+		@ustream 	- output stream
+		@attr - text attribute vector
+	*/
+	CPF_API void configure(	cpf::type::stream ustream,
+							const cpf::type::attribute_group& attr);
+
+}
 
 #endif

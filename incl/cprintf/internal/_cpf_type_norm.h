@@ -28,35 +28,35 @@ THE SOFTWARE.
 #include "cprintf/internal/_cpf_type.h"
 #include <type_traits>
 
-template<class T>
-typename std::enable_if<std::is_integral<T>::value, T/*long*/>::type
-normalize_arg(const T arg)
+namespace cpf
 {
-	return arg;
+	template<class T>
+	typename std::enable_if<std::is_integral<T>::value, T/*long*/>::type
+		normalize_arg(const T arg)
+	{
+		return arg;
+	}
+
+	template<class T>
+	typename std::enable_if<std::is_floating_point<T>::value, T/*double*/>::type
+		normalize_arg(const T arg)
+	{
+		return arg;
+	}
+
+	template<class T>
+	typename std::enable_if<std::is_pointer<T>::value, T>::type
+		normalize_arg(const T arg)
+	{
+		return arg;
+	}
+
+	template<class T>
+	typename std::enable_if<std::is_class<T>::value, T>::type
+		normalize_arg(const T arg)
+	{
+		return arg;
+	}
 }
-
-template<class T>
-typename std::enable_if<std::is_floating_point<T>::value, T/*double*/>::type
-normalize_arg(const T arg)
-{
-	return arg;
-}
-
-template<class T>
-typename std::enable_if<std::is_pointer<T>::value, T>::type
-normalize_arg(const T arg)
-{
-	return arg;
-}
-
-template<class T>
-typename std::enable_if<std::is_class<T>::value, T>::type
-normalize_arg(const T arg)
-{
-	return arg;
-}
-
-
-CPF_API _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
 
 #endif

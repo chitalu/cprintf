@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "cprintf/internal/_cpf_parse.h"
 #include "_cpf_config.h"
 #include "_cpf_find.h"
+
 #include <cstdio>
 #include <stdlib.h>     /* atoi */
 #include <algorithm>
@@ -47,7 +48,7 @@ THE SOFTWARE.
 	cprintf("$r`red");
 */
 
-const std::initializer_list<_cpf_type::str> attribute_escape_sequences = { 
+const std::initializer_list<cpf::type::str> cpf::attribute_escape_sequences = {
 	"`$", "`r", "`g", 
 	"`b", "`y", "`m", 
 	"`c", "`w", "`.", 
@@ -56,7 +57,7 @@ const std::initializer_list<_cpf_type::str> attribute_escape_sequences = {
 	"`f", "`l"/*...$bld -> $b`ld*/
 };
 
-const std::initializer_list<char> std_format_specifiers = { 
+const std::initializer_list<char> cpf::std_format_specifiers = {
 	'c', 'd', 'e', 
 	'E', 'f', 'F', 
 	'g', 'G', 'i', 
@@ -73,7 +74,7 @@ Characters typically found at the end of a more complex FS
 %.6i
 %05.2f
 */
-const std::initializer_list<char> extended_format_specifier_terminators = { 
+const std::initializer_list<char> cpf::extended_format_specifier_terminators = {
 	'd', 'f', 's', 
 	'e', 'o', 'x', 
 	'X', 'i', 'u'
@@ -86,12 +87,12 @@ complex format specifiers:
 %.6i
 %05.2f
 */
-const std::initializer_list<char> intermediate_format_specifers = { 
+const std::initializer_list<char> cpf::intermediate_format_specifers = {
 	'+', '-', '.', 
 	'*', '#', 'l' 
 };
 
-const std::initializer_list<char> escape_characters = { 
+const std::initializer_list<char> cpf::escape_characters = {
 	'\a', '\b', '\f', 
 	'\n', '\r', '\t', 
 	'\v', '\\', '\"', 
@@ -122,20 +123,20 @@ auto schar_ids =
 */
 typedef std::map<
 	char,
-	std::function<bool(_cpf_type::str const &, std::size_t const &)>
+	std::function<bool(cpf::type::str const &, cpf::type::size const &)>
 > ppred_t;
 
-bool pred_isdigit(_cpf_type::str const &s, std::size_t const &p)
+bool pred_isdigit(cpf::type::str const &s, cpf::type::size const &p)
 {
 	return isdigit(s[p]) ? true : false;
 }
 
-bool pred_scrn_clr(_cpf_type::str const &s, std::size_t const &p)
+bool pred_scrn_clr(cpf::type::str const &s, cpf::type::size const &p)
 {
 	return s[p] == '!';
 }
 
-bool pred_colour(_cpf_type::str const &s, std::size_t const &p)
+bool pred_colour(cpf::type::str const &s, cpf::type::size const &p)
 {
 	/*a colour char may only be preceded by another or any char contained in col_id_prefs...*/
 	return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
@@ -174,22 +175,22 @@ const ppred_t parsing_predicates = {
 	{ 'w', pred_colour },
 	{
 		'?',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
+		[&](cpf::type::str const &s, cpf::type::size const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
 	},
 	{
 		'|',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
+		[&](cpf::type::str const &s, cpf::type::size const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
 	},
 	{
 		'*', /*an asterisk can only be prefixed by colour identifiers*/
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
 		{
 			return std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end(); /*in r, g, b, ...*/;
 		}
 	},
 	{
 		'.',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
 		{
 			//s[p] in r, g, b, ... or is digit or b f & etc
 			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
@@ -199,7 +200,7 @@ const ppred_t parsing_predicates = {
 	},
 	{
 		'#',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
 		{
 			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
 					s[p] == '*';
@@ -207,7 +208,7 @@ const ppred_t parsing_predicates = {
 	},
 	{
 		'b',
-		[&](_cpf_type::str const &s, std::size_t const &p)->bool
+		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
 		{
 			/*note: this covers the colour blue (...$b[*]...) as well as a token representing
 			a unix bitmap-colour token (...$34b...).
@@ -221,17 +222,17 @@ const ppred_t parsing_predicates = {
 	}
 };
 
-void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
+void purge_meta_esc_sequences(cpf::type::meta& meta)
 {
-	auto purge_str_esc_sequences = [&](_cpf_type::str &src)
+	auto purge_str_esc_sequences = [&](cpf::type::str &src)
 	{
-		for (auto &es : attribute_escape_sequences)
+		for (auto &es : cpf::attribute_escape_sequences)
 		{
 			auto replacew = es.substr(1);
 
 			/* searches "src" for "es" and replaces it with "replacew" */
 			size_t pos = 0;
-			while ((pos = _cpf_find(es, src, pos)) != _cpf_type::str::npos)
+			while ((pos = cpf::search_for(es, src, pos)) != cpf::type::str::npos)
 			{
 				src.replace(pos, es.length(), replacew);
 				pos += replacew.length();
@@ -249,9 +250,9 @@ void purge_meta_esc_sequences(_cpf_type::meta_format_type& meta)
 	parses "src_string" starting from "ssp" (search start position) and returns an offset via "offset_pos"
 	denoting the size of the substring that represents an attribute specifier.
 */
-void parse_attribute_specifier(_cpf_type::str const& src_string, _cpf_type::str::size_type &offset_val, _cpf_type::str::size_type &ssp)
+void parse_attribute_specifier(cpf::type::str const& src_string, cpf::type::str::size_type &offset_val, cpf::type::str::size_type &ssp)
 {
-	std::size_t offset_counter = 0;
+	cpf::type::size offset_counter = 0;
 	char c = src_string[ssp];//first character after occurrance of "$" 
 	bool finished = false, 
 		checked_if_is_txt_frmt_modifier = false; //$bld $rvs etc..
@@ -267,10 +268,10 @@ void parse_attribute_specifier(_cpf_type::str const& src_string, _cpf_type::str:
 		if ((off4 < lst_i || off3 < lst_i) &&
 			!checked_if_is_txt_frmt_modifier) //if offset does not exceed searched string's last character index...
 		{
-			auto f = [&](_cpf_type::str const &s)
+			auto f = [&](cpf::type::str const &s)
 			{
-				//faster by using backwards iteration (see initialisation of _cpf_std_tokens)
-				if (std::find(_cpf_std_tokens.rbegin(), _cpf_std_tokens.rend(), s) != _cpf_std_tokens.rend())
+				//faster by using backwards iteration (see initialisation of std_tokens)
+				if (std::find(cpf::std_tokens.rbegin(), cpf::std_tokens.rend(), s) != cpf::std_tokens.rend())
 				{
 					finished = true;
 					return true;
@@ -341,24 +342,24 @@ void parse_attribute_specifier(_cpf_type::str const& src_string, _cpf_type::str:
 }
 
 /**/
-_cpf_type::str parse_fstr_for_attrib_specs(	_cpf_type::str const &format_str_, 
-										_cpf_type::str::size_type search_start_pos_,
-										_cpf_type::str::size_type &attrib_end_pos)
+cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_, 
+										cpf::type::str::size_type search_start_pos_,
+										cpf::type::str::size_type &attrib_end_pos)
 {
 	auto ssp = search_start_pos_;
 
 	/*offset from search start position i.e token occurance position in format string*/
-	_cpf_type::str::size_type offset_pos = 0;
+	cpf::type::str::size_type offset_pos = 0;
 	
 	parse_attribute_specifier(format_str_, offset_pos, ssp);
 
 	/*the parsed attribute(s) string...*/
-	_cpf_type::str attribute_string = format_str_.substr(ssp, offset_pos);
+	cpf::type::str attribute_string = format_str_.substr(ssp, offset_pos);
 
 	if (attribute_string.size() == 0)
 	{
 		const char* emsg = R"err(
-cpf error: 
+cpf except: 
 invalid token encountered @ %d
 )err"; 
 		char buf[64]; 
@@ -367,24 +368,24 @@ invalid token encountered @ %d
 #else
 		sprintf(buf, emsg, ssp);
 #endif
-		throw _cpf_type::error(buf);
+		throw cpf::type::except(buf);
 	}
 
 	attrib_end_pos += offset_pos;
 	return attribute_string;
 }
 
-_cpf_type::meta_format_type _cpf_process_format_string(
-	const _cpf_type::str &src_format)
+cpf::type::meta cpf::process_format_string(
+	const cpf::type::str &src_format)
 {
-	_cpf_type::meta_format_type meta;
+	cpf::type::meta meta;
 
-	const std::size_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
+	const cpf::type::size NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
 	{
-		std::size_t occurrences = 0;
-		_cpf_type::str::size_type start = 0;
+		cpf::type::size occurrences = 0;
+		cpf::type::str::size_type start = 0;
 
-		while ((start = _cpf_find(_CPF_TOKEN_PREFIX, src_format, start)) != _cpf_type::str::npos)
+		while ((start = cpf::search_for(_CPF_TOKEN_PREFIX, src_format, start)) != cpf::type::str::npos)
 		{
 			++occurrences;
 			start++;
@@ -392,28 +393,28 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 		return occurrences;
 	}();
 	
-	std::size_t token_occurance_pos = 0, attrib_endpos_p1 = 0;
+	cpf::type::size token_occurance_pos = 0, attrib_endpos_p1 = 0;
 	bool first_iter = true;
-	while ((token_occurance_pos = _cpf_find(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1)) != src_format.npos)
+	while ((token_occurance_pos = cpf::search_for(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1)) != src_format.npos)
 	{
 		if (first_iter && token_occurance_pos != 0)
 		{
-			_cpf_type::str_vec default_attrib{ "?" };
+			cpf::type::string_vector default_attrib{ "?" };
 			meta.insert(std::make_pair(0u, std::make_pair(default_attrib, src_format.substr(0u, token_occurance_pos))));
 			first_iter = false;
 		}
 		
 		auto tokOccPos_1 = token_occurance_pos + 1;
-		_cpf_type::str::size_type off = 0;
+		cpf::type::str::size_type off = 0;
 		auto attibs_str = parse_fstr_for_attrib_specs(src_format, token_occurance_pos + 1, off);
 		attrib_endpos_p1 = tokOccPos_1 + off;
 
-		auto next_prefix_pos = _cpf_find(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1);
+		auto next_prefix_pos = cpf::search_for(_CPF_TOKEN_PREFIX, src_format, attrib_endpos_p1);
 
 		/*vector to hold attributes that are applied to the (sub) string proceeding
 		the token "$"'s occurance position.*/
-		_cpf_type::str_vec subseq_str_attribs;
-		_cpf_type::str current_attrib;
+		cpf::type::string_vector subseq_str_attribs;
+		cpf::type::str current_attrib;
 
 		for(auto c = std::begin(attibs_str); c != std::end(attibs_str); ++c)
 		{
@@ -442,7 +443,7 @@ _cpf_type::meta_format_type _cpf_process_format_string(
 
 	if (meta.empty())
 	{
-		meta.insert(std::make_pair(0u, std::make_pair(_cpf_type::str_vec({ "?" }), src_format)));
+		meta.insert(std::make_pair(0u, std::make_pair(cpf::type::string_vector({ "?" }), src_format)));
 	}
 
 	purge_meta_esc_sequences(meta);

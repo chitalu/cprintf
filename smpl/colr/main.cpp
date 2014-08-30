@@ -93,7 +93,7 @@ int main(void)
 			}
 		}
 	}
-	catch (_cpf_type::error &e)
+	catch (cpf::type::except &e)
 	{
 		fprintf(stderr, "cprintf sample failed\n%s\n", e.what());
 		exec_ok = false;

@@ -41,43 +41,60 @@ THE SOFTWARE.
 #define _CPF_DISABLE 0x00
 #define _CPF_ENABLE 0xFF
 
-namespace _cpf_type
+namespace cpf
 {
-	typedef std::string str;
-	typedef const char* c_str;
-}
+	namespace type
+	{
+		typedef std::string str;
+		typedef const char* cstr;
+		typedef cpf::type::str::size_type size;
 
-struct _cpf_err{
-private:
-	_cpf_type::c_str msg;
-public:
-	_cpf_err(void):msg("_cpf_err"){}
-	_cpf_err(const char* _msg):msg(_msg){}
-	~_cpf_err(void){}
-
-	inline _cpf_type::c_str what(void){ return msg; }
-};
-
-
-namespace _cpf_type
-{
 #ifdef _WIN32
-	typedef WORD colour;
+		typedef WORD colour;
 #else
-	typedef _cpf_type::str colour;
+		typedef cpf::type::str colour;
 #endif
-}
 
-namespace _cpf_type
-{
-	typedef _cpf_err error;
-	typedef std::pair<_cpf_type::str, _cpf_type::str> str_pair;
-	typedef std::vector<_cpf_type::str> str_vec;
-	typedef str_vec attribs;
-	typedef std::map<std::size_t, std::pair<str_vec, _cpf_type::str>> meta_format_type;
-	typedef std::map<const _cpf_type::str, _cpf_type::colour> colour_token_map;
-	
-	typedef FILE* stream;
+		struct except
+		{
+		private:
+			cpf::type::cstr msg;
+		public:
+			except(void) :msg("_cpf_err"){}
+			except(const char* _msg) :msg(_msg){}
+			~except(void){}
+
+			inline cpf::type::cstr what(void){ return msg; }
+		};
+
+		typedef std::pair<cpf::type::str, cpf::type::str> string_pair;
+		typedef std::vector<cpf::type::str> string_vector;
+		typedef string_vector attribute_group;
+		typedef std::map<cpf::type::size, std::pair<string_vector, cpf::type::str>> meta;
+		typedef cpf::type::meta::iterator meta_iterator;
+		typedef cpf::type::meta::const_iterator c_meta_iterator;
+		typedef std::map<const cpf::type::str, cpf::type::colour> token_value_map;
+
+		template<typename ...Ts>
+		using arg_pack = std::tuple<Ts...>;
+
+		typedef FILE* stream;
+
+#ifndef NDEBUG
+		/*	os specific dir path wrangling	*/
+		struct fpath_sep_func
+		{
+			bool operator()(char character) const
+			{
+#ifdef _WIN32
+				return character == '\\' || character == '/';
+#else
+				return character == '/';
+#endif
+			}
+		};
+#endif
+	}
 }
 
 #endif 
