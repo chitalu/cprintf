@@ -41,6 +41,16 @@ TEST(Arg, printing_std_string)
 
 int main(int argc, char **argv)
 {
+	/*struct
+	{
+		std::string operator<< (const std::string& dt)
+		{
+			return "test_struct";
+		}
+	}test_struct;*/
+
+	/*cprintf("test class %s", test_struct);*/
+
 	::testing::InitGoogleTest(&argc, argv);
 	int ret = RUN_ALL_TESTS();
 	std::getchar();

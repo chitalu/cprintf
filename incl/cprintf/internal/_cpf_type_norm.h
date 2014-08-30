@@ -49,6 +49,14 @@ normalize_arg(const T arg)
 	return arg;
 }
 
+template<class T>
+typename std::enable_if<std::is_class<T>::value, T>::type
+normalize_arg(const T arg)
+{
+	return arg;
+}
+
+
 CPF_API _cpf_type::c_str normalize_arg(const _cpf_type::str& arg);
 
 #endif

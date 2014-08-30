@@ -155,6 +155,14 @@ void _cpf_print_arg(_cpf_type::stream strm, _cpf_type::str const &frmt, T&& arg)
 template<>
 void _cpf_print_arg<_cpf_type::str>(_cpf_type::stream strm, _cpf_type::str const &frmt, _cpf_type::str&& arg);
 
+//template<class T>
+//void _cpf_print_arg(_cpf_type::stream strm,
+//					_cpf_type::str const &frmt, 
+//					std::enable_if<std::is_class<T>::value, T>::value&& arg)
+//{
+//	std::stringstream ss; ss << arg;
+//	_cpf_print_arg<_cpf_type::str>(strm, frmt.c_str(), ss.str());
+//}
 /*
 	recursion terminating function (counterpart to _cpf_call with variadic arguments). 
 	This is the function executated when cprintf is called with only a format 
