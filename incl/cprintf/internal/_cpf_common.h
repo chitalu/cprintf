@@ -70,7 +70,7 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 #  	endif
 #endif
 
-#define SYSTXTATTRIB_UNDEF ("undef")
+#define SYSTXTATTRIB_UNDEF (L"undef")
 #endif
 
 #include "_cpf_type.h"

@@ -358,14 +358,7 @@ cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_,
 
 	if (attribute_string.size() == 0)
 	{
-		const wchar_t* emsg = L"cpf err: invalid token encountered @ %d"; 
-		wchar_t buf[64];
-#ifdef _WIN32
-		swprintf_s(buf, emsg, ssp);
-#else
-		swprintf(buf, emsg, ssp);
-#endif
-		throw cpf::type::except(buf);
+		throw cpf::type::except(L"invalid '$' token encountered on parse");
 	}
 
 	attrib_end_pos += offset_pos;
