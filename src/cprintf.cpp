@@ -29,17 +29,18 @@ THE SOFTWARE.
 /*text attributes before a call was made to cprintf*/
 cpf::type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
 
-CPF_API const cpf::type::str cpf::pre_debug_log_str =
-L"debug_str(\n\
-$c\n\
->> cpf debug call \n\
-@file:	%s\n\
-@built:	%s-%s \n\
-\
->	@function:	%s\n\
->	@line:		%d\n\
-$?\n\
-log:\n\
+CPF_API const cpf::type::nstr cpf::pre_debug_log_str =
+R"debug_str(
+$c
+>> debug 
+$g@file:$c	$g*%s$c
+$g@built:$c	$g*%s$c-$g*%s$c 
+
+>	$g@function:$c	$g*%s$c
+>	$g@line:$c		$g*%d$c
+
+user log:...$?
+_______________________________________________________________________________
 )debug_str";
 
 //cprintf("Characters:\t%c %%\n", 65);
@@ -238,12 +239,26 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 }
 
 template<>
-void cpf::write_arg<cpf::type::str>(	cpf::type::stream ustream, 
-										cpf::type::str const &format, 
-										cpf::type::str&& arg)
+void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
+	cpf::type::str const &format,
+	cpf::type::str&& arg)
 {
 	fwprintf(ustream, format.c_str(), arg.c_str());
 }
+
+//void write_arg(cpf::type::stream ustream,
+//								cpf::type::str const &format,
+//								cpf::type::nstr&& arg)
+//{
+//#ifdef __gnu_linux__
+//	return; //skip
+//#else
+//	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+//	auto multibyte_version = converter.from_bytes(arg);
+//	cpf::write_arg(ustream, format, multibyte_version);
+//#endif
+//	
+//}
 
 void cpf::call_(	
 	cpf::type::stream ustream,

@@ -35,15 +35,21 @@ TEST(BadToken, using_bitmap_ampersand_fgbg_tok_on_windows)
 
 TEST(Arg, printing_std_string)
 {
-	std::wstring s = L"l love cprintf";
-	ASSERT_NO_THROW(cwprintf(L"cpf test :: print std::string :: %s\n", s));
+	std::wstring ws = L"l love cprintf";
+	ASSERT_NO_THROW(cwprintf(L"cpf test :: print std::wstring :: %s\n", ws));
+
+	//not yet supported
+	std::string s = "l love cprintf";
+	//ASSERT_NO_THROW(cprintf("cpf test :: print std::string :: %s\n", s));
 }
 
 int main(int argc, char **argv)
 {
-	cfprintf(stdout, "hello");
-	cfwprintf(stdout, L"hello");
+	cfprintf(stdout, "test hello 0\n");
+	cfwprintf(stdout, L"test hello 1\n");
 
+	cfprintf_dbg(stdout, "debug-print test hello 0\n");
+	cfprintf_dbg(stdout, "debug-print test hello 1\n");
 	::testing::InitGoogleTest(&argc, argv);
 	int ret = RUN_ALL_TESTS();
 	std::getchar();

@@ -166,9 +166,14 @@ namespace cpf
 	}
 
 	template<>
-	void write_arg<cpf::type::str>(	cpf::type::stream ustream, 
-									cpf::type::str const &frmt, 
-									cpf::type::str&& arg);
+	CPF_API void write_arg<cpf::type::str>(	cpf::type::stream ustream,
+											cpf::type::str const &frmt, 
+											cpf::type::str&& arg);
+
+	/*template<>not yet supported
+	CPF_API void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
+											cpf::type::str const &frmt,
+											cpf::type::nstr&& arg);*/
 
 	/*
 		recursion-terminating function (counterpart to call_ with variadic arguments). 
@@ -257,40 +262,13 @@ namespace cpf
 		}
 	}
 
-	CPF_API const cpf::type::str pre_debug_log_str;
+	CPF_API const cpf::type::nstr pre_debug_log_str;
 }
 
-/*
-	Writes the C string pointed by format to the stream. If format 
-	includes format specifiers (subsequences beginning with %), the 
-	additional arguments following format are formatted and inserted
-	in the resulting string replacing their respective specifiers.
-	If format includes attribute specifiers (tokens beginning with /),
-	the characters proceding these attibute specifiers will be modified 
-	in accordance with specification contained in the format.
-
-	After the format parameter, the function expects at least as many 
-	additional arguments as specified by format.
-
-	@stream
-    	Pointer to a FILE object that identifies an output stream.
-	@format
-	    C string that contains the text to be written to the stream.
-	    It can optionally contain embedded format specifiers that 
-	    are replaced by the values specified in subsequent additional 
-	    arguments and formatted as requested or are used as indicators 
-		of how the output text should appear in a console..
-
-	For further info please refer to:
-	http://www.cplusplus.com/reference/cstdio/fprintf/
-*/
 template<typename... Ts>
-void cfwprintf(cpf::type::stream ustream, cpf::type::wstr format, Ts... args)
+void cfwprintf(cpf::type::stream ustream, const wchar_t* format, Ts... args)
 {
-	if (ustream == nullptr)
-	{
-		throw cpf::type::except(L"cpf err: output stream is undefined (null)");
-	}
+	assert(ustream != nullptr && "cpf err: output stream is undefined (null)");
 
 	auto meta_format = cpf::process_format_string(format);
 
@@ -338,8 +316,32 @@ void cfwprintf(cpf::type::stream ustream, cpf::type::wstr format, Ts... args)
 	cpf::restore_stream_state(ustream, true);
 }
 
+/*
+Writes the string referenced by "format" to the "stream". If "format"
+includes format specifiers (subsequences beginning with %), the
+additional cprintf arguments following "format" are formatted and inserted
+in the resulting string replacing their respective specifiers.
+If format includes attribute specifiers (tokens beginning with $),
+the characters proceding these attibute specifiers will be modified
+in accordance with specification contained in the format.
+
+After the format parameter, the function expects at least as many
+additional arguments as specified by "format".
+
+@stream
+Pointer to a FILE object that identifies an output stream.
+@format
+string that contains the text to be written to the stream.
+It can optionally contain embedded format specifiers that
+are replaced by the values specified in subsequent additional
+arguments and formatted as requested or are used as indicators
+of how the output text should appear in a console..
+
+For further info please refer to:
+http://www.cplusplus.com/reference/cstdio/fprintf/
+*/
 template<typename... Ts>
-void cfprintf(cpf::type::stream ustream, cpf::type::nstr format, Ts... args)
+void cfprintf(cpf::type::stream ustream, const char* format, Ts... args)
 {
 	/*
 		GCC does not yet support multi-byte conversion functionality...
@@ -359,62 +361,62 @@ void cfprintf(cpf::type::stream ustream, cpf::type::nstr format, Ts... args)
 	*/
 	auto converter = std::wstring_convert<std::codecvt_utf8<wchar_t>>();
 	auto multibyte_version = converter.from_bytes(format);
-	cfwprintf(ustream, multibyte_version, args...);
+	cfwprintf(ustream, multibyte_version.c_str(), args...);
 #endif
 }
 
-/*
-	Writes the C string pointed by format to the standard output (stdout). 
-	If format includes format specifiers (subsequences beginning with %), 
-	the additional arguments following format are formatted and inserted 
-	in the resulting string replacing their respective specifiers.
-	If format includes attribute specifiers (tokens beginning with /),
-	the characters proceding these attibute specifiers will be modified in accordance
-	with specification contained in the format. 
-
-	@format
-    C string that contains the text to be written to stdout.
-    It can optionally contain embedded format and attribute specifiers that are replaced 
-    by the values specified in subsequent additional arguments and 
-    formatted as requested or are used as indicators of how the output text 
-	should appear in a console.
-*/
 template<typename... Ts>
-void cwprintf(cpf::type::wstr format, Ts... args)
+void cwprintf(const wchar_t* format, Ts... args)
 {
 	cfwprintf(stdout, format, std::forward<Ts>(args)...);
 }
 
+/*
+	Writes the string referenced by "format" to "stdout". If "format"
+	includes format specifiers (subsequences beginning with %), the
+	additional cprintf arguments following "format" are formatted and inserted
+	in the resulting string replacing their respective specifiers.
+	If format includes attribute specifiers (tokens beginning with $),
+	the characters proceding these attibute specifiers will be modified
+	in accordance with specification contained in the format.
+
+	After the format parameter, the function expects at least as many
+	additional arguments as specified by "format".
+
+	@format
+	string that contains the text to be written to stdout.
+	It can optionally contain embedded format and attribute specifiers that are replaced
+	by the values specified in subsequent additional arguments and
+	formatted as requested or are used as indicators of how the output text
+	should appear in a console.
+*/
 template<typename... Ts>
-void cprintf(cpf::type::nstr format, Ts... args)
+void cprintf(const char* format, Ts... args)
 {
 	cfprintf(stdout, format, std::forward<Ts>(args)...);
 }
 
-/*
-	Instead of accepting variadic arguments this function expects a tuple
-	object. Elements of this object must abide the same restrictions
-	imposed on those permitted to cfprintf. 
-
-	see cfprintf documentation for more info.
-*/
 template<typename... Ts>
 void cfwprintf_t(	cpf::type::stream ustream, 
-					cpf::type::wstr format, 
+					const wchar_t* format,
 					cpf::type::arg_pack<Ts...> args_tup)
 {
-	/*TODO
-	improve this function with std::bind -> #include <functional>
-	http://ideone.com/4DGVCV#view_edit_box
-	*/
 	auto predef_args_tup = std::make_tuple(ustream, format);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 	cpf::apply_tuple(cfwprintf<Ts...>, call_args);
 }
 
+
+/*
+	Instead of accepting variadic arguments this function expects a tuple
+	object. Elements of this object must abide the same restrictions
+	imposed on those permitted to cfprintf.
+
+	see cfprintf doc-string for more info.
+*/
 template<typename... Ts>
 void cfprintf_t(cpf::type::stream ustream, 
-				cpf::type::nstr format, 
+				const char* format,
 				cpf::type::arg_pack<Ts...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(ustream, format);
@@ -422,20 +424,20 @@ void cfprintf_t(cpf::type::stream ustream,
 	cpf::apply_tuple(cfprintf<Ts...>, call_args);
 }
 
-/*
-	Instead of accepting variadic arguments this function expects a tuple
-	object. Elements of this object must abide the same restrictions
-	imposed on those permitted to cprintf. 
-	all output is directed to stdout.
-
-	see cprintf documentation for more info.
-*/
 template<typename... Ts>
-void cwprintf_t(cpf::type::wstr format, cpf::type::arg_pack<Ts...> args_tup)
+void cwprintf_t(const wchar_t* format, cpf::type::arg_pack<Ts...> args_tup)
 {
 	cfwprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
 
+/*
+	Instead of accepting variadic arguments this function expects a tuple
+	object. Elements of this object must abide the same restrictions
+	imposed on those of cprintf.
+	all output is directed to stdout.
+
+	see cprintf doc-string for more info.
+*/
 template<typename... Ts>
 void cprintf_t(cpf::type::nstr format, cpf::type::arg_pack<Ts...> args_tup)
 {
@@ -454,36 +456,49 @@ void cprintf_t(cpf::type::nstr format, cpf::type::arg_pack<Ts...> args_tup)
 	And as such, building in release mode results in the macros
 	expanding to [nothing], rendering a client call impotent.
 */
-#define __print_stat_str\
-	cpf::type::str const& pathname = __FILE__;\
-	auto fname =  cpf::type::str(\
+
+#ifdef _WIN32
+#define CPF_SEP_COND (character == '\\' || character == '/');
+#else
+#define CPF_SEP_COND ( character == '/');
+#endif
+
+/*Note the the anonymous struct for os specific dir path wrangling*/
+#define CPF_DBG_LOG_STR\
+	cpf::type::nstr const& pathname = __FILE__;\
+	typedef struct {\
+	bool operator()(char character) const{\
+		return CPF_SEP_COND;\
+	}\
+	}fpath_sep_func;\
+	auto fname =  cpf::type::nstr(\
 	std::find_if(pathname.rbegin(), pathname.rend(),fpath_sep_func()).base(),\
 	pathname.end());\
-	cfwprintf(stderr, pre_debug_log_str.c_str(), fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__); \
+	cfprintf(stderr, cpf::pre_debug_log_str.c_str(), \
+	fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__);
 
-#define cfwprintf_dbg(ustream, format, ...) \
+#define cfprintf_dbg(ustream, format, ...) \
 	do{\
-	__print_stat_str \
-	cfwprintf(ustream, format, ##__VA_ARGS__);\
+	CPF_DBG_LOG_STR \
+	cfprintf(ustream, format, ##__VA_ARGS__);\
 	}while (0);
 
-#define cwprintf_dbg(format, ...) \
-	cfwprintf_dbg(stderr, format, ##__VA_ARGS__)
+#define cprintf_dbg(format, ...) \
+	cfprintf_dbg(stderr, format, ##__VA_ARGS__)
 
-#define cfwprintf_t_dbg(ustream, format, tup) \
+#define cfprintf_t_dbg(ustream, format, tup) \
 	do{\
-	__print_stat_str \
-	cfwprintf_t(ustream, format, tup); \
+	CPF_DBG_LOG_STR \
+	cfprintf_t(ustream, format, tup); \
 	} while (0);\
 
-#define cwprintf_t_dbg(format, tup) \
-	cfwprintf_t_dbg(stderr, format, tup);
+#define cprintf_t_dbg(format, tup) \
+	cfprintf_t_dbg(stderr, format, tup);
 
-
-#define cfprintf_dbg(ustream, format, ...) 
-#define cprintf_dbg(format, ...) 
-#define cfprintf_t_dbg(ustream, format, tup) 
-#define cprintf_t_dbg(format, tup) 
+#define cfwprintf_dbg(ustream, format, ...) 
+#define cwprintf_dbg(format, ...) 
+#define cfwprintf_t_dbg(ustream, format, tup) 
+#define cwprintf_t_dbg(format, tup) 
 
 
 #else

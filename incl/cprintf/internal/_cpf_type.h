@@ -38,81 +38,55 @@ THE SOFTWARE.
 #include <string>
 #include <cstdio>
 
-#define _CPF_DISABLE 0x00
-#define _CPF_ENABLE 0xFF
-
 namespace cpf
 {
 	namespace type
 	{
-		typedef std::wstring wstr;
+
+		/*library native string type...*/
+		typedef std::wstring str;
 		typedef std::string nstr;
-		typedef std::wstring str;//to go
 
-		/*the library's native string element type -> wchar_t*/
-		typedef cpf::type::wstr::allocator_type::value_type wide_element;
-		typedef cpf::type::nstr::allocator_type::value_type narrow_element;
+		typedef const wchar_t* cstr;
 
-		/*wide character string pointer type -> "const wchar_t*" */
-		typedef const cpf::type::wide_element* wide_elem_ptr;
-		typedef const cpf::type::wide_element* cstr;//to go
-
-		/*narrow character string pointer type -> "const char"*/
-		typedef const cpf::type::narrow_element* narrow_elem_ptr;
-
-		typedef cpf::type::wstr::size_type size;//to go
-
-		typedef cpf::type::wstr::size_type wsize;
+		typedef cpf::type::str::size_type size;
 		typedef cpf::type::nstr::size_type nsize;
 
 #ifdef _WIN32
 		typedef WORD colour;
 #else
-		typedef cpf::type::wstr colour;
+		typedef cpf::type::str colour;
 #endif
 
 		struct except
 		{
 		private:
-			cpf::type::wide_elem_ptr m_msg;
+			const wchar_t* m_msg;
 		public:
 			except(void) :m_msg(L"cpf err"){}
-			except(const cpf::type::wide_elem_ptr _msg) :m_msg(_msg){}
+			except(const wchar_t* _msg) :m_msg(_msg){}
 			~except(void){}
 
-			inline cpf::type::wide_elem_ptr wmsg(void)
+			inline const wchar_t* wmsg(void)const
 			{ return m_msg; }
-			inline cpf::type::narrow_elem_ptr msg(void)
-			{ return reinterpret_cast<cpf::type::narrow_elem_ptr>(m_msg); /*fix this*/}
+			inline const char* msg(void)const
+			{ 
+				return reinterpret_cast<const char*>(m_msg); /*fix this*/
+			}
 		};
 
-		typedef std::pair<cpf::type::wstr, cpf::type::wstr> string_pair;
-		typedef std::vector<cpf::type::wstr> string_vector;
+		typedef std::pair<cpf::type::str, cpf::type::str> string_pair;
+		typedef std::vector<cpf::type::str> string_vector;
 		typedef string_vector attribute_group;
-		typedef std::map<cpf::type::size, std::pair<string_vector, cpf::type::wstr>> meta;
+		typedef std::map<cpf::type::size, std::pair<string_vector, cpf::type::str>> meta;
 		typedef cpf::type::meta::iterator meta_iterator;
 		typedef cpf::type::meta::const_iterator c_meta_iterator;
-		typedef std::map<const cpf::type::wstr, cpf::type::colour> token_value_map;
+		typedef std::map<const cpf::type::str, cpf::type::colour> token_value_map;
 
 		template<typename ...Ts>
 		using arg_pack = std::tuple<Ts...>;
 
 		typedef FILE* stream;
-
-#ifndef NDEBUG
-		/*	os specific dir path wrangling	*/
-		struct fpath_sep_func
-		{
-			bool operator()(char character) const
-			{
-#ifdef _WIN32
-				return character == '\\' || character == '/';
-#else
-				return character == '/';
-#endif
-			}
-		};
-#endif
 	}
 }
 
