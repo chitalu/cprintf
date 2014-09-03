@@ -1,4 +1,4 @@
-#include "cprintf/cprintf.h"
+#include <cprintf/cprintf.h>
 
 #include <thread>
 #include <chrono>
@@ -106,9 +106,9 @@ int main(void)
 		cprintf("$!");
 		lull_token();
 	}
-	catch (_cpf_type::error &e)
+	catch (cpf::type::except &e)
 	{
-		cfprintf(stderr, "$0,0`cprintf sample failed\n%s\n", e.what());
+		cfprintf(stderr, "$0,0`cprintf sample failed\n%s\n", e.msg());
 		exec_ok = false;
 	}
 	return exec_ok ? EXIT_SUCCESS : EXIT_FAILURE;

@@ -1,4 +1,4 @@
-#include "cprintf/cprintf.h"
+#include <cprintf/cprintf.h>
 
 #include <cstdio>
 #include <limits>
@@ -61,9 +61,9 @@ int main(void)
 			cprintf("(the last printf printed %d characters)\n", r);
 		*/
 	}
-	catch (_cpf_type::error &e)
+	catch (cpf::type::except &e)
 	{
-		fprintf(stderr, "cprintf sample failed\n%s\n", e.what());
+		fprintf(stderr, "cprintf sample failed\n%s\n", e.msg());
 		exec_ok = false;
 	}
 

@@ -80,8 +80,6 @@ int main(void)
 		cprintf("note that $b`ld this text is blue\n");
 #endif
 
-		std::getchar();
-
 		int count = 0;
 		for (auto i : tokens)
 		{
@@ -95,7 +93,7 @@ int main(void)
 	}
 	catch (cpf::type::except &e)
 	{
-		fprintf(stderr, "cprintf sample failed\n%s\n", e.what());
+		fprintf(stderr, "cprintf sample failed\n%s\n", e.msg());
 		exec_ok = false;
 	}
 

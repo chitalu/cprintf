@@ -22,6 +22,7 @@ THE SOFTWARE.
 
 */
 
+#include <wchar.h> //wcstol
 #include "_cpf_config.h"
 
 #if _WIN32
@@ -155,13 +156,14 @@ cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_token)
 {
 	auto at_size = attrib_token.size();
-	char lst_char = attrib_token[at_size - 1];
+	wchar_t lst_char = attrib_token[at_size - 1];
 	auto colour_num = attrib_token.substr(0, at_size - 2);
 
-	auto int_repr = atoi(colour_num.c_str());
+	auto int_repr = wcstol(colour_num.c_str(), nullptr, 0);
+
 	if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 	{
-		throw _cpf_err(cpf::type::str(L"invalid attribute token: ").append(attrib_token).c_str());
+		throw cpf::type::except(cpf::type::str(L"invalid attribute token: ").append(attrib_token).c_str());
 	}
 
 	cpf::type::str colour_str;
@@ -183,7 +185,7 @@ cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_tok
 }
 #endif
 
-#include <wchar.h> //wcstol
+
 
 void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& attrib_str)
 {
@@ -208,7 +210,7 @@ void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& at
 	}
 #else
 	//http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
-	fwprintf(user_stream, "%s", (L"\x1B[" + vertical_pos_str + L";" + horizontal_pos_str+ L"H").c_str());
+	fwprintf(user_stream, L"%s", (L"\x1B[" + vertical_pos_str + L";" + horizontal_pos_str+ L"H").c_str());
 #endif
 }
 
@@ -258,12 +260,12 @@ void clear_terminal(	cpf::type::stream user_stream,
 
 #else
 	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
-	if(attrib == "!")
+	if(attrib == L"!")
 	{
 		fwprintf(user_stream, L"\x1B[2J\x1B[H");
 	}
 	
-	if (attrib == "!~")
+	if (attrib == L"!~")
 	{
 		fwprintf(user_stream, L"\x1B[2J");
 	}
@@ -332,7 +334,7 @@ void config_text_attribute(	cpf::type::stream user_stream,
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 	/*colour is controled via Control Sequences*/
-	fprintf(user_stream, user_colour.c_str());
+	fwprintf(user_stream, user_colour.c_str());
 #ifdef __gnu_linux__
 #pragma GCC diagnostic pop
 #endif
