@@ -337,6 +337,7 @@ void cfprintf(cpf::type::stream ustream, cpf::type::narrow_str format, Ts... arg
 {
 	/*
 		*\http://en.cppreference.com/w/cpp/locale/codecvt_utf8
+		*\http://stackoverflow.com/questions/402283/stdwstring-vs-stdstring
 	*/
 	auto converter = std::wstring_convert<std::codecvt_utf8<wchar_t>>();
 	auto multibyte_version = converter.from_bytes(format);
