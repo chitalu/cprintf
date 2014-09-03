@@ -238,34 +238,62 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 	}
 }
 
+/*
+	for possible future issues, it may be desirable to use
+	std::codecvt_utf8_utf16<wchar_t> instead of std::codecvt_utf8<wchar_t>
+
+	perhaps it could even be possible to add a printf variant that 
+	would be intantiated with either
+*/
+CPF_API cpf::type::str cpf::wconv(const cpf::type::nstr &src)
+{
+#ifdef __gnu_linux__
+	return cpf::type::str(); //skip
+#else
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	return converter.from_bytes(src);
+#endif
+}
+
+CPF_API cpf::type::nstr nconv(const cpf::type::str &src)
+{
+#ifdef __gnu_linux__
+	return cpf::type::nstr(); //skip
+#else
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	return converter.to_bytes(src);
+#endif
+}
+
 template<>
-void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
-	cpf::type::str const &format,
-	cpf::type::str&& arg)
+CPF_API void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
+											cpf::type::str const &format,
+											cpf::type::str&& arg)
 {
 	fwprintf(ustream, format.c_str(), arg.c_str());
 }
 
-//void write_arg(cpf::type::stream ustream,
-//								cpf::type::str const &format,
-//								cpf::type::nstr&& arg)
-//{
-//#ifdef __gnu_linux__
-//	return; //skip
-//#else
-//	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-//	auto multibyte_version = converter.from_bytes(arg);
-//	cpf::write_arg(ustream, format, multibyte_version);
-//#endif
-//	
-//}
+template<>
+CPF_API void cpf::write_arg<cpf::type::nstr>(	cpf::type::stream ustream,
+												cpf::type::str const &format,
+												cpf::type::nstr&& arg)
+{
+	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+}
 
-void cpf::call_(	
-	cpf::type::stream ustream,
-	const cpf::type::meta::const_iterator &end_point_comparator,
-	cpf::type::meta::const_iterator &meta_iter,
-	const cpf::type::str printed_string=L"",
-	const cpf::type::size search_start_pos=0)
+template<>
+CPF_API void cpf::write_arg<const char*>(	cpf::type::stream ustream,
+											cpf::type::str const &format,
+											const char*&& arg)
+{
+	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+}
+
+CPF_API void cpf::call_(cpf::type::stream ustream,
+						const cpf::type::meta::const_iterator &end_point_comparator,
+						cpf::type::meta::const_iterator &meta_iter,
+						const cpf::type::str printed_string=L"",
+						const cpf::type::size search_start_pos=0)
 {
 	while (meta_iter != end_point_comparator)
     {

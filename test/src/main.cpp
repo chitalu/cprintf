@@ -38,9 +38,8 @@ TEST(Arg, printing_std_string)
 	std::wstring ws = L"l love cprintf";
 	ASSERT_NO_THROW(cwprintf(L"cpf test :: print std::wstring :: %s\n", ws));
 
-	//not yet supported
 	std::string s = "l love cprintf";
-	//ASSERT_NO_THROW(cprintf("cpf test :: print std::string :: %s\n", s));
+	ASSERT_NO_THROW(cprintf("cpf test :: print std::string :: %s\n", s));
 }
 
 int main(int argc, char **argv)

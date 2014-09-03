@@ -126,6 +126,18 @@ namespace cpf
 	}
 
 	/*
+		convert from narraow character string to wide character string
+		@returns wide version of src
+	*/
+	CPF_API cpf::type::str wconv(const cpf::type::nstr &src);
+
+	/*
+		convert from wide character string to narrow character string
+		@returns narrow version of src
+	*/
+	CPF_API cpf::type::nstr nconv(const cpf::type::str &src);
+
+	/*
 		@return number of printf argument tokens "%" in a given string
 	*/
 	CPF_API cpf::type::size get_num_arg_specs(	const cpf::type::str & str);
@@ -165,15 +177,23 @@ namespace cpf
 		fwprintf(ustream, format.c_str(), arg);
 	}
 
+	/*
+		some tiny extra wizardry has to be done before printing the following types...
+	*/
 	template<>
 	CPF_API void write_arg<cpf::type::str>(	cpf::type::stream ustream,
-											cpf::type::str const &frmt, 
+											cpf::type::str const &format,
 											cpf::type::str&& arg);
 
-	/*template<>not yet supported
+	template<>
+	CPF_API void write_arg<const char*>(	cpf::type::stream ustream,
+											cpf::type::str const &format,
+											const char*&& arg);
+
+	template<>
 	CPF_API void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
-											cpf::type::str const &frmt,
-											cpf::type::nstr&& arg);*/
+											cpf::type::str const &format,
+											cpf::type::nstr&& arg);
 
 	/*
 		recursion-terminating function (counterpart to call_ with variadic arguments). 
