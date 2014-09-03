@@ -239,11 +239,11 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 }
 
 /*
-	for possible future issues, it may be desirable to use
+	in the case of possible future issues, it may be desirable to use
 	std::codecvt_utf8_utf16<wchar_t> instead of std::codecvt_utf8<wchar_t>
 
-	perhaps it could even be possible to add a printf variant that 
-	would be intantiated with either
+	perhaps it could even be possible to add a printf function variant that 
+	can be instantiated with either
 */
 CPF_API cpf::type::str cpf::wconv(const cpf::type::nstr &src)
 {
