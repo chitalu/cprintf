@@ -282,11 +282,39 @@ CPF_API void cpf::write_arg<cpf::type::nstr>(	cpf::type::stream ustream,
 }
 
 template<>
+CPF_API void cpf::write_arg<char*>(	cpf::type::stream ustream,
+									cpf::type::str const &format,
+									char*&& arg)
+{
+	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+}
+
+template<>
 CPF_API void cpf::write_arg<const char*>(	cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const char*&& arg)
 {
 	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+}
+
+template<>
+CPF_API void cpf::write_arg<signed char*>(	cpf::type::stream ustream,
+											cpf::type::str const &format,
+											signed char*&& arg)
+{
+	cpf::write_arg<cpf::type::str>(	ustream, 
+									format, 
+									cpf::wconv(reinterpret_cast<char*>(arg)));
+}
+
+template<>
+CPF_API void cpf::write_arg<const signed char*>(cpf::type::stream ustream,
+											cpf::type::str const &format,
+											const signed char*&& arg)
+{
+	cpf::write_arg<cpf::type::str>(	ustream,
+									format,
+									cpf::wconv(reinterpret_cast<const char*>(arg)));
 }
 
 CPF_API void cpf::call_(cpf::type::stream ustream,
