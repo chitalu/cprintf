@@ -288,7 +288,7 @@ namespace cpf
 		{
 			cpf::call_(	ustream, end_point_comparator, meta_iter,
 						(!more_args_on_iter && !iter_reached_end) ? i_raw_str : printed_string_,
-						ssp_, arg0, std::forward<Ts>(args)...);
+						ssp_, std::forward<T0>(arg0), std::forward<Ts>(args)...);
 		}
 	}
 
