@@ -52,8 +52,8 @@ const std::initializer_list<cpf::type::str> cpf::attribute_escape_sequences = {
 	L"`$", L"`r", L"`g", 
 	L"`b", L"`y", L"`m", 
 	L"`c", L"`w", L"`.", 
-	L"`*", L"``", L"`?"
-	L"`!", L"`~", L"`|"
+	L"`*", L"``", L"`?",
+	L"`!", L"`~", L"`|",
 	L"`f", L"`l"/*...$bld -> $b`ld*/
 };
 
