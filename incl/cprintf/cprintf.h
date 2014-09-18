@@ -469,7 +469,7 @@ void cwprintf_t(const wchar_t* format, cpf::type::arg_pack<Ts...> args_tup)
 	see cprintf doc-string for more info.
 */
 template<typename... Ts>
-void cprintf_t(cpf::type::nstr format, cpf::type::arg_pack<Ts...> args_tup)
+void cprintf_t(const char* format, cpf::type::arg_pack<Ts...> args_tup)
 {
 	cfprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
