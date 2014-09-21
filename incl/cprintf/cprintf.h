@@ -181,29 +181,34 @@ namespace cpf
 		some tiny extra wizardry has to be done before printing the following types...
 	*/
 	template<>
-	CPF_API void write_arg<cpf::type::str>(	cpf::type::stream ustream,
-											cpf::type::str const &format,
-											cpf::type::str&& arg);
-
-	template<>
-	CPF_API void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
-											cpf::type::str const &format,
-											cpf::type::nstr&& arg);
-
-	template<>
-	CPF_API void write_arg<char*>(	cpf::type::stream ustream,
+	void write_arg<cpf::type::str>(	cpf::type::stream ustream,
 									cpf::type::str const &format,
-									char*&& arg);
+									cpf::type::str&& arg);
 
 	template<>
-	CPF_API void write_arg<signed char*>(	cpf::type::stream ustream,
-											cpf::type::str const &format,
-											signed char*&& arg);
+	void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
+									cpf::type::str const &format,
+									cpf::type::nstr&& arg);
 
 	template<>
-	CPF_API void write_arg<const char*>(cpf::type::stream ustream,
+	void write_arg<char*>(	cpf::type::stream ustream,
+							cpf::type::str const &format,
+							char*&& arg);
+
+	template<>
+	void write_arg<signed char*>(	cpf::type::stream ustream,
+									cpf::type::str const &format,
+									signed char*&& arg);
+
+	template<>
+	void write_arg<const char*>(cpf::type::stream ustream,
+								cpf::type::str const &format,
+								const char*&& arg);
+
+	template<>
+	void write_arg<const signed char*>(	cpf::type::stream ustream,
 										cpf::type::str const &format,
-										const char*&& arg);
+										const signed char*&& arg);
 
 	/*
 		recursion-terminating function (counterpart to call_ with variadic arguments). 

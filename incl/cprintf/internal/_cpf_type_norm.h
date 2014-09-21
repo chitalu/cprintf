@@ -30,15 +30,20 @@ THE SOFTWARE.
 
 namespace cpf
 {
+	/*
+		Note: std::[f|w]printf converts all integers to long and all 
+		floating-point values to double (see Andrei slides on variadic printf)
+	*/
+
 	template<class T>
-	typename std::enable_if<std::is_integral<T>::value, T/*long*/>::type
+	typename std::enable_if<std::is_integral<T>::value, long>::type
 		normalize_arg(const T arg)
 	{
 		return arg;
 	}
 
 	template<class T>
-	typename std::enable_if<std::is_floating_point<T>::value, T/*double*/>::type
+	typename std::enable_if<std::is_floating_point<T>::value, double>::type
 		normalize_arg(const T arg)
 	{
 		return arg;
