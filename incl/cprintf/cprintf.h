@@ -265,18 +265,18 @@ namespace cpf
 			/*compile-time argument verification*/
 			static_assert(
 				/*check if argument is a char-type pointer (narrow or wide)*/
-				(	std::is_pointer<T0>::value &&
+				(	std::is_pointer<T0>::value and
 					(	
-						std::is_same<wchar_t*&&, T0>::value				or std::is_same<char*&&, T0>::value or
-						std::is_same<unsigned char*&&, T0>::value		or std::is_same<signed char*&&, T0>::value or
-						std::is_same<const wchar_t*&&, T0>::value		or std::is_same<const char*&&, T0>::value or
-						std::is_same<const signed char*&&, T0>::value	or std::is_same<const unsigned char*&&, T0>::value
+						std::is_same<wchar_t*, T0>::value				or std::is_same<char*, T0>::value or
+						std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value or
+						std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value or
+						std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
 					)
 				) or
 				//check if argument is of type std::string or std::wstring*/
 				(
-					std::is_same<cpf::type::str&&, T0>::value or
-					std::is_same<cpf::type::nstr&&, T0>::value
+					std::is_same<cpf::type::str, T0>::value or
+					std::is_same<cpf::type::nstr, T0>::value
 				) or
 				/*check if argument is of type float or double*/
 				std::is_floating_point<T0>::value or
@@ -355,9 +355,10 @@ void cfwprintf(cpf::type::stream ustream, const wchar_t* format, Ts... args)
 	}
 
 	/*
-		debug-build call signature verification 
+		format specifier-to-argument correspondence check
+		i.e "%d" must correspond to an integral
 	*/
-	//_cpf_verify(format, normalize_arg(args)...);
+	//_cpf_verify(format, std::forward<Ts>(args)...);
 #endif
 	
 	auto mf_begin = meta_format.cbegin();

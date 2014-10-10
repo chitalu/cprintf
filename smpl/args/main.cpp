@@ -19,7 +19,7 @@ int main(void)
 		cprintf("Preceding with blanks: %10d \n", 1977);
 		cprintf("Preceding with zeros: %010d \n", 1977);
 		auto args_of_100 = std::make_tuple(100, 100, 100, 100, 100);
-		cprintf_t("Some different radices: %d %x %o %#x %#o \n", args_of_100);
+		//cprintf_t("Some different radices: %d %x %o %#x %#o \n", args_of_100);
 		cprintf("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
 		cprintf("%s \n", "A string");
 		cprintf("%-5s\n", "ab");

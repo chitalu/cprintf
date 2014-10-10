@@ -39,8 +39,8 @@ CPF_API void _cpf_verify(cpf::type::cstr format);
 	note that this is only able to test those format specifiers
 	found in "std_format_specifiers"
 */
-template<class T, typename... Ts> void
-_cpf_verify(cpf::type::cstr format, const T& farg, const Ts&&... args)
+template<class T, typename... Ts> 
+void _cpf_verify(cpf::type::cstr format, const T&& farg, const Ts&&... args)
 {
 	for (; *format; ++format)
 	{
@@ -48,53 +48,31 @@ _cpf_verify(cpf::type::cstr format, const T& farg, const Ts&&... args)
 		{
 			continue;
 		}
-		char f = *format;
+		wchar_t f = *format;
 		switch (f)
 		{
-		case 'f':
-			assert(std::is_floating_point<T>::value);
+		case 'f': case 'e': case 'g':
+			assert(std::is_floating_point<T>::value && "Format Specifier To Arg Mismatch!");
 			break;
-		case 'e':
-			assert(std::is_floating_point<T>::value);
-			break;
-		case 'g':
-			assert(std::is_floating_point<T>::value);
-			break;
-		case 'd':
-			assert(std::is_integral<T>::value);
-			break;
-		case 'i':
-			assert(std::is_integral<T>::value);
-			break;
-		case 'o':
-			assert(std::is_integral<T>::value);
-			break;
-		case 'u':
-			assert(std::is_integral<T>::value);
-			break;
-		case 'c':
-			assert(std::is_integral<T>::value);
-			break;
-		case 'x':
-			assert(std::is_integral<T>::value);
-			break;
+		case 'd': case 'i': case 'o': case 'u': case 'c': case 'x':
 		case 'l': //note that this is actually in "intermediate_format_specifers"
-			assert(std::is_integral<T>::value);
-			break;
 		case '#': //note that this is actually in "intermediate_format_specifers"
-			assert(std::is_integral<T>::value);
+			assert(std::is_integral<T>::value && "Format Specifier To Arg Mismatch!");
 			break;
 		case 's':
-			assert(std::is_pointer<T>::value);
+			assert((std::is_pointer<T>::value || 
+					std::is_same<cpf::type::str, T>::value ||	
+					std::is_same<cpf::type::nstr, T>::value	
+				) && "Format Specifier To Arg Mismatch!");
 			break;
 		default:
-			fprintf(stderr, "warning: unsupported formatter: %c\n", f);
+			/*does not cause assertion in all instances*/
 			break;
 		}
 		return _cpf_verify(++format, std::forward<Ts>(args)...);
 	}
 
-	throw cpf::type::except("cpf err: format specifier (%) count does not match argument count");
+	throw cpf::type::except(L"cpf err: format specifier (%) count does not match argument count");
 }
 
 #endif /*#ifndef _CPF_VERIFY_H*/
