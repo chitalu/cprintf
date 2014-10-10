@@ -46,9 +46,6 @@ int main(int argc, char **argv)
 {
 	cfprintf(stdout, "test hello 0\n");
 	cfwprintf(stdout, L"test hello 1\n");
-	/*auto* x = new int;*/
-	auto x = __FILE__;
-	cprintf("foo %s", 0);
 	//cfprintf_dbg(stdout, "debug-print test hello 0\n");
 	//cfprintf_dbg(stdout, "debug-print test hello 1\n");
 	::testing::InitGoogleTest(&argc, argv);

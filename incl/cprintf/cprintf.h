@@ -358,18 +358,23 @@ void cfwprintf(cpf::type::stream ustream, const wchar_t* format, Ts... args)
 		format specifier-to-argument correspondence check
 		i.e "%d" must correspond to an integral
 	*/
+	//current not working with tuple variants of cprintf
 	//_cpf_verify(format, std::forward<Ts>(args)...);
 #endif
 	
 	auto mf_begin = meta_format.cbegin();
 	auto mf_endpoint_cmp = meta_format.cend();/*end point comparator...*/
 
-	/*			*/
+	/*
+	note:	the try catch block is necessary to restore stream
+			state should unexpect behaviour occur at runtime. Typical 
+			cases are errors in user code.
+	*/
 	try
 	{
 		cpf::save_stream_state(ustream);
 
-		/*	make actual call to do printing and internal colour configurations	*/
+		/*	make actual call to do printing and system terminal configurations	*/
 		cpf::call_(	ustream,
 					mf_endpoint_cmp,
 					mf_begin,
@@ -379,9 +384,8 @@ void cfwprintf(cpf::type::stream ustream, const wchar_t* format, Ts... args)
 	}
 	catch (cpf::type::except &e)
 	{
-		/*TODO: look into signal interupts. they are not covered here*/
 		cpf::restore_stream_state(ustream, true);
-		throw e;
+		throw e;//rethrow!
 	}
 	cpf::restore_stream_state(ustream, true);
 }
@@ -510,7 +514,7 @@ void cwprintf_t(const wchar_t* format, cpf::type::arg_pack<Ts...> args_tup)
 */
 template<typename... Ts>
 void cprintf_t(const char* format, cpf::type::arg_pack<Ts...> args_tup)
-{
+{		
 	cfprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
 
