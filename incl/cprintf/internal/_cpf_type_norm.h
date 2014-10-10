@@ -26,40 +26,5 @@ THE SOFTWARE.
 #define _CPF_TYPE_NORM_H
 
 #include "cprintf/internal/_cpf_type.h"
-#include <type_traits>
-#include <ciso646>
-
-namespace cpf
-{
-	/*class object envoked by inititialsation on condition that
-	a user species an argument that is not supported i.e 
-	cannot be printed.*/
-	/*class illegal_cprintf_argument_type_{	
-	private:
-		illegal_cprintf_argument_type_(void)
-		{	throw cpf::type::except(L"bad argument!");	};
-		~illegal_cprintf_argument_type_(void){};
-	};
-
-	template<bool B, class T>
-	struct enable_if_ {};
-
-	template<class T>
-	struct enable_if_<true, T> { typedef T type; };
-
-	template<class T>
-	struct enable_if_<false, T> { typedef illegal_cprintf_argument_type_ type; };
-
-	template<class ARGTYPE>
-	typename cpf::enable_if_<(std::is_same<cpf::type::str, ARGTYPE>::value or std::is_same<cpf::type::nstr, ARGTYPE>::value) or
-							std::is_pointer<ARGTYPE>::value or
-							std::is_floating_point<ARGTYPE>::value or
-							std::is_integral<ARGTYPE>::value,
-							ARGTYPE>::type
-		normalize_arg(const ARGTYPE& arg)
-	{
-		return arg;
-	}*/
-}
 
 #endif

@@ -299,6 +299,11 @@ void config_text_attribute(	cpf::type::stream user_stream,
 							std::uint8_t col_config_type = 255)
 {
 #ifdef _WIN32
+
+	/*
+	interesting: 
+	http://comp.os.ms-windows.programmer.win32.narkive.com/1bOxy0qZ/extended-attributes-all-broken-console-api
+	*/
 	auto output_stream_handle = user_stream == stdout ? stdout_handle : stderr_handle;
 
 	CONSOLE_SCREEN_BUFFER_INFOEX cbie;

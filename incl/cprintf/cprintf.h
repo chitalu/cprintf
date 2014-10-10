@@ -32,11 +32,19 @@ THE SOFTWARE.
 #include <tuple>
 #include <memory>
 #include <algorithm>
+#include <type_traits>
+/*
+Note:	preprocessor defintions contained hereinafter
+		this "#include" may conflict with user code.
+*/
+#include <ciso646>
 
 #ifndef __gnu_linux__
-/*GCC does not yet support multi-byte conversion functionality from this header
-as a result narrow-string variants of cprintf's API will do anything until this
-is resolved*/
+/*
+Note:	GCC does not yet support multi-byte conversion functionality from the following 
+		header, as a result narrow-string variants of cprintf's API will do nothing until 
+		this is resolved.
+*/
 #include <codecvt> //wstring_convert
 #endif
 
@@ -181,29 +189,34 @@ namespace cpf
 		some tiny extra wizardry has to be done before printing the following types...
 	*/
 	template<>
-	CPF_API void write_arg<cpf::type::str>(	cpf::type::stream ustream,
-											cpf::type::str const &format,
-											cpf::type::str&& arg);
-
-	template<>
-	CPF_API void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
-											cpf::type::str const &format,
-											cpf::type::nstr&& arg);
-
-	template<>
-	CPF_API void write_arg<char*>(	cpf::type::stream ustream,
+	void write_arg<cpf::type::str>(	cpf::type::stream ustream,
 									cpf::type::str const &format,
-									char*&& arg);
+									cpf::type::str&& arg);
 
 	template<>
-	CPF_API void write_arg<signed char*>(	cpf::type::stream ustream,
-											cpf::type::str const &format,
-											signed char*&& arg);
+	void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
+									cpf::type::str const &format,
+									cpf::type::nstr&& arg);
 
 	template<>
-	CPF_API void write_arg<const char*>(cpf::type::stream ustream,
+	void write_arg<char*>(	cpf::type::stream ustream,
+							cpf::type::str const &format,
+							char*&& arg);
+
+	template<>
+	void write_arg<signed char*>(	cpf::type::stream ustream,
+									cpf::type::str const &format,
+									signed char*&& arg);
+
+	template<>
+	void write_arg<const char*>(cpf::type::stream ustream,
+								cpf::type::str const &format,
+								const char*&& arg);
+
+	template<>
+	void write_arg<const signed char*>(	cpf::type::stream ustream,
 										cpf::type::str const &format,
-										const char*&& arg);
+										const signed char*&& arg);
 
 	/*
 		recursion-terminating function (counterpart to call_ with variadic arguments). 

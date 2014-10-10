@@ -26,7 +26,7 @@ THE SOFTWARE.
 #define _CPF_VERIFY_H
 
 #include "cprintf/internal/_cpf_type.h"
-#include <assert.h>
+#include <cassert>
 
 /*
 

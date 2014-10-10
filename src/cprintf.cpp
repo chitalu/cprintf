@@ -266,7 +266,7 @@ CPF_API cpf::type::nstr nconv(const cpf::type::str &src)
 }
 
 template<>
-CPF_API void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
+void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											cpf::type::str&& arg)
 {
@@ -274,7 +274,7 @@ CPF_API void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
 }
 
 template<>
-CPF_API void cpf::write_arg<cpf::type::nstr>(	cpf::type::stream ustream,
+void cpf::write_arg<cpf::type::nstr>(	cpf::type::stream ustream,
 												cpf::type::str const &format,
 												cpf::type::nstr&& arg)
 {
@@ -282,7 +282,7 @@ CPF_API void cpf::write_arg<cpf::type::nstr>(	cpf::type::stream ustream,
 }
 
 template<>
-CPF_API void cpf::write_arg<char*>(	cpf::type::stream ustream,
+void cpf::write_arg<char*>(	cpf::type::stream ustream,
 									cpf::type::str const &format,
 									char*&& arg)
 {
@@ -290,7 +290,7 @@ CPF_API void cpf::write_arg<char*>(	cpf::type::stream ustream,
 }
 
 template<>
-CPF_API void cpf::write_arg<const char*>(	cpf::type::stream ustream,
+void cpf::write_arg<const char*>(	cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const char*&& arg)
 {
@@ -298,7 +298,7 @@ CPF_API void cpf::write_arg<const char*>(	cpf::type::stream ustream,
 }
 
 template<>
-CPF_API void cpf::write_arg<signed char*>(	cpf::type::stream ustream,
+void cpf::write_arg<signed char*>(	cpf::type::stream ustream,
 											cpf::type::str const &format,
 											signed char*&& arg)
 {
@@ -308,7 +308,7 @@ CPF_API void cpf::write_arg<signed char*>(	cpf::type::stream ustream,
 }
 
 template<>
-CPF_API void cpf::write_arg<const signed char*>(cpf::type::stream ustream,
+void cpf::write_arg<const signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const signed char*&& arg)
 {
