@@ -249,13 +249,39 @@ namespace cpf
 
 		if (pstr_argc >= 1)
 		{
+			/*compile-time argument verification*/
+			static_assert(
+				/*check if argument is a char-type pointer (narrow or wide)*/
+				(	std::is_pointer<T0>::value &&
+					(	
+						std::is_same<wchar_t*&&, T0>::value				or std::is_same<char*&&, T0>::value or
+						std::is_same<unsigned char*&&, T0>::value		or std::is_same<signed char*&&, T0>::value or
+						std::is_same<const wchar_t*&&, T0>::value		or std::is_same<const char*&&, T0>::value or
+						std::is_same<const signed char*&&, T0>::value	or std::is_same<const unsigned char*&&, T0>::value
+					)
+				) or
+				//check if argument is of type std::string or std::wstring*/
+				(
+					std::is_same<cpf::type::str&&, T0>::value or
+					std::is_same<cpf::type::nstr&&, T0>::value
+				) or
+				/*check if argument is of type float or double*/
+				std::is_floating_point<T0>::value or
+				/*check if argument is of type "char" "short" "int" "long" ("unsigned" included)*/
+				std::is_integral<T0>::value
+				, //End Of Type-Check Condition...
+				"CPRINTF COMPILATION ERROR: Illegal Argument Type!"
+			);
+
 			auto arg_format_spec = cpf::write_pre_arg_str(	ustream, 
 															printed_string_, 
 															ssp_, 
 															meta_iter->second.first);
+			/*print the current argument, formatted according to "arg_format_spec"*/
 			cpf::write_arg(	ustream, 
 							arg_format_spec,
 							std::forward<T0>(arg0));
+
 			cpf::write_post_arg_str(ustream, 
 									printed_string_, 
 									ssp_, 
@@ -335,7 +361,7 @@ void cfwprintf(cpf::type::stream ustream, const wchar_t* format, Ts... args)
 					mf_begin,
 					mf_begin->second.second,
 					0u,
-					std::forward<Ts>(cpf::normalize_arg(args))...);
+					std::forward<Ts>(args)...);
 	}
 	catch (cpf::type::except &e)
 	{

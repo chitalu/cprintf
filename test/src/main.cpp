@@ -46,7 +46,9 @@ int main(int argc, char **argv)
 {
 	cfprintf(stdout, "test hello 0\n");
 	cfwprintf(stdout, L"test hello 1\n");
-
+	struct{ int x; }ff;
+	auto x = std::stringstream();
+	cprintf("foo %s", ff);
 	cfprintf_dbg(stdout, "debug-print test hello 0\n");
 	cfprintf_dbg(stdout, "debug-print test hello 1\n");
 	::testing::InitGoogleTest(&argc, argv);
