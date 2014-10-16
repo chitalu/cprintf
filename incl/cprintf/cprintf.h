@@ -54,6 +54,11 @@ Note:	GCC does not yet support multi-byte conversion functionality from the foll
 
 namespace cpf
 {
+	namespace intern
+	{
+
+	}
+
 	template <std::size_t...>
 	struct indices
 	{	 };
@@ -283,7 +288,7 @@ namespace cpf
 				/*check if argument is of type "char" "short" "int" "long" ("unsigned" included)*/
 				std::is_integral<T0>::value
 				, //End Of Type-Check Condition...
-				"CPRINTF COMPILATION ERROR: Illegal Argument Type!"
+				"CPRINTF ERROR: Illegal Argument Type!"
 			);
 
 			auto arg_format_spec = cpf::write_pre_arg_str(	ustream, 
@@ -381,13 +386,14 @@ void cfwprintf(cpf::type::stream ustream, const wchar_t* format, Ts... args)
 					mf_begin->second.second,
 					0u,
 					std::forward<Ts>(args)...);
+
+		cpf::restore_stream_state(ustream, true);
 	}
 	catch (cpf::type::except &e)
 	{
 		cpf::restore_stream_state(ustream, true);
 		throw e;//rethrow!
 	}
-	cpf::restore_stream_state(ustream, true);
 }
 
 /*
@@ -517,6 +523,139 @@ void cprintf_t(const char* format, cpf::type::arg_pack<Ts...> args_tup)
 {		
 	cfprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
+
+namespace cpf
+{
+	namespace intern
+	{
+#ifdef __gnu_linux__
+		/*
+		checks for precondition. If i is in range it has no effect; otherwise 
+		it throws an exception at run-time and reports a compilation error at 
+		compile-time, because you cannot throw exceptions during the compilation. 
+		For compile-time computations it doesn’t matter what you throw, you only 
+		need to call a run-time-only operation. Second argument to requires_inRange 
+		is N - 1 rather than N, because we do not want to include the final zero 
+		in zero-terminated string in the range.
+		*/
+		/*constexpr*/ unsigned requires_inRange(unsigned i, unsigned len)
+		{
+			return i >= len ? throw (i + len)/*OutOfRange(i, len)*/ : i;
+		}
+
+		template< unsigned N > /*constexpr*/
+			char nth_char(const char(&arr)[N], unsigned i)
+		{
+				return requires_inRange(i, N - 1),	arr[i];
+		}
+
+		/*
+		"templated-c-string-wrapper"
+
+		This is useful for a couple of reasons. Once we have created an 
+		object of this type we store the size of the string in it: we no 
+		longer need to use templates. While templates are useful for many 
+		compile-time applications, using them incurs cost of instantiating 
+		more and more of them. Second, We can pass our objects by value. 
+		While passing literals by a reference to array worked in basic example, 
+		it will not work if we use it in conditional operator, because using 
+		conditional operator with a throw in it, requires an array-to-pointer 
+		decay.
+		*/
+		class tcstr_wrapper
+		{
+			char * const begin_;
+			unsigned size_;
+
+		public:
+			/*
+			a constructor template with different sizes of the array. This is the 
+			only template that we need. In the constructor we change template parameter 
+			for class member, and henceforth we can use a normal, non-template class. 
+			We initialize the pointer with a reference to array. Pointers to objects 
+			are valid for constexpr functions and constructors, provided they point 
+			to constexpr objects.
+			*/
+			template< unsigned N >
+			/*constexpr*/ tcstr_wrapper(const char(&arr)[N]) : 
+				begin_(arr), 
+				size_(N - 1) 
+			{
+				/*Size of string literal is always at least 1 due to the terminating 
+				zero; hence the assertion, and N - 1 in the initializer.*/
+				static_assert(N >= 1, "CPRINTF ERROR: Not a String Literal!");
+			}
+
+			/*
+			Index operator makes our type behave as it was an array, except that we check 
+			the index for being in range. Note that we could use static_assert in the 
+			constructor because we were testing the template parameter; we cannot use 
+			it in our indexing operator because here we are testing a data member, and 
+			although it will be a compile-time constant in some of the usages, the compiler 
+			cannot assume that, because we may also use our type in run-time contexts.
+			*/
+			/*constexpr*/ char operator[](unsigned i) 
+			{
+				return requires_inRange(i, size_), begin_[i];
+			}
+
+			/*constexpr*/ operator const char *(void) 
+			{
+				return begin_;
+			}
+
+			/*constexpr*/ unsigned size(void)
+			{
+				return size_;
+			}
+		};
+
+		/*
+			count the occurrences of a given character in a string. For that we will 
+			need to inspect every single character in the string. Normally (that is, at 
+			run-time) we would use a loop construct for that, however at compile-time, 
+			which only requires functional programming patterns we cannot use iteration, 
+			because iteration always requires altering some iteration variable; at 
+			compile-time we cannot alter anything. Therefore we will need to use recursion.
+
+			First condition is our terminating condition: if we reach the end of string we 
+			return the answer we have collected so far. ans is our ‘current’ answer. Second 
+			condition is checking if the character at given position is the one we are looking 
+			for. i indicates our current position. Based on the result we continue with either 
+			incremented or the same current result, and change the current position to the 
+			next one.
+		*/
+
+		/*constexpr*/ unsigned count(tcstr_wrapper str, char c, unsigned i = 0, unsigned ans = 0)
+		{
+			return i == str.size() ?	ans :
+										str[i] == c ?	count(str, c, i + 1, ans + 1) :
+														count(str, c, i + 1, ans);
+		}
+#endif
+	}
+}
+
+#ifdef __gnu_linux__
+/*
+cprintf API variant that provides extra safety features by parsing 
+the format string (laterals-only) at compile-time subsequently verifying 
+its constitution while concomitantly analysing the provided user (formatted) 
+arguments.
+
+By definition, a string literal is any text in double quotes, like "home".
+What is the type of "home"? It is const char[5] (four characters for the 
+letters in the string and one for terminating zero).
+*/
+template<typename... Ts>
+void cprintf_s(cpf::intern::tcstr_wrapper format, Ts... args)
+{
+	static_assert(	cpf::intern::count(format, '%') == sizeof...(Ts),
+					"format-specifier '%' count is-not-equal-to formatted parameter-pack size");
+	cprintf(format, std::forward<Ts>(args)...);
+}
+
+#endif
 
 #ifndef	NDEBUG
 
