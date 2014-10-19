@@ -39,7 +39,7 @@ Note:	preprocessor defintions contained hereinafter
 */
 #include <ciso646>
 
-#ifndef __gnu_linux__
+#if defined(__clang__)
 /*
 Note:	GCC does not yet support multi-byte conversion functionality from the following 
 		header, as a result narrow-string variants of cprintf's API will do nothing until 
@@ -272,7 +272,7 @@ namespace cpf
 				/*check if argument is a char-type pointer (narrow or wide)*/
 				(	std::is_pointer<T0>::value and
 					(	
-						std::is_same<wchar_t*, T0>::value				or std::is_same<char*, T0>::value or
+						std::is_same<wchar_t*, T0>::value			or std::is_same<char*, T0>::value or
 						std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value or
 						std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value or
 						std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
@@ -431,8 +431,8 @@ void cfprintf(cpf::type::stream ustream, const char* format, Ts... args)
 		https://gcc.gnu.org/onlinedocs/libstdc++/manual/facets.html#std.localization.facet.codecvt
 		https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#status.iso.2011
 	*/
-#ifdef __gnu_linux__
-		printf("LINUX IMPLMENTATION AWAITING \"codecvt\" AVAILABILITY!");
+#if !defined(__clang__)
+	printf("LINUX IMPLMENTATION AWAITING \"codecvt\" AVAILABILITY!\n");
 	return; //skip
 #else
 	/*
@@ -538,7 +538,7 @@ namespace cpf
 		is N - 1 rather than N, because we do not want to include the final zero 
 		in zero-terminated string in the range.
 		*/
-		/*constexpr*/ unsigned requires_inRange(unsigned i, unsigned len)
+		constexpr unsigned requires_inRange(unsigned i, unsigned len)
 		{
 			return i >= len ? throw (i + len)/*OutOfRange(i, len)*/ : i;
 		}
@@ -577,7 +577,7 @@ namespace cpf
 			to constexpr objects.
 			*/
 			template< unsigned N >
-			/*constexpr*/ tcstr_wrapper(const char(&arr)[N]) : 
+			constexpr tcstr_wrapper(const char(&arr)[N]) : 
 				begin_(arr), 
 				size_(N - 1) 
 			{
@@ -594,17 +594,17 @@ namespace cpf
 			although it will be a compile-time constant in some of the usages, the compiler 
 			cannot assume that, because we may also use our type in run-time contexts.
 			*/
-			/*constexpr*/ char operator[](unsigned i) 
+			constexpr char operator[](unsigned i) 
 			{
 				return requires_inRange(i, size_), begin_[i];
 			}
 
-			/*constexpr*/ operator const char *(void) 
+			constexpr operator const char *(void) 
 			{
 				return begin_;
 			}
 
-			/*constexpr*/ unsigned size(void)
+			constexpr unsigned size(void)
 			{
 				return size_;
 			}
@@ -626,7 +626,7 @@ namespace cpf
 			next one.
 		*/
 
-		/*constexpr*/ unsigned count(tcstr_wrapper str, char c, unsigned i = 0, unsigned ans = 0)
+		constexpr unsigned count(tcstr_wrapper str, char c, unsigned i = 0, unsigned ans = 0)
 		{
 			return i == str.size() ?	ans :
 										str[i] == c ?	count(str, c, i + 1, ans + 1) :

@@ -5,9 +5,8 @@
 #   cprintf_output_dir - the directory in which the built binary resides.
 #   cprintf_incl_dir - project's include directory
 #
-#   CPF_CONFIG_64: 
-#   [option] to enable building as 64bit, this is for linux only
-#   visual studio users will need to open there IDE as 64bit via -G
+#   CPF_BUILD_FLAGS: 
+#   [string] variable used to specify more compiler flags than their is defaults
 #
 #   CPF_BUILD_AS_SHARED_LIB: 
 #   [option] that enables project to be built as a shared library file (default 
@@ -21,6 +20,10 @@
 #
 #   CPF_CLANG_BUILD (linux only):
 #   [option] to build cprintf with clang instead of default GCC
+#   you probably want to set the following environment varibles prior to invoking
+#   cmake:
+#   export CC=/usr/bin/clang
+#   export CXX=/usr/bin/clang++
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
@@ -39,7 +42,7 @@ SET (cprintf_PATCH 0)
 SET (cprintf_VERSION "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
 
 #
-#   default is to build as static library (.dll / .so)
+#   default is to build as static library (.lib / .a)
 #
 OPTION (CPF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
 
@@ -64,13 +67,31 @@ IF (CPF_BUILD_AS_SHARED_LIB)
 ENDIF()
 
 #
-# set compiler flags (strictly no warnings)
+# additional compiler flags
+#
+SET (CPF_BUILD_FLAGS    "")
+
+#
+# set compiler flags (note: strictly no warnings)
 #
 IF(WIN32)
-    SET (CPF_BUILD_FLAGS "/WX")
+    SET (CMAKE_CXX_FLAGS    "/WX")
+    
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
-    SET (CPF_BUILD_FLAGS "-std=c++11 -Werror")
+    SET (CPF_BUILD_FLAGS "")
+
+    SET (CMAKE_C_FLAGS                "-Werror -std=c99")
+    SET (CMAKE_C_FLAGS_DEBUG          "-g")
+    SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+    SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+ 
+    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror")    
+    SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
+    SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+    SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
     IF(CPF_BUILD_TESTS)
         #"pthread" is necessary for gtest to build
@@ -79,31 +100,16 @@ ELSEIF(UNIX)
     ENDIF(CPF_BUILD_TESTS)
 
     #
-    #   note yet properly setup
+    #   not yet properly setup
     #
     IF(CPF_CLANG_BUILD)
-        SET (CMAKE_C_COMPILER             "/usr/bin/clang")
-        SET (CMAKE_C_FLAGS                "-Wall -std=c99")
-        SET (CMAKE_C_FLAGS_DEBUG          "-g")
-        SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-        SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
-        SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+        SET (CMAKE_C_COMPILER   "/usr/bin/clang") 
+        SET (CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
-        SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
-        SET (CMAKE_CXX_FLAGS                "-Wall")
-        SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
-        SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-        SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-        SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+        IF(NOT EXISTS ${CMAKE_CXX_COMPILER})
+            MESSAGE(FATAL_ERROR "cprintf build configuration failure: clang not found.")
+        ENDIF()
     ENDIF(CPF_CLANG_BUILD)
-ENDIF()
-
-OPTION (CPF_CONFIG_64 "build 64 bit binary" OFF)
-
-IF(CPF_CONFIG_64)
-    IF(UNIX)
-        SET(CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -m64")
-    ENDIF()
 ENDIF()
 
 #

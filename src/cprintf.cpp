@@ -46,9 +46,9 @@ _______________________________________________________________________________
 //cprintf("Characters:\t%c %%\n", 65);
 cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
 {
-	cpf::type::size n = 0;
-	std::int32_t pos = 0;
-	while ((pos = cpf::search_for(L"%", obj, pos, '%')) != cpf::type::str::npos)
+	cpf::type::size n = 0u;
+	std::uint32_t pos = 0u;
+	while ((pos = cpf::search_for(L"%", obj, pos, '%')) < obj.size())
 	{
 		if (pos == obj.size() - 1)
 		{
