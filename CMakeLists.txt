@@ -86,8 +86,8 @@ ELSEIF(UNIX)
     SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
     SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
- 
-    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror")    
+
+    SET (CMAKE_CXX_FLAGS                "-std=c++11 -stdlib=libc++ -Werror")    
     SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
     SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")

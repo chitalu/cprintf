@@ -39,7 +39,7 @@ Note:	preprocessor defintions contained hereinafter
 */
 #include <ciso646>
 
-#if defined(__clang__)
+#if !defined(__gnu_linux__)
 /*
 Note:	GCC does not yet support multi-byte conversion functionality from the following 
 		header, as a result narrow-string variants of cprintf's API will do nothing until 
@@ -48,9 +48,9 @@ Note:	GCC does not yet support multi-byte conversion functionality from the foll
 #include <codecvt> //wstring_convert
 #endif
 
-#include "cprintf/internal/_cpf_parse.h"
-#include "cprintf/internal/_cpf_verify.h"
-#include "cprintf/internal/_cpf_config.h"
+#include <cprintf/internal/_cpf_parse.h>
+#include <cprintf/internal/_cpf_verify.h>
+#include <cprintf/internal/_cpf_config.h>
 
 namespace cpf
 {
@@ -431,7 +431,7 @@ void cfprintf(cpf::type::stream ustream, const char* format, Ts... args)
 		https://gcc.gnu.org/onlinedocs/libstdc++/manual/facets.html#std.localization.facet.codecvt
 		https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#status.iso.2011
 	*/
-#if !defined(__clang__)
+#if defined(__gnu_linux__)
 	printf("LINUX IMPLMENTATION AWAITING \"codecvt\" AVAILABILITY!\n");
 	return; //skip
 #else
@@ -562,7 +562,7 @@ namespace cpf
 		conditional operator with a throw in it, requires an array-to-pointer 
 		decay.
 		*/
-		class tcstr_wrapper
+		class cstr_wrapper
 		{
 			char * const begin_;
 			unsigned size_;
@@ -577,7 +577,7 @@ namespace cpf
 			to constexpr objects.
 			*/
 			template< unsigned N >
-			constexpr tcstr_wrapper(const char(&arr)[N]) : 
+			constexpr cstr_wrapper(const char(&arr)[N]) : 
 				begin_(arr), 
 				size_(N - 1) 
 			{
@@ -594,17 +594,17 @@ namespace cpf
 			although it will be a compile-time constant in some of the usages, the compiler 
 			cannot assume that, because we may also use our type in run-time contexts.
 			*/
-			constexpr char operator[](unsigned i) 
+			constexpr char operator[](unsigned i) const
 			{
 				return requires_inRange(i, size_), begin_[i];
 			}
 
-			constexpr operator const char *(void) 
+			constexpr operator const char *(void) const 
 			{
 				return begin_;
 			}
 
-			constexpr unsigned size(void)
+			constexpr unsigned size(void) const
 			{
 				return size_;
 			}
@@ -626,7 +626,7 @@ namespace cpf
 			next one.
 		*/
 
-		constexpr unsigned count(tcstr_wrapper str, char c, unsigned i = 0, unsigned ans = 0)
+		constexpr unsigned count(cstr_wrapper str, char c, unsigned i = 0, unsigned ans = 0)
 		{
 			return i == str.size() ?	ans :
 										str[i] == c ?	count(str, c, i + 1, ans + 1) :
@@ -648,10 +648,10 @@ What is the type of "home"? It is const char[5] (four characters for the
 letters in the string and one for terminating zero).
 */
 template<typename... Ts>
-void cprintf_s(cpf::intern::tcstr_wrapper format, Ts... args)
+void cprintf_s(cpf::intern::cstr_wrapper format, Ts... args)
 {
 	static_assert(	cpf::intern::count(format, '%') == sizeof...(Ts),
-					"format-specifier '%' count is-not-equal-to formatted parameter-pack size");
+					"format-specifier count is-not-equal-to formatted parameter-pack size");
 	cprintf(format, std::forward<Ts>(args)...);
 }
 
