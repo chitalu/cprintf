@@ -432,7 +432,7 @@ void cfprintf(cpf::type::stream ustream, const char* format, Ts... args)
 		https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#status.iso.2011
 	*/
 #if defined(__gnu_linux__)
-	printf("LINUX IMPLMENTATION AWAITING \"codecvt\" AVAILABILITY!\n");
+	printf("the header \"codecvt\" is missing!\nuse wide char API variants (cwpr...)\n");
 	return; //skip
 #else
 	/*
@@ -543,10 +543,10 @@ namespace cpf
 			return i >= len ? throw (i + len)/*OutOfRange(i, len)*/ : i;
 		}
 
-		template< unsigned N > /*constexpr*/
-			char nth_char(const char(&arr)[N], unsigned i)
+		template< unsigned N > 
+        constexpr char nth_char(const char(&arr)[N], unsigned i)
 		{
-				return requires_inRange(i, N - 1),	arr[i];
+			return requires_inRange(i, N - 1),	arr[i];
 		}
 
 		/*
