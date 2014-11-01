@@ -1,8 +1,8 @@
 # Welcome to the cprintf Project #
 
-#"What is this cprintf", you ask? 
+_"What is this cprintf", you ask?_ 
 
-Well... 
+_Well..._ 
 
 First of all, "cprintf" is an umbrella name used to encapsulate a group of C++(11/0x) language 
 functions for extended formatted-printing. 
@@ -179,6 +179,7 @@ Below are their symbolic string representations:
 ```
 /*
   enablers
+  [bold, dim, underline, reverse-colour, hidden]
 */
 "bld", "dim", "uln", "blk", "rvs", "hid"	
 
@@ -238,12 +239,12 @@ cprintf("hello $r*`color");
 
 ## Error Handling
 
-All runtime errors that occur are handled via exceptions of type ```cpf::type::except```.
-This includes format syntax errors.
+All runtime errors are handled via exceptions of type ```cpf::type::except```.
+This includes format string syntax errors.
 
 ### Argument verification.
 
-In addition to the permitted arguments to std::printf, cprintf extends this by supportting user ability
+In addition to the permitted arguments to std::printf, cprintf also supports user ability
 to print types ```std::string``` and ```std::wtring```.
 
 ```
@@ -254,11 +255,11 @@ std::wstring ws("C++0x");
 cwprintf("i love %s\n", ws);
 ```
 
-Specification of arguments of non-permitted types shall result in a compile-time error.
+Specification of arguments of a non-permitted type shall result in a compile-time error.
 
 ## Specifying Arguments to cprintf
 
-This is very much the same as C++ standard std::<f>printf with added support for the use of 
+This is very much the same as C++ standard std::<f|w>printf with added support for the use of 
 a Tuple who elements are the used as the arguments to teh API.
 
 Examples:
@@ -286,7 +287,8 @@ cprintf(foos the bars %g\n", std::get<3>(args));
   1.  apply dim green foreground colour on red
   2.  change cursor position to 4 character in terminal buffer
       on x-axis and 7 on y-axis
-  3.  apply bright red and change position to origin before 
+  3.  restore colour		
+  4.  apply bright red and change position to origin before 
       printing last two arguments
 */
 cprintf_f("all args $g.r`go here$?:  %d %s $4,7%c $r*.0,0%f", args);
@@ -307,8 +309,11 @@ cfprintf_t_dbg(strm, format, tup)
 cprintf_t_dbg(format, tup) 
 ```
 
+I hope this will be useful to you!
+
 Please leave feedback and I will be more than happy to consider improvements to the library.
-I may however take a while to implement new changes due to time constrains.
+I may however take a while to implement new changes due to time constrains. 
+CONTRIBUTORS WANTED!
 
 Thank you
 
