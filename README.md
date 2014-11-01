@@ -1,11 +1,13 @@
-# cprintf #
+# Welcome to the cprintf Project #
 
-Welcome to the **cprintf** Project
+#"What is this cprintf", you ask? 
 
-cprintf is an umbrella name used to encapsulate a group of C++(11/0x) language functions for 
-extended formatted-printing. 
-The purpose to provide a thin auxiallary layer atop that of (f)printf. Most functionality 
-works, in much a similar manner, to that of its patternal counter-part(s)	i.e printf, fprintf 
+Well... 
+
+First of all, "cprintf" is an umbrella name used to encapsulate a group of C++(11/0x) language 
+functions for extended formatted-printing. 
+The purpose to provide a thin auxiallary layer atop that of std::<f|w>printf. Most functionality 
+works, in much a similar manner, to that of its maternal counter-part(s) i.e printf, fprintf 
 etc. 
 
 Aside from guarranteed type-safety (unlike that of it predecesors) cprintf also introduces 
