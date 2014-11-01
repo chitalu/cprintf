@@ -20,12 +20,25 @@ that enables users to opt for the use of a Tuple object as function input. This 
 as the container for the to-be-printed arguments who's elements are ordered in a corresponding 
 layout with format specifiers (%...) in the format string.  
 
-**Please Note**
+###Depedencies:
+
+CMake 2.8
+Git 1.8
+
+**Window:**
+
+* Microsoft (R) C/C++ Optimizing Compiler Version 18.00.21005.1 (Visual Studio 2013)
+ 
+**Linux**
+
+* GNU Compiler Collection 4.8
+
+_Note_
 Users are advised to keep note of the fact that this project is still in premature early 
 stages of development, and as such it should be expected that changes (sometimes drastic) 
 will be made to the current implementation.
 
-The feature-set available on the Microsoft Windows Operating System is limited in 
+Also, the feature-set available on the Microsoft Windows Operating System is limited in 
 comparison to that of the Linux Operating Systems (subject to terminal). Users wishing
 to target older hardware interfaces may be required to limit their use of features 
 available for compatilibity.
