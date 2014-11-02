@@ -49,12 +49,14 @@ TEST(Arg, print_std_wstring)
 
 TEST(Arg, fmt_specifier_to_arg_count_mismatch)
 {
-	ASSERT_THROW(cwprintf(L"cpf test :: %d\n", 1001, "test"));
+	ASSERT_THROW(	cwprintf(L"cpf test :: %d\n", 1001, "test"),
+					cpf::type::except);
 }
 
 TEST(Arg, fmt_specifier_to_arg_type_mismatch)
 {
-	ASSERT_THROW(cwprintf(L"cpf test :: print std::wstring :: %d\n", 1001, "test"));
+	ASSERT_THROW(	cwprintf(L"cpf test :: print std::wstring :: %d %s\n", 1001, "test"),
+					cpf::type::except);
 }
 
 TEST(Format_String, print_foo_string)
@@ -64,12 +66,18 @@ TEST(Format_String, print_foo_string)
 
 TEST(Format_String, fmt_specifier_with_no_arg)
 {
-	ASSERT_THROW(cwprintf(L"cpf test :: %d\n"));
+	ASSERT_THROW(	cwprintf(L"cpf test :: %d\n"),
+					cpf::type::except);
+}
+
+TEST(Token, foo)
+{
+	ASSERT_NO_THROW(cwprintf(L"cpf test :: $y`red\n"));
 }
 
 TEST(Colour, red)
 {
-	ASSERT_THROW(cwprintf(L"cpf test :: $r`red\n"));
+	ASSERT_NO_THROW(cwprintf(L"cpf test :: $r`red\n"));
 }
 
 int main(int argc, char **argv)
