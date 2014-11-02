@@ -75,7 +75,7 @@ SET (CPF_BUILD_FLAGS    "")
 # set compiler flags (note: strictly no warnings)
 #
 IF(WIN32)
-    SET (CMAKE_CXX_FLAGS    "/WX")
+    SET (CMAKE_CXX_FLAGS    "/WX /EHsc")
     
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)

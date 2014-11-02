@@ -27,7 +27,7 @@ floats = ("float", "double")
 chars = ("char", "wchar")
 integrals = ["int", "long", "short"]
 quals = ("signed", "unsigned")
-integrals.extend(" ".join([q, i]) for q in quals for i in integrals if i != "wchar")
+integrals.extend([" ".join([q, i]) for q in quals for i in integrals if i != "wchar"])
 
 char_ptrs = [(" ".join([q, c]) + "*") for q in quals for c in chars if i != "wchar"]
 char_ptrs.extend([i+"*" for i in chars])
