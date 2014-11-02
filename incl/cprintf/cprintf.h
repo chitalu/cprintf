@@ -562,9 +562,10 @@ namespace cpf
 		conditional operator with a throw in it, requires an array-to-pointer 
 		decay.
 		*/
-		class cstr_wrapper
+        
+		class safe_str_t
 		{
-			char * const begin_;
+			const char *  begin_;
 			unsigned size_;
 
 		public:
@@ -577,7 +578,7 @@ namespace cpf
 			to constexpr objects.
 			*/
 			template< unsigned N >
-			constexpr cstr_wrapper(const char(&arr)[N]) : 
+			constexpr safe_str_t(const char (&arr)[N]) : 
 				begin_(arr), 
 				size_(N - 1) 
 			{
@@ -625,8 +626,8 @@ namespace cpf
 			incremented or the same current result, and change the current position to the 
 			next one.
 		*/
-
-		constexpr unsigned count(cstr_wrapper str, char c, unsigned i = 0, unsigned ans = 0)
+        
+		constexpr unsigned count(safe_str_t str, char c, unsigned i = 0, unsigned ans = 0)
 		{
 			return i == str.size() ?	ans :
 										str[i] == c ?	count(str, c, i + 1, ans + 1) :
@@ -648,10 +649,10 @@ What is the type of "home"? It is const char[5] (four characters for the
 letters in the string and one for terminating zero).
 */
 template<typename... Ts>
-void cprintf_s(cpf::intern::cstr_wrapper format, Ts... args)
+void cprintf_s( cpf::intern::safe_str_t format, Ts... args)
 {
 	static_assert(	cpf::intern::count(format, '%') == sizeof...(Ts),
-					"format-specifier count is-not-equal-to formatted parameter-pack size");
+					"format-specifier count != formatted parameter-pack size");
 	cprintf(format, std::forward<Ts>(args)...);
 }
 

@@ -1,4 +1,4 @@
-#include <cprintf/cprintf.h>
+#include <cprintf/cprintf.hpp>
 
 #include <thread>
 #include <chrono>

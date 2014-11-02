@@ -79,7 +79,10 @@ IF(WIN32)
     
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
 ELSEIF(UNIX)
-    SET (CPF_BUILD_FLAGS "")
+
+    IF(CPF_BUILD_AS_SHARED_LIB)
+        SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -fPIC")
+    ENDIF()
 
     SET (CMAKE_C_FLAGS                "-Werror -std=c99")
     SET (CMAKE_C_FLAGS_DEBUG          "-g")
@@ -87,17 +90,14 @@ ELSEIF(UNIX)
     SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
     SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
 
-    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror")    
+    #
+    # "-pthread" is necessary for gtest to build
+    #
+    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror -pthread")    
     SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
     SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
     SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-
-    IF(CPF_BUILD_TESTS)
-        #"pthread" is necessary for gtest to build
-        #https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1228201
-        SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -pthread")
-    ENDIF(CPF_BUILD_TESTS)
 
     #
     #   not yet properly setup
@@ -174,8 +174,7 @@ IF(CPF_BUILD_SAMPLES)
         TARGET_LINK_LIBRARIES( ${sample_proj_name} ${PROJECT_NAME} )
 
         SET_TARGET_PROPERTIES(  ${sample_proj_name} PROPERTIES
-                                COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
-                                COMPILE_FLAGS "${CPF_BUILD_FLAGS}") 
+                                COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}") 
 
         IF(CPF_BUILD_AS_SHARED)
             ADD_CUSTOM_COMMAND( TARGET ${sample_proj_name} PRE_BUILD
@@ -197,7 +196,6 @@ IF(CPF_BUILD_TESTS)
     SET(cpf_test_includes ${gtest_incl_dir} ${cprintf_incl_dir})
     SET_TARGET_PROPERTIES(  cpf_test PROPERTIES
                             INCLUDE_DIRECTORIES "${cpf_test_includes}"
-                            COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
                             COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}")
 
     TARGET_LINK_LIBRARIES( cpf_test cprintf gtest)

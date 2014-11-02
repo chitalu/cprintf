@@ -1,5 +1,5 @@
 ﻿#include <gtest/gtest.h>
-#include <cprintf/cprintf.h>
+#include <cprintf/cprintf.hpp>
 
 #ifdef _WIN32
 
@@ -33,13 +33,43 @@ TEST(BadToken, using_bitmap_ampersand_fgbg_tok_on_windows)
 
 #endif
 
-TEST(Arg, printing_std_string)
+TEST(Arg, print_std_string)
 {
-	std::wstring ws = L"l love cprintf";
+	std::wstring ws = L"c++";
+	EXPECT_EQ(ws.size(), 3u);
 	ASSERT_NO_THROW(cwprintf(L"cpf test :: print std::wstring :: %s\n", ws));
+}
 
-	std::string s = "l love cprintf";
+TEST(Arg, print_std_wstring)
+{
+	std::string s = "c++";
+	EXPECT_EQ(s.size(), 3u);
 	ASSERT_NO_THROW(cprintf("cpf test :: print std::string :: %s\n", s));
+}
+
+TEST(Arg, fmt_specifier_to_arg_count_mismatch)
+{
+	ASSERT_THROW(cwprintf(L"cpf test :: %d\n", 1001, "test"));
+}
+
+TEST(Arg, fmt_specifier_to_arg_type_mismatch)
+{
+	ASSERT_THROW(cwprintf(L"cpf test :: print std::wstring :: %d\n", 1001, "test"));
+}
+
+TEST(Format_String, print_foo_string)
+{
+	ASSERT_NO_THROW(cwprintf(L"cpf test :: foo\n"));
+}
+
+TEST(Format_String, fmt_specifier_with_no_arg)
+{
+	ASSERT_THROW(cwprintf(L"cpf test :: %d\n"));
+}
+
+TEST(Colour, red)
+{
+	ASSERT_THROW(cwprintf(L"cpf test :: $r`red\n"));
 }
 
 int main(int argc, char **argv)

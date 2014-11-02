@@ -1,4 +1,4 @@
-#include <cprintf/cprintf.h>
+#include <cprintf/cprintf.hpp>
 
 int main(void)
 {
@@ -6,9 +6,11 @@ int main(void)
 	
 	try
 	{
-		cprintf("Quux $4,3position change");
+		/*cprintf("Quux $4,3position change");
 		cprintf("Foo $0,0`back to $gorigin");
-		cprintf("Change position and colour $4,5.m* like this !!!\n");
+		cprintf("Change position and colour $4,5.m* like this !!!\n");*/
+
+        cprintf_s("test\n");
 	}
 	catch (cpf::type::except &e)
 	{
