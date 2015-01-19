@@ -6,12 +6,12 @@ int main(void)
 
 	try
 	{
-		cprintf("foo $r`red\n");
+		/*cprintf("foo $r`red\n");
 		cprintf("bar $r*`red\n");
 		cprintf("$b`blue\n");
 		cprintf("$b*`blue\n");
 		cprintf("$y*#`bright yellow\n");
-		cprintf("$r*#`bright red\n");
+		cprintf("$r*#`bright red\n");*/
 
 		cprintf("`$? `$r `$g `$b `$y `$m `$c `$w `$rg `$gb* `$b*y `$y*m* `$m ");
 	}

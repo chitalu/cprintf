@@ -29,6 +29,7 @@ gscript_paths = (os.path.join(root, f) for f in next(os.walk(root))[2])
 gscript_paths = filter(lambda e: "generate" not in e, gscript_paths)
 fixtures = tuple(os.path.splitext(os.path.basename(e))[0] for e in gscript_paths)
 
+print(root)
 print(gscript_paths)
 print(fixtures)
 

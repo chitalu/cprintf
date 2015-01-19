@@ -113,7 +113,7 @@ ELSEIF(UNIX)
 ENDIF()
 
 #
-#   user variables
+#   client user variables
 #
 SET(cprintf_path $<TARGET_FILE:${PROJECT_NAME}> 
     CACHE STRING "${PROJECT_NAME} output path")
@@ -122,7 +122,7 @@ SET(cprintf_output_dir $<TARGET_FILE_DIR:${PROJECT_NAME}>
 SET(cprintf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" 
     CACHE STRING "path ${PROJECT_NAME} headers directory")
 
-FILE(GLOB_RECURSE INCL_FILES "${cprintf_incl_dir}/*.h")
+FILE(GLOB_RECURSE INCL_FILES "${cprintf_incl_dir}/*.hpp" "${cprintf_incl_dir}/*.h")
 FILE(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 INCLUDE_DIRECTORIES(${cprintf_incl_dir})

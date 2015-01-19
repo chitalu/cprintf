@@ -336,7 +336,15 @@ namespace cpf
 		}
 	}
 
-	CPF_API const cpf::type::nstr pre_debug_log_str;
+	/*
+		 narrow character string debug log
+	*/
+	CPF_API const cpf::type::nstr pre_debug_log_nstr;
+
+	/*
+		wide character string debug log
+	*/
+	CPF_API const cpf::type::str pre_debug_log_str;
 }
 
 template<typename... Ts>
@@ -677,23 +685,32 @@ void cprintf_s( cpf::intern::safe_str_t format, Ts... args)
 #define CPF_SEP_COND ( character == '/');
 #endif
 
-/*Note the the anonymous struct for os specific dir path wrangling*/
-#define CPF_DBG_LOG_STR\
-	cpf::type::nstr const& pathname = __FILE__;\
+/*
+	Note the the anonymous struct for os specific dir path wrangling
+*/
+
+#define CPF_DBG_LOG_WRITE(cpf_func, log_str_t, log_str)\
 	typedef struct {\
 	bool operator()(char character) const{\
 		return CPF_SEP_COND;\
 	}\
 	}fpath_sep_func;\
-	auto fname =  cpf::type::nstr(\
+	auto fname =  log_str_t(\
 	std::find_if(pathname.rbegin(), pathname.rend(),fpath_sep_func()).base(),\
 	pathname.end());\
-	cfprintf(stderr, cpf::pre_debug_log_str.c_str(), \
+	cpf_func(stderr, log_str, \
 	fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__);
+
+/*
+	narrow character string variants
+*/
+#define CPF_DBG_LOG_NSTR\
+	const cpf::type::nstr pathname = __FILE__;\
+	CPF_DBG_LOG_WRITE(cfprintf, cpf::type::nstr, cpf::pre_debug_log_nstr.c_str())
 
 #define cfprintf_dbg(ustream, format, ...) \
 	do{\
-	CPF_DBG_LOG_STR \
+	CPF_DBG_LOG_NSTR \
 	cfprintf(ustream, format, ##__VA_ARGS__);\
 	}while (0);
 
@@ -702,17 +719,37 @@ void cprintf_s( cpf::intern::safe_str_t format, Ts... args)
 
 #define cfprintf_t_dbg(ustream, format, tup) \
 	do{\
-	CPF_DBG_LOG_STR \
+	CPF_DBG_LOG_NSTR \
 	cfprintf_t(ustream, format, tup); \
 	} while (0);\
 
 #define cprintf_t_dbg(format, tup) \
 	cfprintf_t_dbg(stderr, format, tup);
 
-#define cfwprintf_dbg(ustream, format, ...) 
-#define cwprintf_dbg(format, ...) 
-#define cfwprintf_t_dbg(ustream, format, tup) 
-#define cwprintf_t_dbg(format, tup) 
+/*
+	wide character string variants
+*/
+#define CPF_DBG_LOG_STR\
+	const cpf::type::str pathname = cpf::wconv(__FILE__);\
+	CPF_DBG_LOG_WRITE(cfwprintf, cpf::type::str, cpf::pre_debug_log_str.c_str())
+
+#define cfwprintf_dbg(ustream, format, ...) \
+	do{\
+	CPF_DBG_LOG_STR \
+	cfwprintf(ustream, format, ##__VA_ARGS__);\
+	}while (0);
+
+#define cwprintf_dbg(format, ...) \
+	cfwprintf_dbg(stderr, format, ##__VA_ARGS__)
+
+#define cfwprintf_t_dbg(ustream, format, tup) \
+	do{\
+	CPF_DBG_LOG_STR \
+	cfwprintf_t(ustream, format, tup); \
+	} while (0);\
+
+#define cwprintf_t_dbg(format, tup) \
+	cfwprintf_t_dbg(stderr, format, tup);
 
 
 #else

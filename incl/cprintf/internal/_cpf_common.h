@@ -47,8 +47,6 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 #    define CPF_API extern __declspec(dllimport)
 #  endif
 #endif
-
-#define SYSTXTATTRIB_UNDEF (0xFF)
  
 #else /* UNIX */
 
@@ -70,7 +68,6 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 #  	endif
 #endif
 
-#define SYSTXTATTRIB_UNDEF (L"undef")
 #endif
 
 #include "_cpf_type.h"

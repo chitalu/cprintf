@@ -26,10 +26,10 @@ THE SOFTWARE.
 #include "_cpf_config.h"
 #include "_cpf_find.h"
 
-/*text attributes before a call was made to cprintf*/
-cpf::type::colour _cpf_default_sys_attribs = SYSTXTATTRIB_UNDEF;
-
-CPF_API const cpf::type::nstr cpf::pre_debug_log_str =
+/*
+	narrow character string debug log
+*/
+CPF_API const cpf::type::nstr cpf::pre_debug_log_nstr =
 R"debug_str(
 $c
 >> debug 
@@ -42,6 +42,18 @@ $g@built:$c	$g*%s$c-$g*%s$c
 user log:...$?
 _______________________________________________________________________________
 )debug_str";
+
+/*
+	wide character string debug log
+*/
+CPF_API const cpf::type::str cpf::pre_debug_log_str =
+LR"debug_str($cdbg
+$g@file:$c	$g*%s$c
+$g@time:$c	$g*%s$c-$g*%s$c 
+$g@func:$c	$g*%s$c
+$g@line:$c	$g*%d$c
+
+>> log: $?)debug_str";
 
 //cprintf("Characters:\t%c %%\n", 65);
 cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
