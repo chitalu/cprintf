@@ -108,7 +108,7 @@ int main(void)
 	}
 	catch (cpf::type::except &e)
 	{
-		cfprintf(stderr, "$0,0`cprintf sample failed\n%s\n", e.msg());
+		cfprintf(stderr, "$0,0`cprintf sample failed\n%s\n", e.wmsg());
 		exec_ok = false;
 	}
 	return exec_ok ? EXIT_SUCCESS : EXIT_FAILURE;

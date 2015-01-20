@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "_cpf_verify.h"
 #include <string>
 
-extern void _cpf_verify(cpf::type::cstr format)
+CPF_API void cpf::intern::arg_check(cpf::type::cstr format)
 {
 	for (; *format; ++format)
 	{
@@ -33,6 +33,6 @@ extern void _cpf_verify(cpf::type::cstr format)
 		{
 			continue;
 		}
-		throw cpf::type::except(L"cpf err: bad format specifier");
+		throw cpf::type::except(L"CPF-RT-ERR: bad format specifier");
 	}
 }

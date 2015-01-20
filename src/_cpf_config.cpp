@@ -48,7 +48,7 @@ static bool glob_terminal_state_restored = true;
 static cpf::type::colour saved_terminal_colour;
 #endif
 
-void cpf::save_stream_state(cpf::type::stream user_stream)
+void cpf::intern::save_stream_state(cpf::type::stream user_stream)
 {
 #ifdef _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO cbsi;
@@ -57,7 +57,7 @@ void cpf::save_stream_state(cpf::type::stream user_stream)
 
 	if (!ret_okay)
 	{
-		throw cpf::type::except(L"cpf fatal except: failed to retrieve terminal attributes");
+		throw cpf::type::except(L"CPF-RT-ERR: failed to retrieve terminal attributes");
 	}
 	saved_terminal_colour = cbsi.wAttributes;
 #else
@@ -66,7 +66,7 @@ void cpf::save_stream_state(cpf::type::stream user_stream)
 	glob_terminal_state_restored = false;
 }
 
-void cpf::restore_stream_state(cpf::type::stream user_stream, bool finished_cpf_exec)
+void cpf::intern::restore_stream_state(cpf::type::stream user_stream, bool finished_cpf_exec)
 {
 	if (!glob_terminal_state_restored)
 	{
@@ -75,7 +75,7 @@ void cpf::restore_stream_state(cpf::type::stream user_stream, bool finished_cpf_
 		auto ret_okay = SetConsoleTextAttribute(s, saved_terminal_colour);
 		if (!ret_okay)
 		{
-			throw cpf::type::except(L"cpf fatal except: failed to restore terminal attributes");
+			throw cpf::type::except(L"CPF-RT-ERR: failed to restore terminal attributes");
 		}
 #else
 		fwprintf(user_stream, L"\x1B[0;0;0m");
@@ -125,7 +125,7 @@ bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 	{
 		if (num_commas != 1)
 		{
-			throw cpf::type::except(cpf::type::str(L"invalid cursor position specifier: " + attrib).c_str());
+			throw cpf::type::except(cpf::type::str(L"CPF-RT-ERR: invalid cursor position specifier: " + attrib).c_str());
 		}
 
 		for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
@@ -134,7 +134,7 @@ bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 			if (!isdigit(*c) && *c != ',')
 			{
 				throw cpf::type::except(
-					cpf::type::str(L"invalid character in cursor position specifier: " + attrib).c_str());
+					cpf::type::str(L"CPF-RT-ERR: invalid character in cursor position specifier: " + attrib).c_str());
 			}
 		}
 	}
@@ -147,7 +147,7 @@ cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 	auto terminal_value = cpf::std_token_vals.find(colour_key);
 	if (terminal_value == cpf::std_token_vals.end())
 	{
-		throw cpf::type::except((cpf::type::str(L"cpf err: invalid token : ") + colour_key).c_str());
+		throw cpf::type::except((cpf::type::str(L"CPF-RT-ERR: invalid token : ") + colour_key).c_str());
 	}
 	return terminal_value->second;
 }
@@ -163,7 +163,7 @@ cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_tok
 
 	if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 	{
-		throw cpf::type::except(cpf::type::str(L"invalid attribute token: ").append(attrib_token).c_str());
+		throw cpf::type::except(cpf::type::str(L"CPF-RT-ERR: invalid attribute token: ").append(attrib_token).c_str());
 	}
 
 	cpf::type::str colour_str;
@@ -206,7 +206,7 @@ void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& at
 
 	if (!result)
 	{
-		throw cpf::type::except(L"cpf err: invalid coordinates");
+		throw cpf::type::except(L"CPF-RT-ERR: invalid coordinates");
 	}
 #else
 	//http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
@@ -347,7 +347,7 @@ void config_text_attribute(	cpf::type::stream user_stream,
 #endif
 }
 
-CPF_API void cpf::configure(cpf::type::stream user_stream,
+CPF_API void cpf::intern::configure(cpf::type::stream user_stream,
 									const cpf::type::attribute_group& attribute_group)
 {
 	if (_cpf_is_fstream(user_stream))
@@ -377,7 +377,7 @@ CPF_API void cpf::configure(cpf::type::stream user_stream,
 			}
 			else if (tok == L"?") /*restore colour to system default*/
 			{
-				cpf::restore_stream_state(user_stream);
+				cpf::intern::restore_stream_state(user_stream);
 			}
 			else /*set colour attribute(s)*/
 			{
@@ -386,7 +386,7 @@ CPF_API void cpf::configure(cpf::type::stream user_stream,
 				if (is_bmct)
 				{
 					//because windows does not support that.
-					throw cpf::type::except((cpf::type::str(L"cpf err: invalid token : ") + tok).c_str());
+					throw cpf::type::except((cpf::type::str(L"CPF-RT-ERR: invalid token : ") + tok).c_str());
 				}
 
 				std::uint8_t config_type;
@@ -407,7 +407,7 @@ CPF_API void cpf::configure(cpf::type::stream user_stream,
 				}
 				else
 				{
-					throw cpf::type::except((cpf::type::str(L"cpf err: invalid token : ") + tok).c_str());
+					throw cpf::type::except((cpf::type::str(L"CPF-RT-ERR: invalid token : ") + tok).c_str());
 				}
 				
 				cpf::type::colour colour_value = get_token_value(tok);

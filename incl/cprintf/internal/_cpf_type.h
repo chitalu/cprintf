@@ -61,17 +61,18 @@ namespace cpf
 		struct except
 		{
 		private:
-			const wchar_t* m_msg;
+			const str m_msg;
 		public:
-			except(void) :m_msg(L"cpf err"){}
-			except(const wchar_t* _msg) :m_msg(_msg){}
+			except(void) :m_msg(L"CPF-RT-ERR"){}
+			except(const str _msg) :m_msg(_msg){}
 			~except(void){}
 
 			inline const wchar_t* wmsg(void)const
-			{ return m_msg; }
-			inline const char* msg(void)const
-			{ 
-				return reinterpret_cast<const char*>(m_msg); /*fix this*/
+			{
+				return m_msg.c_str();
+			}
+			inline const char* msg(void)const{
+				return "FIX THIS!"; //cpf::intern::nconv(m_msg);	}
 			}
 		};
 

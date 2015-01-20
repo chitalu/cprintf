@@ -29,30 +29,30 @@ THE SOFTWARE.
 
 namespace cpf
 {
-	CPF_API void save_stream_state(cpf::type::stream ustream);
+	namespace intern
+	{
+		CPF_API void save_stream_state(cpf::type::stream ustream);
 
-	/*
-		boolean finished_cpf_exec is to indicate whether this is the last call to 
-		before cprintf finishes execution to return
+		/*
+			boolean finished_cpf_exec is to indicate whether this is the last call to
+			before cprintf finishes execution to return
 
-		by default this function executes only if save_stream_state 
-		has been previous called (in the current call to cprintf) else it returns
-		immidiately. This behaviour can be overridden via force_restore.
-	*/
-	CPF_API void restore_stream_state(	cpf::type::stream ustream, 
-										bool finished_cpf_exec = false);
+			by default this function executes only if save_stream_state
+			has been previous called (in the current call to cprintf) else it returns
+			immidiately. This behaviour can be overridden via force_restore.
+		*/
+		CPF_API void restore_stream_state(	cpf::type::stream ustream,
+											bool finished_cpf_exec = false);
 
-	//CPF_API cpf::type::colour _cpf_current_text_attribs;
+		/*
+			configure system terminal settings
 
-	/*
-		configure system terminal settings
-
-		@ustream 	- output stream
-		@attr - text attribute vector
-	*/
-	CPF_API void configure(	cpf::type::stream ustream,
-							const cpf::type::attribute_group& attr);
-
+			@ustream 	- output stream
+			@attr - text attribute vector
+		*/
+		CPF_API void configure(	cpf::type::stream ustream,
+								const cpf::type::attribute_group& attr);
+	}
 }
 
 #endif

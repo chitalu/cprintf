@@ -28,51 +28,77 @@ THE SOFTWARE.
 #include "cprintf/internal/_cpf_type.h"
 #include <cassert>
 
-/*
-
-*/
-CPF_API void _cpf_verify(cpf::type::cstr format);
-
-/*
-	verifies that the format string contains arguments which
-	match the given % sequence(s) in the correct order.
-	note that this is only able to test those format specifiers
-	found in "std_format_specifiers"
-*/
-template<class T, typename... Ts> 
-void _cpf_verify(cpf::type::cstr format, const T&& farg, const Ts&&... args)
+namespace cpf
 {
-	for (; *format; ++format)
+	namespace intern
 	{
-		if (*format != '%' || *++format == '%')
-		{
-			continue;
-		}
-		wchar_t f = *format;
-		switch (f)
-		{
-		case 'f': case 'e': case 'g':
-			assert(std::is_floating_point<T>::value && "Format Specifier To Arg Mismatch!");
-			break;
-		case 'd': case 'i': case 'o': case 'u': case 'c': case 'x':
-		case 'l': //note that this is actually in "intermediate_format_specifers"
-		case '#': //note that this is actually in "intermediate_format_specifers"
-			assert(std::is_integral<T>::value && "Format Specifier To Arg Mismatch!");
-			break;
-		case 's':
-			assert((std::is_pointer<T>::value || 
-					std::is_same<cpf::type::str, T>::value ||	
-					std::is_same<cpf::type::nstr, T>::value	
-				) && "Format Specifier To Arg Mismatch!");
-			break;
-		default:
-			/*does not cause assertion in all instances*/
-			break;
-		}
-		return _cpf_verify(++format, std::forward<Ts>(args)...);
-	}
+		CPF_API void arg_check(cpf::type::cstr format);
 
-	throw cpf::type::except(L"cpf err: format specifier (%) count does not match argument count");
+		/*
+			verifies that the format string contains arguments which
+			match the given % sequence(s) in the correct order.
+			note that this is only able to test those format specifiers
+			found in "cpf::intern::std_fmt_specs".
+
+			We perform runtime checks on the validity of arguments when compared to
+			their corresonding format specifiers.
+			This is only done in client debug builds.
+			*/
+		template<class T, typename... Ts>
+		void arg_check(cpf::type::cstr format, T&& farg, Ts&&... args)
+		{
+			cpf::type::str prestr = L"CPF-RT-ERR: fmt-spec to arg-type mismatch, ";
+
+			for (; *format; ++format)
+			{
+				if (*format != '%' || *++format == '%')
+					continue;
+
+				wchar_t f = *format;
+
+				switch (f)
+				{
+				case 'f': case 'e': case 'g':
+					if (!std::is_floating_point<T>::value)
+						throw cpf::type::except((prestr + L"expected a [floating point] value"));
+					break;
+				case 'd': case 'i': case 'o': case 'u': case 'c': case 'x':
+				case 'l': //note that this is actually in "inter_fmt_specs"
+				case '#': //note that this is actually in "inter_fmt_specs"
+					if (!std::is_integral<T>::value)
+						throw cpf::type::except(prestr + L"expected an [integral] value");
+					break;
+				case 's':
+					if (!((std::is_pointer<T>::value and
+						(
+						std::is_same<wchar_t*, T>::value			or std::is_same<char*, T>::value				or
+						std::is_same<unsigned char*, T>::value		or std::is_same<signed char*, T>::value			or
+						std::is_same<const wchar_t*, T>::value		or std::is_same<const char*, T>::value			or
+						std::is_same<const signed char*, T>::value	or std::is_same<const unsigned char*, T>::value
+						)) or
+						std::is_same<cpf::type::str, T>::value or
+						std::is_same<cpf::type::nstr, T>::value))
+					{
+						throw cpf::type::except(prestr + L"expected a value of type [c-string, std::string or std::wstring]");
+					}
+					break;
+				case 'p':
+					if (!std::is_pointer<T>::value)
+						throw cpf::type::except(prestr + L"expected a [pointer] value");
+					break;
+				default:
+					/*
+						Note: does note cover all edge cases
+						*/
+					break;
+				}
+
+				return arg_check(++format, std::forward<Ts>(args)...);
+			}
+
+			throw cpf::type::except(L"CPF-RT-ERR: invalid argument count");
+		}
+	}
 }
 
 #endif /*#ifndef _CPF_VERIFY_H*/

@@ -29,64 +29,70 @@ THE SOFTWARE.
 
 namespace cpf
 {
-	/*
-		text attribute token escape sequences..
-	*/
-	CPF_API const std::initializer_list<type::str> attribute_escape_sequences;
-
-	/*
-
-	%c print a singlecharacter
-	%d print a decimal (base 10) number
-	%e print an exponential floating-point number
-	%f print a floating-point number
-	%g print a general-format floating-point number
-	%i print an integer in base 10
-	%o print a number in octal (base 8)
-	%s print a string of characters
-	%u print an unsigned decimal (base 10) number
-	%x print a number in hex idecimal (base 16)
-	%% print a percent sign (\% also works)
-
-	*/
-	CPF_API const std::initializer_list<wchar_t> std_format_specifiers;
-
-	/*
-		'd', 'f', 's', 'e', 'o', 'x'
+	namespace intern
+	{
+		/*
+			text attribute token escape sequences..
 		*/
-	CPF_API const std::initializer_list<wchar_t> extended_format_specifier_terminators;
+		CPF_API const std::initializer_list<type::str> attr_esc_seqs;
 
-	/*
-		'+', '-', '.', '*', '#', 'l'
+		/*
+		standard format specifiers
+
+		%c print a singlecharacter
+		%d print a decimal (base 10) number
+		%e print an exponential floating-point number
+		%f print a floating-point number
+		%g print a general-format floating-point number
+		%i print an integer in base 10
+		%o print a number in octal (base 8)
+		%s print a string of characters
+		%u print an unsigned decimal (base 10) number
+		%x print a number in hex idecimal (base 16)
+		%% print a percent sign (\% also works)
+
 		*/
-	CPF_API const std::initializer_list<wchar_t> intermediate_format_specifers;
+		CPF_API const std::initializer_list<wchar_t> std_fmt_specs;
 
-	/*
+		/*
+			extended format specifier terminators
+			'd', 'f', 's', 'e', 'o', 'x'
+		*/
+		CPF_API const std::initializer_list<wchar_t> ext_fmtspec_terms;
 
-	\a audible alert (bell)
-	\b backspace
-	\f form feed
-	\n newline (linefeed)
-	\r carriage return
-	\t tab
-	\v vertical tab
+		/*
+			intermediate format specifiers
+			'+', '-', '.', '*', '#', 'l'
+			*/
+		CPF_API const std::initializer_list<wchar_t> inter_fmt_specs;
 
-	*/
-	CPF_API const std::initializer_list<wchar_t> escape_characters;
+		/*
 
-	/*
-		As indicated by name, this function takes the source
-		format string which is then subsequently passed through various
-		parsing stages. On return, the function yeilds a map of [key] type
-		std::size_t and [value] type <string-vector : string> pair. The [key]
-		represents the positional offset, within the source format
-		string, of the [second]-element-of [value].
-		The [value] is one in which the [first] element is a vector of
-		symbolic string tokens the [second] element is to be
-		formatted with.
-		The second element of [value] is a substring of the source format string.
-	*/
-	CPF_API cpf::type::meta process_format_string(const type::str &format_string);
+		\a audible alert (bell)
+		\b backspace
+		\f form feed
+		\n newline (linefeed)
+		\r carriage return
+		\t tab
+		\v vertical tab
+
+		*/
+		CPF_API const std::initializer_list<wchar_t> escape_characters;
+
+		/*
+			As indicated by name, this function takes the source
+			format string which is then subsequently passed through various
+			parsing stages. On return, the function yeilds a map of [key] type
+			std::size_t and [value] type <string-vector : string> pair. The [key]
+			represents the positional offset, within the source format
+			string, of the [second]-element-of [value].
+			The [value] is one in which the [first] element is a vector of
+			symbolic string tokens the [second] element is to be
+			formatted with.
+			The second element of [value] is a substring of the source format string.
+			*/
+		CPF_API cpf::type::meta process_format_string(const type::str &format_string);
+	}
 }
 
 #endif

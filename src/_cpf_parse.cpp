@@ -48,7 +48,7 @@ THE SOFTWARE.
 	cprintf("$r`red");
 */
 
-const std::initializer_list<cpf::type::str> cpf::attribute_escape_sequences = {
+const std::initializer_list<cpf::type::str> cpf::intern::attr_esc_seqs = {
 	L"`$", L"`r", L"`g", 
 	L"`b", L"`y", L"`m", 
 	L"`c", L"`w", L"`.", 
@@ -57,7 +57,7 @@ const std::initializer_list<cpf::type::str> cpf::attribute_escape_sequences = {
 	L"`f", L"`l"/*...$bld -> $b`ld*/
 };
 
-const std::initializer_list<wchar_t> cpf::std_format_specifiers = {
+const std::initializer_list<wchar_t> cpf::intern::std_fmt_specs = {
 	'c', 'd', 'e', 
 	'E', 'f', 'F', 
 	'g', 'G', 'i', 
@@ -74,7 +74,7 @@ Characters typically found at the end of a more complex FS
 %.6i
 %05.2f
 */
-const std::initializer_list<wchar_t> cpf::extended_format_specifier_terminators = {
+const std::initializer_list<wchar_t> cpf::intern::ext_fmtspec_terms = {
 	'd', 'f', 's', 
 	'e', 'o', 'x', 
 	'X', 'i', 'u'
@@ -87,12 +87,12 @@ complex format specifiers:
 %.6i
 %05.2f
 */
-const std::initializer_list<wchar_t> cpf::intermediate_format_specifers = {
+const std::initializer_list<wchar_t> cpf::intern::inter_fmt_specs = {
 	'+', '-', '.', 
 	'*', '#', 'l' 
 };
 
-const std::initializer_list<wchar_t> cpf::escape_characters = {
+const std::initializer_list<wchar_t> cpf::intern::escape_characters = {
 	'\a', '\b', '\f', 
 	'\n', '\r', '\t', 
 	'\v', '\\', '\"', 
@@ -226,7 +226,7 @@ void purge_meta_esc_sequences(cpf::type::meta& meta)
 {
 	auto purge_str_esc_sequences = [&](cpf::type::str &src)
 	{
-		for (auto &es : cpf::attribute_escape_sequences)
+		for (auto &es : cpf::intern::attr_esc_seqs)
 		{
 			auto replacew = es.substr(1);
 
@@ -365,8 +365,7 @@ cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_,
 	return attribute_string;
 }
 
-cpf::type::meta cpf::process_format_string(
-	const cpf::type::str &src_format)
+cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_format)
 {
 	cpf::type::meta meta;
 

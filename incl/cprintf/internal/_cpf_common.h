@@ -77,4 +77,10 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 
 #define CPF_ESC_CHAR ('`')
 
+/*
+	Note:	preprocessor defintions contained hereinafter
+			this "#include" may conflict with user code.
+*/
+#include <ciso646>
+
 #endif //_CPF_COMMON_H

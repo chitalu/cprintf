@@ -29,24 +29,19 @@ THE SOFTWARE.
 /*
 	narrow character string debug log
 */
-CPF_API const cpf::type::nstr cpf::pre_debug_log_nstr =
-R"debug_str(
-$c
->> debug 
+CPF_API const cpf::type::nstr cpf::intern::dbg_log_fmt_nstr =
+R"debug_str($cdbg
 $g@file:$c	$g*%s$c
-$g@built:$c	$g*%s$c-$g*%s$c 
+$g@time:$c	$g*%s$c-$g*%s$c 
+$g@func:$c	$g*%s$c
+$g@line:$c	$g*%d$c
 
->	$g@function:$c	$g*%s$c
->	$g@line:$c		$g*%d$c
-
-user log:...$?
-_______________________________________________________________________________
-)debug_str";
+>> log: $?)debug_str";
 
 /*
 	wide character string debug log
 */
-CPF_API const cpf::type::str cpf::pre_debug_log_str =
+CPF_API const cpf::type::str cpf::intern::dbg_log_fmt_str =
 LR"debug_str($cdbg
 $g@file:$c	$g*%s$c
 $g@time:$c	$g*%s$c-$g*%s$c 
@@ -56,7 +51,7 @@ $g@line:$c	$g*%d$c
 >> log: $?)debug_str";
 
 //cprintf("Characters:\t%c %%\n", 65);
-cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
+cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
 {
 	cpf::type::size n = 0u;
 	std::uint32_t pos = 0u;
@@ -65,7 +60,7 @@ cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
 		if (pos == obj.size() - 1)
 		{
 			/*this would imply the following: cprintf("foo bar %");*/
-			throw cpf::type::except(L"invalid format specifier ('%') position.");
+			throw cpf::type::except(L"CPF-RT-ERR: invalid format specifier ('%') position.");
 		}
 		std::int32_t n_ = n;
 
@@ -93,12 +88,12 @@ cpf::type::size cpf::get_num_arg_specs(const cpf::type::str & obj)
 	return n;
 }
 
-cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
-										cpf::type::str& printed_string_,
-										cpf::type::size& ssp_,
-										const cpf::type::attribute_group attr)
+cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
+												cpf::type::str& printed_string_,
+												cpf::type::size& ssp_,
+												const cpf::type::attribute_group attr)
 {
-	cpf::configure(ustream, attr);
+	cpf::intern::configure(ustream, attr);
 
 	ssp_ = cpf::search_for(L"%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
@@ -128,7 +123,7 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 	/* format specifiers beging with % and end with a space*/
 	auto space_pos = printed_string_.find(' ', ssp_);
 	cpf::type::size offset = 0;
-	for (const auto &bfs : cpf::std_format_specifiers)
+	for (const auto &bfs : cpf::intern::std_fmt_specs)
 	{
 		if (printed_string_[ssp_ + 1] == bfs)
 		{
@@ -141,7 +136,7 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 	{
 		cpf::type::str specifier;
 		bool parsed_complete_f_spec = false;
-		for (const auto &xfst : cpf::extended_format_specifier_terminators)
+		for (const auto &xfst : cpf::intern::ext_fmtspec_terms)
 		{
 			auto ps = printed_string_.substr(ssp_ + 1);
 	
@@ -149,11 +144,11 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 			for (auto i(0u); i < _max; ++i)
 			{
 				auto crnt_char = ps[i];
-				if (isalnum(crnt_char) || is_in(crnt_char, cpf::intermediate_format_specifers) || crnt_char == xfst)
+				if (isalnum(crnt_char) || is_in(crnt_char, cpf::intern::inter_fmt_specs) || crnt_char == xfst)
 				{
 					specifier.append({ crnt_char });
 
-					if (crnt_char == xfst || is_in(crnt_char, cpf::extended_format_specifier_terminators))
+					if (crnt_char == xfst || is_in(crnt_char, cpf::intern::ext_fmtspec_terms))
 					{
 						parsed_complete_f_spec = true;
 						break;
@@ -161,13 +156,13 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 				}
 				else
 				{
-					throw cpf::type::except(L"cpf err: invalid format specifier detail");
+					throw cpf::type::except(L"CPF-RT-ERR: invalid format specifier detail");
 				}
 
 				//last iteration
-				if (i == (_max - 1) && !is_in(crnt_char, cpf::extended_format_specifier_terminators))
+				if (i == (_max - 1) && !is_in(crnt_char, cpf::intern::ext_fmtspec_terms))
 				{
-					throw cpf::type::except(L"cpf err: invalid format specifier");
+					throw cpf::type::except(L"CPF-RT-ERR: invalid format specifier");
 				}	
 			}
 			if (parsed_complete_f_spec)
@@ -186,17 +181,17 @@ cpf::type::str cpf::write_pre_arg_str(	cpf::type::stream ustream,
 	return fstr;
 }
 
-void cpf::write_post_arg_str(	cpf::type::stream ustream,
-								cpf::type::str& printed_string_,
-								cpf::type::size& ssp_,
-								bool &more_args_on_iter,
-								cpf::type::meta::const_iterator &meta_iter,
-								const cpf::type::meta::const_iterator &end_point_comparator)
+void cpf::intern::write_post_arg_str(	cpf::type::stream ustream,
+										cpf::type::str& printed_string_,
+										cpf::type::size& ssp_,
+										bool &more_args_on_iter,
+										cpf::type::meta::const_iterator &meta_iter,
+										const cpf::type::meta::const_iterator &end_point_comparator)
 {
 	printed_string_ = printed_string_.substr(ssp_);
 	ssp_ = 0;
 
-	more_args_on_iter = cpf::get_num_arg_specs(printed_string_) > 0;
+	more_args_on_iter = cpf::intern::get_num_arg_specs(printed_string_) > 0;
 	if (!more_args_on_iter)
 	{
 		if (!printed_string_.empty())
@@ -216,12 +211,12 @@ void cpf::write_post_arg_str(	cpf::type::stream ustream,
 	}
 }
 
-void cpf::write_non_arg_str(cpf::type::stream ustream,
-							cpf::type::str& printed_string_,
-							cpf::type::size& ssp_,
-							cpf::type::meta::const_iterator &meta_iter)
+void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
+									cpf::type::str& printed_string_,
+									cpf::type::size& ssp_,
+									cpf::type::meta::const_iterator &meta_iter)
 {
-	cpf::configure(ustream, meta_iter->second.first);
+	cpf::intern::configure(ustream, meta_iter->second.first);
 
 	ssp_ = 0;
 
@@ -235,9 +230,9 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 #endif
 	std::advance(meta_iter, 1);
 
-	while (cpf::get_num_arg_specs(meta_iter->second.second) == 0)
+	while (cpf::intern::get_num_arg_specs(meta_iter->second.second) == 0)
 	{
-		cpf::configure(ustream, meta_iter->second.first);
+		cpf::intern::configure(ustream, meta_iter->second.first);
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
@@ -257,7 +252,8 @@ void cpf::write_non_arg_str(cpf::type::stream ustream,
 	perhaps it could even be possible to add a printf function variant that 
 	can be instantiated with either
 */
-CPF_API cpf::type::str cpf::wconv(const cpf::type::nstr &src)
+
+CPF_API cpf::type::str cpf::intern::wconv(const cpf::type::nstr &src)
 {
 #ifdef __gnu_linux__
 	return cpf::type::str(); //skip
@@ -267,7 +263,7 @@ CPF_API cpf::type::str cpf::wconv(const cpf::type::nstr &src)
 #endif
 }
 
-CPF_API cpf::type::nstr nconv(const cpf::type::str &src)
+CPF_API cpf::type::nstr cpf::intern::nconv(const cpf::type::str &src)
 {
 #ifdef __gnu_linux__
 	return cpf::type::nstr(); //skip
@@ -278,66 +274,66 @@ CPF_API cpf::type::nstr nconv(const cpf::type::str &src)
 }
 
 template<>
-void cpf::write_arg<cpf::type::str>(cpf::type::stream ustream,
+void cpf::intern::write_arg<cpf::type::str>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											cpf::type::str&& arg)
 {
-	fwprintf(ustream, format.c_str(), arg.c_str());
+	cpf::intern::write_arg(ustream, format, arg.c_str());
 }
 
 template<>
-void cpf::write_arg<cpf::type::nstr>(	cpf::type::stream ustream,
+void cpf::intern::write_arg<cpf::type::nstr>(cpf::type::stream ustream,
 												cpf::type::str const &format,
 												cpf::type::nstr&& arg)
 {
-	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+	cpf::intern::write_arg<cpf::type::str>(ustream, format, cpf::intern::wconv(arg));
 }
 
 template<>
-void cpf::write_arg<char*>(	cpf::type::stream ustream,
+void cpf::intern::write_arg<char*>(cpf::type::stream ustream,
 									cpf::type::str const &format,
 									char*&& arg)
 {
-	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+	cpf::intern::write_arg<cpf::type::str>(ustream, format, cpf::intern::wconv(arg));
 }
 
 template<>
-void cpf::write_arg<const char*>(	cpf::type::stream ustream,
+void cpf::intern::write_arg<const char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const char*&& arg)
 {
-	cpf::write_arg<cpf::type::str>(ustream, format, cpf::wconv(arg));
+	cpf::intern::write_arg<cpf::type::str>(ustream, format, cpf::intern::wconv(arg));
 }
 
 template<>
-void cpf::write_arg<signed char*>(	cpf::type::stream ustream,
+void cpf::intern::write_arg<signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											signed char*&& arg)
 {
-	cpf::write_arg<cpf::type::str>(	ustream, 
-									format, 
-									cpf::wconv(reinterpret_cast<char*>(arg)));
+	cpf::intern::write_arg<cpf::type::str>(	ustream,
+											format, 
+											cpf::intern::wconv(reinterpret_cast<char*>(arg)));
 }
 
 template<>
-void cpf::write_arg<const signed char*>(cpf::type::stream ustream,
+void cpf::intern::write_arg<const signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const signed char*&& arg)
 {
-	cpf::write_arg<cpf::type::str>(	ustream,
-									format,
-									cpf::wconv(reinterpret_cast<const char*>(arg)));
+	cpf::intern::write_arg<cpf::type::str>(	ustream,
+											format,
+											cpf::intern::wconv(reinterpret_cast<const char*>(arg)));
 }
 
-CPF_API void cpf::call_(cpf::type::stream ustream,
-						const cpf::type::meta::const_iterator &end_point_comparator,
-						cpf::type::meta::const_iterator &meta_iter,
-						const cpf::type::str printed_string=L"",
-						const cpf::type::size search_start_pos=0)
+CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
+											const cpf::type::meta::const_iterator &end_point_comparator,
+											cpf::type::meta::const_iterator &meta_iter,
+											const cpf::type::str printed_string=L"",
+											const cpf::type::size search_start_pos=0)
 {
 	while (meta_iter != end_point_comparator)
     {
-		cpf::configure(ustream, meta_iter->second.first);
+		cpf::intern::configure(ustream, meta_iter->second.first);
 
 #ifdef __gnu_linux__
 #pragma GCC diagnostic push
@@ -353,5 +349,5 @@ CPF_API void cpf::call_(cpf::type::stream ustream,
     }
 
 	/*restore defaults*/
-	configure(ustream, cpf::type::string_vector({L"?"}));
+	cpf::intern::configure(ustream, cpf::type::string_vector({ L"?" }));
 }
