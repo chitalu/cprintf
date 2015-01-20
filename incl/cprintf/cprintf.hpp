@@ -553,66 +553,6 @@ inline void cprintf_t(const cpf::type::nstr &format, cpf::type::arg_pack<Ts...> 
 	cfprintf_t(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
 
-namespace cpf
-{
-	namespace intern
-	{
-#ifdef __gnu_linux__
-
-		/*
-			"templated-c-string-wrapper"
-
-			This is useful for a couple of reasons. Once we have created an 
-			object of this type we store the size of the string in it: we no 
-			longer need to use templates. While templates are useful for many 
-			compile-time applications, using them incurs cost of instantiating 
-			more and more of them. Second, We can pass our objects by value. 
-			While passing literals by a reference to array worked in basic example, 
-			it will not work if we use it in conditional operator, because using 
-			conditional operator with a throw in it, requires an array-to-pointer 
-			decay.
-		*/
-        
-		class safe_str_t
-		{
-			const char *  begin_;
-			unsigned size_;
-
-		public:
-			/*
-				a constructor template with different sizes of the array. This is the 
-				only template that we need. In the constructor we change template parameter 
-				for class member, and henceforth we can use a normal, non-template class. 
-				We initialize the pointer with a reference to array. Pointers to objects 
-				are valid for constexpr functions and constructors, provided they point 
-				to constexpr objects.
-			*/
-			template< unsigned N >
-			constexpr safe_str_t(const char (&arr)[N]) : 
-				begin_(arr), 
-				size_(N - 1) 
-			{
-				/*
-					Size of string literal is always at least 1 due to the terminating 
-					zero; hence the assertion, and N - 1 in the initializer.
-				*/
-				static_assert(N >= 1, "CPF-CT-ERR: Format string is not a string-literal");
-			}
-
-			constexpr operator const char *(void) const 
-			{
-				return begin_;
-			}
-
-			constexpr unsigned size(void) const
-			{
-				return size_;
-			}
-		};
-#endif
-	}
-}
-
 #ifdef __gnu_linux__
 /*
 	cprintf API variant that provides an extra "safety" feature by requiring that
@@ -624,7 +564,7 @@ namespace cpf
 	letters in the string and one for terminating zero).
 */
 template<typename... Ts>
-inline void cprintf_s( cpf::intern::safe_str_t format, Ts... args)
+inline void cprintf_s( cpf::type::nstrl format, Ts... args)
 {
 	cprintf(format, std::forward<Ts>(args)...);
 }

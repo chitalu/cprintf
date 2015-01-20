@@ -144,8 +144,8 @@ bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 
 cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 {
-	auto terminal_value = cpf::std_token_vals.find(colour_key);
-	if (terminal_value == cpf::std_token_vals.end())
+	auto terminal_value = cpf::intern::std_token_vals.find(colour_key);
+	if (terminal_value == cpf::intern::std_token_vals.end())
 	{
 		throw cpf::type::except((cpf::type::str(L"CPF-RT-ERR: invalid token : ") + colour_key).c_str());
 	}

@@ -55,7 +55,7 @@ cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
 {
 	cpf::type::size n = 0u;
 	std::uint32_t pos = 0u;
-	while ((pos = cpf::search_for(L"%", obj, pos, '%')) < obj.size())
+	while ((pos = cpf::intern::search_for(L"%", obj, pos, '%')) < obj.size())
 	{
 		if (pos == obj.size() - 1)
 		{
@@ -95,7 +95,7 @@ cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
 {
 	cpf::intern::configure(ustream, attr);
 
-	ssp_ = cpf::search_for(L"%", printed_string_, ssp_, '%');
+	ssp_ = cpf::intern::search_for(L"%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
 	{
 #ifdef __gnu_linux__

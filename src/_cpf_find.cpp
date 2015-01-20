@@ -24,10 +24,10 @@ THE SOFTWARE.
 
 #include "_cpf_find.h"
 
-cpf::type::size cpf::search_for(const cpf::type::str& _what, 
-								const cpf::type::str& _where,
-								const cpf::type::size _offset,
-								const char& _esc_char)
+cpf::type::size cpf::intern::search_for(const cpf::type::str& _what,
+										const cpf::type::str& _where,
+										const cpf::type::size _offset,
+										const char& _esc_char)
 {
 	bool found = false;
 	auto _Off = _offset;

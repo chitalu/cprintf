@@ -22,8 +22,8 @@ THE SOFTWARE.
 
 */
 
-#ifndef _CPF_CONFIG_H
-#define _CPF_CONFIG_H
+#ifndef __CPF_CONFIG_H__
+#define __CPF_CONFIG_H__
 
 #include "_cpf_colour_defs.h"
 

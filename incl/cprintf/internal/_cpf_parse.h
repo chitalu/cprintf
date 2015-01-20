@@ -22,8 +22,8 @@ THE SOFTWARE.
 
 */
 
-#ifndef _CPF_PARSE_H
-#define _CPF_PARSE_H
+#ifndef __CPF_PARSE_H__
+#define __CPF_PARSE_H__
 
 #include "cprintf/internal/_cpf_type.h"
 
@@ -37,20 +37,19 @@ namespace cpf
 		CPF_API const std::initializer_list<type::str> attr_esc_seqs;
 
 		/*
-		standard format specifiers
+			standard format specifiers
 
-		%c print a singlecharacter
-		%d print a decimal (base 10) number
-		%e print an exponential floating-point number
-		%f print a floating-point number
-		%g print a general-format floating-point number
-		%i print an integer in base 10
-		%o print a number in octal (base 8)
-		%s print a string of characters
-		%u print an unsigned decimal (base 10) number
-		%x print a number in hex idecimal (base 16)
-		%% print a percent sign (\% also works)
-
+			%c print a singlecharacter
+			%d print a decimal (base 10) number
+			%e print an exponential floating-point number
+			%f print a floating-point number
+			%g print a general-format floating-point number
+			%i print an integer in base 10
+			%o print a number in octal (base 8)
+			%s print a string of characters
+			%u print an unsigned decimal (base 10) number
+			%x print a number in hex idecimal (base 16)
+			%% print a percent sign (\% also works)
 		*/
 		CPF_API const std::initializer_list<wchar_t> std_fmt_specs;
 

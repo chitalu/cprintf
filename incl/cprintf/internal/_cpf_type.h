@@ -22,8 +22,8 @@ THE SOFTWARE.
 
 */
 
-#ifndef _CPF_TYPES_H
-#define _CPF_TYPES_H
+#ifndef __CPF_TYPE_H__
+#define __CPF_TYPE_H__
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -42,10 +42,63 @@ namespace cpf
 {
 	namespace type
 	{
+#ifdef __gnu_linux__
 
-		/*library native string type...*/
+		/*
+			"templated c-string wrapper"
+
+			This is useful for a couple of reasons. Once we have created an
+			object of this type we store the size of the string in it: we no
+			longer need to use templates. While templates are useful for many
+			compile-time applications, using them incurs cost of instantiating
+			more and more of them. Second, We can pass our objects by value.
+			While passing literals by a reference to array worked in basic example,
+			it will not work if we use it in conditional operator, because using
+			conditional operator with a throw in it, requires an array-to-pointer
+			decay.
+
+			used to simply assert string laterals
+		*/
+		template<typename T>
+		class strl_
+		{
+			const T *  begin_;
+			unsigned size_;
+
+		public:
+			/*
+				a constructor template with different sizes of the array. This is the
+				only template that we need. In the constructor we change template parameter
+				for class member, and henceforth we can use a normal, non-template class.
+				We initialize the pointer with a reference to array. Pointers to objects
+				are valid for constexpr functions and constructors, provided they point
+				to constexpr objects.
+			*/
+			template< unsigned N >
+			constexpr strl_(const T(&arr)[N]) :
+				begin_(arr),
+				size_(N - 1)
+			{
+				/*
+					Size of string literal is always at least 1 due to the terminating
+					zero; hence the assertion, and N - 1 in the initializer.
+				*/
+				static_assert(N >= 1, "CPF-CT-ERR: Expected string-literal");
+			}
+
+			constexpr operator const T *(void) const	{ return begin_; }
+			constexpr unsigned size(void) const	{	return size_;	}
+		};
+#endif
+		/*
+			library native string types...
+		*/
 		typedef std::wstring str;
 		typedef std::string nstr;
+#ifdef __gnu_linux__
+		typedef strl_<char> nstrl;
+		typedef strl_<wchar_t> strl;
+#endif
 
 		typedef const wchar_t* cstr;
 

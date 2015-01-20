@@ -232,7 +232,7 @@ void purge_meta_esc_sequences(cpf::type::meta& meta)
 
 			/* searches "src" for "es" and replaces it with "replacew" */
 			size_t pos = 0;
-			while ((pos = cpf::search_for(es, src, pos)) != cpf::type::str::npos)
+			while ((pos = cpf::intern::search_for(es, src, pos)) != cpf::type::str::npos)
 			{
 				src.replace(pos, es.length(), replacew);
 				pos += replacew.length();
@@ -271,7 +271,7 @@ void parse_attribute_specifier(cpf::type::str const& src_string, cpf::type::str:
 			auto f = [&](cpf::type::str const &s)
 			{
 				//faster by using backwards iteration (see initialisation of std_tokens)
-				if (std::find(cpf::std_tokens.rbegin(), cpf::std_tokens.rend(), s) != cpf::std_tokens.rend())
+				if (std::find(cpf::intern::std_tokens.rbegin(), cpf::intern::std_tokens.rend(), s) != cpf::intern::std_tokens.rend())
 				{
 					finished = true;
 					return true;
@@ -374,7 +374,7 @@ cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_for
 		cpf::type::size occurrences = 0;
 		cpf::type::str::size_type start = 0;
 
-		while ((start = cpf::search_for(L"$", src_format, start)) != cpf::type::str::npos)
+		while ((start = cpf::intern::search_for(L"$", src_format, start)) != cpf::type::str::npos)
 		{
 			++occurrences;
 			start++;
@@ -384,7 +384,7 @@ cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_for
 	
 	cpf::type::size token_occurance_pos = 0, attrib_endpos_p1 = 0;
 	bool first_iter = true;
-	while ((token_occurance_pos = cpf::search_for(L"$", src_format, attrib_endpos_p1)) != src_format.npos)
+	while ((token_occurance_pos = cpf::intern::search_for(L"$", src_format, attrib_endpos_p1)) != src_format.npos)
 	{
 		if (first_iter && token_occurance_pos != 0)
 		{
@@ -398,7 +398,7 @@ cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_for
 		auto attibs_str = parse_fstr_for_attrib_specs(src_format, token_occurance_pos + 1, off);
 		attrib_endpos_p1 = tokOccPos_1 + off;
 
-		auto next_prefix_pos = cpf::search_for(L"$", src_format, attrib_endpos_p1);
+		auto next_prefix_pos = cpf::intern::search_for(L"$", src_format, attrib_endpos_p1);
 
 		/*vector to hold attributes that are applied to the (sub) string proceeding
 		the token "$"'s occurance position.*/

@@ -22,8 +22,8 @@ THE SOFTWARE.
 
 */
 
-#ifndef _CPF_SYS_COLOUR_CONFIG_H
-#define _CPF_SYS_COLOUR_CONFIG_H
+#ifndef __CPF_COLOUR_DEFS_H__
+#define __CPF_COLOUR_DEFS_H__
 
 #include "_cpf_common.h"
 
@@ -35,7 +35,7 @@ THE SOFTWARE.
 */
 
 /*
-	*\foreground
+	*\dim foreground colours
 */
 #define _cpf_Rf 	(FOREGROUND_RED)
 #define _cpf_Gf 	(FOREGROUND_GREEN)
@@ -46,7 +46,7 @@ THE SOFTWARE.
 #define _cpf_Wf		(_cpf_Rf | _cpf_Gf | _cpf_Bf)
 
 /*
-	*\background
+	*\dim background colours
 */
 #define _cpf_Rb 	(BACKGROUND_RED)
 #define _cpf_Gb 	(BACKGROUND_GREEN)
@@ -57,24 +57,50 @@ THE SOFTWARE.
 #define _cpf_Wb		(_cpf_Rb | _cpf_Gb | _cpf_Bb)
 
 /*
-	*\intensifiers
+	*\colour intensifiers
 */
 #define _cpf_fgi 	(FOREGROUND_INTENSITY)
 #define _cpf_bgi	(BACKGROUND_INTENSITY)
+
+/*
+	*\bright foreground colours
+*/
+#define _cpf_Rf_i ( _cpf_Rf	| _cpf_fgi )
+#define _cpf_Gf_i ( _cpf_Gf	| _cpf_fgi )
+#define _cpf_Bf_i ( _cpf_Bf	| _cpf_fgi )
+#define _cpf_Yf_i ( _cpf_Yf	| _cpf_fgi )
+#define _cpf_Mf_i ( _cpf_Mf	| _cpf_fgi )
+#define _cpf_Cf_i ( _cpf_Cf	| _cpf_fgi )
+#define _cpf_Wf_i ( _cpf_Wf	| _cpf_fgi )
+
+/*
+	*\bright background colours 
+*/
+#define _cpf_Rb_i ( _cpf_Rb	| _cpf_bgi )
+#define _cpf_Gb_i ( _cpf_Gb	| _cpf_bgi )
+#define _cpf_Bb_i ( _cpf_Bb	| _cpf_bgi )
+#define _cpf_Yb_i ( _cpf_Yb	| _cpf_bgi )
+#define _cpf_Mb_i ( _cpf_Mb	| _cpf_bgi )
+#define _cpf_Cb_i ( _cpf_Cb	| _cpf_bgi )
+#define _cpf_Wb_i ( _cpf_Wb	| _cpf_bgi )
 
 #endif /*	#ifdef _WIN32	*/
 
 namespace cpf
 {
+	namespace intern
+	{
+		/*
+			the full standard/ cross platform set of colour tokens
+			that may be used to modify text appearance
+		*/
+		CPF_API const cpf::type::string_vector std_tokens;
 
-	/*the full standard/ cross platform set of colour tokens
-	that may be used to modify text appearance*/
-	CPF_API const cpf::type::string_vector std_tokens;
-
-	/*
-		tokens available on both windows and linux
-	*/
-	CPF_API const cpf::type::token_value_map std_token_vals;
+		/*
+			tokens available on both windows and linux
+		*/
+		CPF_API const cpf::type::token_value_map std_token_vals;
+	}
 }
 
-#endif /*	#ifndef _CPF_SYS_COLOUR_CONFIG_H	*/
+#endif /*	#ifndef __CPF_COLOUR_DEFS_H__	*/

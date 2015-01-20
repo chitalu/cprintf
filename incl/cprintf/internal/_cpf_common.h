@@ -28,8 +28,8 @@ http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
 http://bjh21.me.uk/all-escapes/all-escapes.txt
 */
 
-#ifndef _CPF_COMMON_H
-#define _CPF_COMMON_H
+#ifndef __CPF_COMMON_H__
+#define __CPF_COMMON_H__
 
 #ifdef _WIN32 /* windows */
 
@@ -83,4 +83,4 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 */
 #include <ciso646>
 
-#endif //_CPF_COMMON_H
+#endif //__CPF_COMMON_H__
