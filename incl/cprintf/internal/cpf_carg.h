@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CPF_VERIFY_H__
 #define __CPF_VERIFY_H__
 
-#include "cprintf/internal/_cpf_type.h"
+#include "cprintf/internal/cpf_type.h"
 #include <cassert>
 
 namespace cpf

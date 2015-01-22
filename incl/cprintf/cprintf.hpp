@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CPF_H__
 #define __CPF_H__
 
-#ifndef NDEBUG
+#if CPF_DBG_CONFIG
 #include <cstdarg> //only used by debug functions
 #endif
 
@@ -44,9 +44,9 @@ Note:	GCC does not yet support multi-byte conversion functionality from the foll
 #include <codecvt> //wstring_convert
 #endif
 
-#include <cprintf/internal/_cpf_parse.h>
-#include <cprintf/internal/_cpf_verify.h>
-#include <cprintf/internal/_cpf_config.h>
+#include <cprintf/internal/cpf_scan.h>
+#include <cprintf/internal/cpf_carg.h>
+#include <cprintf/internal/cpf_tconf.h>
 
 namespace cpf
 {
@@ -369,7 +369,7 @@ void cfwprintf(cpf::type::stream ustream, const cpf::type::str &format, Ts... ar
 
 	auto meta_format = cpf::intern::process_format_string(format);
 
-#ifndef NDEBUG
+#if CPF_DBG_CONFIG
 	cpf::type::size nargs = 0u;
 	for (const auto &i : meta_format)
 	{
@@ -666,6 +666,6 @@ inline void cprintf_s( cpf::type::nstrl format, Ts... args)
 #define cfprintf_t_dbg(ustream, format, tup) 
 #define cprintf_t_dbg(format, tup) 
 
-#endif /*#ifndef NDEBUG*/
+#endif /*#if CPF_DBG_CONFIG*/
 
 #endif /* __CPF_H__ */

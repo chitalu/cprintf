@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
-#include "cprintf/internal/_cpf_common.h"
+#include "cprintf/internal/cpf_base.h"
 
 #include <cstdint>
 #include <utility>

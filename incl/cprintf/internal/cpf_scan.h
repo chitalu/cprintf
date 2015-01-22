@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CPF_PARSE_H__
 #define __CPF_PARSE_H__
 
-#include "cprintf/internal/_cpf_type.h"
+#include "cprintf/internal/cpf_type.h"
 
 namespace cpf
 {

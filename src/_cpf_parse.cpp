@@ -22,9 +22,9 @@ THE SOFTWARE.
 
 */
 
-#include "cprintf/internal/_cpf_parse.h"
-#include "_cpf_config.h"
-#include "_cpf_find.h"
+#include "cprintf/internal/cpf_scan.h"
+#include "cprintf/internal/cpf_tconf.h"
+#include "cprintf/internal/cpf_srch.h"
 
 #include <cstdio>
 #include <stdlib.h>     /* atoi */

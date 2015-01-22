@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CPF_CONFIG_H__
 #define __CPF_CONFIG_H__
 
-#include "_cpf_colour_defs.h"
+#include "cprintf/internal/cpf_cdef.h"
 
 namespace cpf
 {

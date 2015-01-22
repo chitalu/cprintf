@@ -22,14 +22,18 @@ THE SOFTWARE.
 
 */
 
-/*
-interesting:
-http://en.allexperts.com/q/C-1040/seting-position-cursor-desired.htm
-http://bjh21.me.uk/all-escapes/all-escapes.txt
-*/
+#ifndef __CPF_BASE_H__
+#define __CPF_BASE_H__
 
-#ifndef __CPF_COMMON_H__
-#define __CPF_COMMON_H__
+#if !defined(CPF_DBG_CONFIG)
+
+#ifndef NDEBUG
+#	define CPF_DBG_CONFIG 1
+#else
+#	define CPF_DBG_CONFIG 0
+#endif /* NDEBUG */
+
+#endif /* !defined(CPF_DBG_CONFIG) */
 
 #ifdef _WIN32 /* windows */
 
@@ -70,7 +74,7 @@ http://bjh21.me.uk/all-escapes/all-escapes.txt
 
 #endif
 
-#include "_cpf_type.h"
+#include "cpf_type.h"
 
 #include <stdexcept>
 #include <algorithm>

@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "_cpf_find.h"
+#include "cprintf/internal/cpf_srch.h"
 
 cpf::type::size cpf::intern::search_for(const cpf::type::str& _what,
 										const cpf::type::str& _where,

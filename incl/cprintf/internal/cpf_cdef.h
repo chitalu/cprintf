@@ -22,10 +22,10 @@ THE SOFTWARE.
 
 */
 
-#ifndef __CPF_COLOUR_DEFS_H__
-#define __CPF_COLOUR_DEFS_H__
+#ifndef __CPF_CDEF_H__
+#define __CPF_CDEF_H__
 
-#include "_cpf_common.h"
+#include "cprintf/internal/cpf_base.h"
 
 #ifdef _WIN32
 

@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "_cpf_colour_defs.h"
+#include "cpf_cdef.h"
 #include <assert.h>
 
 /*

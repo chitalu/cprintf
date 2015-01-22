@@ -22,9 +22,10 @@ THE SOFTWARE.
 
 */
 
+#include "cprintf/internal/cpf_tconf.h"
+#include "cprintf/internal/cpf_srch.h"
+
 #include "cprintf/cprintf.hpp"
-#include "_cpf_config.h"
-#include "_cpf_find.h"
 
 /*
 	narrow character string debug log

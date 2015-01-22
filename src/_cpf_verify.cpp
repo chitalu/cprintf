@@ -22,8 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "_cpf_verify.h"
-#include <string>
+#include "cprintf/internal/cpf_carg.h"
 
 CPF_API void cpf::intern::arg_check(cpf::type::cstr format)
 {
