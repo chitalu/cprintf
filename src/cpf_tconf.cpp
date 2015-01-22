@@ -41,7 +41,7 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 #include <unistd.h>
 #endif
 
-cpf::type::attribute_group _cpf_current_text_attribs;
+cpf::type::attribute_group crnt_txt_attribs;
 static bool glob_terminal_state_restored = true;
 
 #ifdef _WIN32
@@ -86,7 +86,7 @@ void cpf::intern::restore_stream_state(cpf::type::stream user_stream, bool finis
 	}
 }
 
-bool _cpf_is_fstream(cpf::type::stream user_stream)
+bool is_fstream(cpf::type::stream user_stream)
 {
 	bool is_fstream = true;
 	for (auto s : { stdout, stderr })
@@ -215,48 +215,41 @@ void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& at
 }
 
 void clear_terminal(	cpf::type::stream user_stream,
-							const cpf::type::str& attrib)
+						const cpf::type::str& attrib)
 {
 #ifdef _WIN32
 	auto user_stream_ = user_stream == stdout ? stdout_handle : stderr_handle;
 	COORD coord = {0, 0};
 
-	auto f = [&]()
-	{
-		DWORD count;
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(user_stream_, &csbi);
+	DWORD count;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(user_stream_, &csbi);
 
-		/*
+	/*
 		Sets the character attributes for a specified number of character cells, 
 		beginning at the specified coordinates in a screen buffer.
-		*/
-		FillConsoleOutputAttribute(user_stream_, 
-			saved_terminal_colour,
-			csbi.dwSize.X * csbi.dwSize.Y,
-			coord,
-			&count);
+	*/
+	FillConsoleOutputAttribute(	user_stream_, 
+								saved_terminal_colour,
+								csbi.dwSize.X * csbi.dwSize.Y,
+								coord,
+								&count);
 
-		/*
+	/*
 		Writes a character to the console screen buffer a specified number of times, 
 		beginning at the specified coordinates.
-		*/
-		FillConsoleOutputCharacter(user_stream_,
-			' ',
-			csbi.dwSize.X * csbi.dwSize.Y,
-			coord,
-			&count);
-	};
+	*/
+	FillConsoleOutputCharacter(	user_stream_,
+								' ',
+								csbi.dwSize.X * csbi.dwSize.Y,
+								coord,
+								&count);
 	
 	if (attrib == L"!")
 	{
-		f();
 		SetConsoleCursorPosition(user_stream_, coord);
 	}
-	else // "!~"
-	{
-		f();
-	}
+	//else  -> "!~"
 
 #else
 	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
@@ -301,8 +294,8 @@ void config_text_attribute(	cpf::type::stream user_stream,
 #ifdef _WIN32
 
 	/*
-	interesting: 
-	http://comp.os.ms-windows.programmer.win32.narkive.com/1bOxy0qZ/extended-attributes-all-broken-console-api
+		interesting: 
+		http://comp.os.ms-windows.programmer.win32.narkive.com/1bOxy0qZ/extended-attributes-all-broken-console-api
 	*/
 	auto output_stream_handle = user_stream == stdout ? stdout_handle : stderr_handle;
 
@@ -350,14 +343,14 @@ void config_text_attribute(	cpf::type::stream user_stream,
 CPF_API void cpf::intern::configure(cpf::type::stream user_stream,
 									const cpf::type::attribute_group& attribute_group)
 {
-	if (_cpf_is_fstream(user_stream))
+	if (is_fstream(user_stream))
 	{
 		return; //no configurations necessary if writing to file
 	}
 
-	if (_cpf_current_text_attribs != attribute_group)
+	if (crnt_txt_attribs != attribute_group)
 	{
-		_cpf_current_text_attribs = attribute_group;
+		crnt_txt_attribs = attribute_group;
 
 		for (auto a = std::begin(attribute_group); a != std::end(attribute_group); ++a)
 		{

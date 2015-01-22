@@ -37,52 +37,52 @@ THE SOFTWARE.
 /*
 	*\dim foreground colours
 */
-#define _cpf_Rf 	(FOREGROUND_RED)
-#define _cpf_Gf 	(FOREGROUND_GREEN)
-#define _cpf_Bf 	(FOREGROUND_BLUE)
-#define _cpf_Yf		(_cpf_Rf | _cpf_Gf)
-#define _cpf_Mf		(_cpf_Rf | _cpf_Bf)
-#define _cpf_Cf		(_cpf_Gf | _cpf_Bf)
-#define _cpf_Wf		(_cpf_Rf | _cpf_Gf | _cpf_Bf)
+#define cpf_Rf 	(FOREGROUND_RED)
+#define cpf_Gf 	(FOREGROUND_GREEN)
+#define cpf_Bf 	(FOREGROUND_BLUE)
+#define cpf_Yf		(cpf_Rf | cpf_Gf)
+#define cpf_Mf		(cpf_Rf | cpf_Bf)
+#define cpf_Cf		(cpf_Gf | cpf_Bf)
+#define cpf_Wf		(cpf_Rf | cpf_Gf | cpf_Bf)
 
 /*
 	*\dim background colours
 */
-#define _cpf_Rb 	(BACKGROUND_RED)
-#define _cpf_Gb 	(BACKGROUND_GREEN)
-#define _cpf_Bb 	(BACKGROUND_BLUE)
-#define _cpf_Yb		(_cpf_Rb | _cpf_Gb)
-#define _cpf_Mb		(_cpf_Rb | _cpf_Bb)
-#define _cpf_Cb		(_cpf_Gb | _cpf_Bb)
-#define _cpf_Wb		(_cpf_Rb | _cpf_Gb | _cpf_Bb)
+#define cpf_Rb 	(BACKGROUND_RED)
+#define cpf_Gb 	(BACKGROUND_GREEN)
+#define cpf_Bb 	(BACKGROUND_BLUE)
+#define cpf_Yb		(cpf_Rb | cpf_Gb)
+#define cpf_Mb		(cpf_Rb | cpf_Bb)
+#define cpf_Cb		(cpf_Gb | cpf_Bb)
+#define cpf_Wb		(cpf_Rb | cpf_Gb | cpf_Bb)
 
 /*
 	*\colour intensifiers
 */
-#define _cpf_fgi 	(FOREGROUND_INTENSITY)
-#define _cpf_bgi	(BACKGROUND_INTENSITY)
+#define cpf_fgi 	(FOREGROUND_INTENSITY)
+#define cpf_bgi	(BACKGROUND_INTENSITY)
 
 /*
 	*\bright foreground colours
 */
-#define _cpf_Rf_i ( _cpf_Rf	| _cpf_fgi )
-#define _cpf_Gf_i ( _cpf_Gf	| _cpf_fgi )
-#define _cpf_Bf_i ( _cpf_Bf	| _cpf_fgi )
-#define _cpf_Yf_i ( _cpf_Yf	| _cpf_fgi )
-#define _cpf_Mf_i ( _cpf_Mf	| _cpf_fgi )
-#define _cpf_Cf_i ( _cpf_Cf	| _cpf_fgi )
-#define _cpf_Wf_i ( _cpf_Wf	| _cpf_fgi )
+#define cpf_Rf_i ( cpf_Rf	| cpf_fgi )
+#define cpf_Gf_i ( cpf_Gf	| cpf_fgi )
+#define cpf_Bf_i ( cpf_Bf	| cpf_fgi )
+#define cpf_Yf_i ( cpf_Yf	| cpf_fgi )
+#define cpf_Mf_i ( cpf_Mf	| cpf_fgi )
+#define cpf_Cf_i ( cpf_Cf	| cpf_fgi )
+#define cpf_Wf_i ( cpf_Wf	| cpf_fgi )
 
 /*
 	*\bright background colours 
 */
-#define _cpf_Rb_i ( _cpf_Rb	| _cpf_bgi )
-#define _cpf_Gb_i ( _cpf_Gb	| _cpf_bgi )
-#define _cpf_Bb_i ( _cpf_Bb	| _cpf_bgi )
-#define _cpf_Yb_i ( _cpf_Yb	| _cpf_bgi )
-#define _cpf_Mb_i ( _cpf_Mb	| _cpf_bgi )
-#define _cpf_Cb_i ( _cpf_Cb	| _cpf_bgi )
-#define _cpf_Wb_i ( _cpf_Wb	| _cpf_bgi )
+#define cpf_Rb_i ( cpf_Rb	| cpf_bgi )
+#define cpf_Gb_i ( cpf_Gb	| cpf_bgi )
+#define cpf_Bb_i ( cpf_Bb	| cpf_bgi )
+#define cpf_Yb_i ( cpf_Yb	| cpf_bgi )
+#define cpf_Mb_i ( cpf_Mb	| cpf_bgi )
+#define cpf_Cb_i ( cpf_Cb	| cpf_bgi )
+#define cpf_Wb_i ( cpf_Wb	| cpf_bgi )
 
 #endif /*	#ifdef _WIN32	*/
 

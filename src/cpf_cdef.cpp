@@ -123,73 +123,73 @@ CPF_API const cpf::type::string_vector cpf::intern::std_tokens = {
 
 #define REG_COLOUR_VALUES(c, val_f, val_b) \
 { L"" L ## c L"#", (val_b) },\
-{ L"" L ## c L"*#", (val_b | _cpf_bgi) },\
+{ L"" L ## c L"*#", (val_b | cpf_bgi) },\
 { L"" L ## c, (val_f) },\
-{ L"" L ## c L"r", (val_f | _cpf_Rb) },\
-{ L"" L ## c L"b", (val_f | _cpf_Bb) },\
-{ L"" L ## c L"g", (val_f | _cpf_Gb) },\
-{ L"" L ## c L"y", (val_f | _cpf_Yb) },\
-{ L"" L ## c L"m", (val_f | _cpf_Mb) },\
-{ L"" L ## c L"c", (val_f | _cpf_Cb) },\
-{ L"" L ## c L"w", (val_f | _cpf_Wb) },\
-{ L"" L ## c L"*", (val_f | _cpf_fgi) },\
-{ L"" L ## c L"*r", ((val_f | _cpf_fgi) | _cpf_Rb) },\
-{ L"" L ## c L"*b", ((val_f | _cpf_fgi) | _cpf_Bb) },\
-{ L"" L ## c L"*g", ((val_f | _cpf_fgi) | _cpf_Gb) },\
-{ L"" L ## c L"*y", ((val_f | _cpf_fgi) | _cpf_Yb) },\
-{ L"" L ## c L"*m", ((val_f | _cpf_fgi) | _cpf_Mb) },\
-{ L"" L ## c L"*c", ((val_f | _cpf_fgi) | _cpf_Cb) },\
-{ L"" L ## c L"*w", ((val_f | _cpf_fgi) | _cpf_Wb) },\
-{ L"" L ## c L"r*", (val_f | _cpf_Rb_i) },\
-{ L"" L ## c L"b*", (val_f | _cpf_Bb_i) },\
-{ L"" L ## c L"g*", (val_f | _cpf_Gb_i) },\
-{ L"" L ## c L"y*", (val_f | _cpf_Yb_i) },\
-{ L"" L ## c L"m*", (val_f | _cpf_Mb_i) },\
-{ L"" L ## c L"c*", (val_f | _cpf_Cb_i) },\
-{ L"" L ## c L"w*", (val_f | _cpf_Wb_i) },\
-{ L"" L ## c L"*r*", ((val_f | _cpf_fgi) | _cpf_Rb_i) },\
-{ L"" L ## c L"*b*", ((val_f | _cpf_fgi) | _cpf_Bb_i) },\
-{ L"" L ## c L"*g*", ((val_f | _cpf_fgi) | _cpf_Gb_i) },\
-{ L"" L ## c L"*y*", ((val_f | _cpf_fgi) | _cpf_Yb_i) },\
-{ L"" L ## c L"*m*", ((val_f | _cpf_fgi) | _cpf_Mb_i) },\
-{ L"" L ## c L"*c*", ((val_f | _cpf_fgi) | _cpf_Cb_i) },\
-{ L"" L ## c L"*w*", ((val_f | _cpf_fgi) | _cpf_Wb_i) }
+{ L"" L ## c L"r", (val_f | cpf_Rb) },\
+{ L"" L ## c L"b", (val_f | cpf_Bb) },\
+{ L"" L ## c L"g", (val_f | cpf_Gb) },\
+{ L"" L ## c L"y", (val_f | cpf_Yb) },\
+{ L"" L ## c L"m", (val_f | cpf_Mb) },\
+{ L"" L ## c L"c", (val_f | cpf_Cb) },\
+{ L"" L ## c L"w", (val_f | cpf_Wb) },\
+{ L"" L ## c L"*", (val_f | cpf_fgi) },\
+{ L"" L ## c L"*r", ((val_f | cpf_fgi) | cpf_Rb) },\
+{ L"" L ## c L"*b", ((val_f | cpf_fgi) | cpf_Bb) },\
+{ L"" L ## c L"*g", ((val_f | cpf_fgi) | cpf_Gb) },\
+{ L"" L ## c L"*y", ((val_f | cpf_fgi) | cpf_Yb) },\
+{ L"" L ## c L"*m", ((val_f | cpf_fgi) | cpf_Mb) },\
+{ L"" L ## c L"*c", ((val_f | cpf_fgi) | cpf_Cb) },\
+{ L"" L ## c L"*w", ((val_f | cpf_fgi) | cpf_Wb) },\
+{ L"" L ## c L"r*", (val_f | cpf_Rb_i) },\
+{ L"" L ## c L"b*", (val_f | cpf_Bb_i) },\
+{ L"" L ## c L"g*", (val_f | cpf_Gb_i) },\
+{ L"" L ## c L"y*", (val_f | cpf_Yb_i) },\
+{ L"" L ## c L"m*", (val_f | cpf_Mb_i) },\
+{ L"" L ## c L"c*", (val_f | cpf_Cb_i) },\
+{ L"" L ## c L"w*", (val_f | cpf_Wb_i) },\
+{ L"" L ## c L"*r*", ((val_f | cpf_fgi) | cpf_Rb_i) },\
+{ L"" L ## c L"*b*", ((val_f | cpf_fgi) | cpf_Bb_i) },\
+{ L"" L ## c L"*g*", ((val_f | cpf_fgi) | cpf_Gb_i) },\
+{ L"" L ## c L"*y*", ((val_f | cpf_fgi) | cpf_Yb_i) },\
+{ L"" L ## c L"*m*", ((val_f | cpf_fgi) | cpf_Mb_i) },\
+{ L"" L ## c L"*c*", ((val_f | cpf_fgi) | cpf_Cb_i) },\
+{ L"" L ## c L"*w*", ((val_f | cpf_fgi) | cpf_Wb_i) }
 
 const std::map<const cpf::type::str, cpf::type::colour> cpf::intern::std_token_vals{
 	/*
 		red
 	*/
-	REG_COLOUR_VALUES("r", _cpf_Rf, _cpf_Rb),
+	REG_COLOUR_VALUES("r", cpf_Rf, cpf_Rb),
 
 	/*
 		green
 	*/
-	REG_COLOUR_VALUES("g", _cpf_Gf, _cpf_Gb),
+	REG_COLOUR_VALUES("g", cpf_Gf, cpf_Gb),
 
 	/*
 		blue
 	*/
-	REG_COLOUR_VALUES("b", _cpf_Bf, _cpf_Bb),
+	REG_COLOUR_VALUES("b", cpf_Bf, cpf_Bb),
 
 	/*
 		yellow
 	*/
-	REG_COLOUR_VALUES("y", _cpf_Yf, _cpf_Yb),
+	REG_COLOUR_VALUES("y", cpf_Yf, cpf_Yb),
 
 	/*
 		magenta
 	*/
-	REG_COLOUR_VALUES("m", _cpf_Mf, _cpf_Mb),
+	REG_COLOUR_VALUES("m", cpf_Mf, cpf_Mb),
 
 	/*
 		cyan
 	*/
-	REG_COLOUR_VALUES("c", _cpf_Cf, _cpf_Cb),
+	REG_COLOUR_VALUES("c", cpf_Cf, cpf_Cb),
 
 	/*
 		white
 	*/
-	REG_COLOUR_VALUES("w", _cpf_Wf, _cpf_Wb)
+	REG_COLOUR_VALUES("w", cpf_Wf, cpf_Wb)
 };
 
 #else /*#ifdef _WIN32*/
