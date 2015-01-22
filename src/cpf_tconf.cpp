@@ -80,8 +80,10 @@ void cpf::intern::restore_stream_state(cpf::type::stream user_stream, bool finis
 #else
 		fwprintf(user_stream, L"\x1B[0;0;0m");
 #endif
-		/*ternary op guarrantees that console settings will be reset to 
-		originals i.e as they were prior to calling a cprintf function*/
+		/*
+			ternary op guarrantees that console settings will be reset to 
+			originals i.e as they were prior to calling a cprintf function
+		*/
 		glob_terminal_state_restored = finished_cpf_exec ? true : false;
 	}
 }

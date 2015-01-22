@@ -40,10 +40,10 @@ THE SOFTWARE.
 #define cpf_Rf 	(FOREGROUND_RED)
 #define cpf_Gf 	(FOREGROUND_GREEN)
 #define cpf_Bf 	(FOREGROUND_BLUE)
-#define cpf_Yf		(cpf_Rf | cpf_Gf)
-#define cpf_Mf		(cpf_Rf | cpf_Bf)
-#define cpf_Cf		(cpf_Gf | cpf_Bf)
-#define cpf_Wf		(cpf_Rf | cpf_Gf | cpf_Bf)
+#define cpf_Yf	(cpf_Rf | cpf_Gf)
+#define cpf_Mf	(cpf_Rf | cpf_Bf)
+#define cpf_Cf	(cpf_Gf | cpf_Bf)
+#define cpf_Wf	(cpf_Rf | cpf_Gf | cpf_Bf)
 
 /*
 	*\dim background colours
@@ -51,15 +51,15 @@ THE SOFTWARE.
 #define cpf_Rb 	(BACKGROUND_RED)
 #define cpf_Gb 	(BACKGROUND_GREEN)
 #define cpf_Bb 	(BACKGROUND_BLUE)
-#define cpf_Yb		(cpf_Rb | cpf_Gb)
-#define cpf_Mb		(cpf_Rb | cpf_Bb)
-#define cpf_Cb		(cpf_Gb | cpf_Bb)
-#define cpf_Wb		(cpf_Rb | cpf_Gb | cpf_Bb)
+#define cpf_Yb	(cpf_Rb | cpf_Gb)
+#define cpf_Mb	(cpf_Rb | cpf_Bb)
+#define cpf_Cb	(cpf_Gb | cpf_Bb)
+#define cpf_Wb	(cpf_Rb | cpf_Gb | cpf_Bb)
 
 /*
 	*\colour intensifiers
 */
-#define cpf_fgi 	(FOREGROUND_INTENSITY)
+#define cpf_fgi (FOREGROUND_INTENSITY)
 #define cpf_bgi	(BACKGROUND_INTENSITY)
 
 /*

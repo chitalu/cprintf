@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CPF_BASE_H__
 #define __CPF_BASE_H__
 
-#if !defined(CPF_DBG_CONFIG)
+#if !defined(CPF_DBG_CONFIG) /*... in compiler flags*/
 
 #ifndef NDEBUG
 #	define CPF_DBG_CONFIG 1
