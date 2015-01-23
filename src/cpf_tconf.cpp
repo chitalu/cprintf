@@ -86,6 +86,12 @@ void cpf::intern::restore_stream_state(cpf::type::stream user_stream, bool finis
 		*/
 		glob_terminal_state_restored = finished_cpf_exec ? true : false;
 	}
+
+	/*
+		make note of this!
+	*/
+	if (glob_terminal_state_restored)
+		std::fflush(user_stream);
 }
 
 bool is_fstream(cpf::type::stream user_stream)

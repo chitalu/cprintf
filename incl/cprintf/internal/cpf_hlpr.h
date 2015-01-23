@@ -354,21 +354,6 @@ namespace cpf
 		{
 			auto meta_format = cpf::intern::process_format_string(format);
 
-#if CPF_DBG_CONFIG
-			cpf::type::size nargs = 0u;
-			for (const auto &i : meta_format)
-				nargs += cpf::intern::get_num_arg_specs(i.second.second);
-
-			if (nargs != sizeof...(args))
-				throw cpf::type::except(L"CPF-RT-ERR: invalid argument count");
-
-			/*
-				format specifier-to-argument correspondence check
-				i.e "%d" must correspond to an integral
-			*/
-			cpf::intern::arg_check(format.c_str(), std::forward<Ts>(args)...);
-#endif
-
 			auto mf_begin = meta_format.cbegin();
 			/*
 				end point comparator...
@@ -377,8 +362,8 @@ namespace cpf
 
 			/*
 				note:	the try catch block is necessary to restore stream
-				state should unexpected behaviour occur at runtime. Typical
-				cases are errors in user code.
+						state should unexpected behaviour occur at runtime. Typical
+						cases are errors in user code.
 			*/
 			try
 			{

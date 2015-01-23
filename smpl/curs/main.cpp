@@ -14,7 +14,7 @@ int main(void)
 	}
 	catch (cpf::type::except &e)
 	{
-		fprintf(stderr, "cprintf sample failed\n%s\n", e.msg());
+		fwprintf(stderr, L"cprintf sample failed\n%s\n", e.msg());
 		exec_ok = false;;
 	}
 	return exec_ok ? EXIT_SUCCESS : EXIT_FAILURE;

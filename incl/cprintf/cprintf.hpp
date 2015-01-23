@@ -28,8 +28,16 @@
 template<std::size_t FLAGS = CPF_NON, typename... Ts>
 void cfwprintf(cpf::type::stream ustream, const cpf::type::str &format, Ts... args)
 {
+#if CPF_DBG_CONFIG
 	if (ustream == nullptr) 
 		throw cpf::type::except(L"CPF-RT-ERR: output stream is undefined (null)");
+
+	/*
+		format specifier-to-argument correspondence check
+		i.e "%d" must correspond to an integral, "%p" to a pointer etc.
+	*/
+	cpf::intern::arg_check(format.c_str(), std::forward<Ts>(args)...);
+#endif
 
 	if (FLAGS & CPF_ATOMIC)
 	{
