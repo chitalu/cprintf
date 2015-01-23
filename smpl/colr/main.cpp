@@ -55,6 +55,7 @@ auto tokens = {
 
 int main(void)
 {
+	cprintf_s("lateral\n");
 	bool exec_ok = true;
 
 	try

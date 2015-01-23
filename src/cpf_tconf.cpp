@@ -154,7 +154,7 @@ cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 	return terminal_value->second;
 }
 
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_token)
 {
 	auto at_size = attrib_token.size();
@@ -329,13 +329,13 @@ void config_text_attribute(	cpf::type::stream user_stream,
 	}
 #else
 
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 	/*colour is controled via Control Sequences*/
 	fwprintf(user_stream, user_colour.c_str());
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
 

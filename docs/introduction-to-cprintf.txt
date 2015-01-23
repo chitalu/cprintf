@@ -1,61 +1,93 @@
-/*
-	Well, as you may have already seen, cprintf is an umbrella name (library) used to encapsulate a 
-	group of C++(11/0x) language functions for extended formatted-printing. 
-	The project aims to provide a thin auxiallary layer atop that of fprintf with most functionality 
-	working in much a similar manner to that of its patternal standard counter-part(s) i.e printf, 
-	fprintf etc. 
+Well, as you may have already seen, cprintf is an umbrella name (library) used to encapsulate a 
+group of C++(11/0x) language functions for extended formatted-printing. 
+The project aims to provide a thin auxiallary layer atop that of fprintf with most functionality 
+working in much a similar manner to that of its patternal standard counter-part(s) i.e printf, 
+fprintf etc. 
+________________________________________________________________________________
 
-	...
+How to set-up cprintf
+
+This project uses CMake as a build configuration tool. Those who do not have a copy of CMake can obtain a copy 
+from http://www.cmake.org/cmake/resources/software.html
+
+This basic set-up helper doc assumes the use of CMake from the command-line, those that wish to use the Graphical
+User Interface can use various on-line tutorials on how to do it.
+
+Make sure it (CMake executable) is in your <PATH> upon installation. This is typically done automatically by 
+the installer. You can confirm this by calling Cmake from you console/terminal after installation has completed.
+This can be done by simply typing "cmake" in you console. If its not recognised as a valid command, either verify 
+that its location is contained in your system environment variable <PATH> and restart the console/ terminal
+application OR you may need to simply restart your console/ terminal.
+
+Steps:
+
+* change directory to the root directory of cprintf "cd c:/path/to/cprintf"
+* create a build directry and cd into it i.e "mkdir build -> cd build"
+* call CMake (this is still from within your build directory)
+	- cmake -DCPF_BUILD_SAMPLES=ON ..
+
+The above steps should configure the project and create a Visual Studio solution file for you if on 
+Microsoft Windows.
+If on Windows, you need only open the solution file to build and run the samples. Linux users can
+(as one of the many methods) simply call cmake again from within the build directory as defined below:
+"cmake --build ./"
+
+From here on you can begin to inspect the code samples and get familiar with on how to use the library's 
+interface.
+
+The samples are organised by category aimed at highlighting the keys feature and aspects of the library
+and how to use them.
+
+________________________________________________________________________________
+
+template<typename... Ts>
+inline void cfprintf(cpf::type::stream ustream, const cpf::type::nstr &format, Ts... args)
+
+	Writes the string referenced by "format" to the "stream". If "format"
+	includes format specifiers (subsequences beginning with %), the
+	additional cprintf arguments following "format" are formatted and inserted
+	in the resulting string replacing their respective specifiers.
+	If format includes attribute specifiers (tokens beginning with $),
+	the characters proceding these attibute specifiers will be modified
+	in accordance with specification contained in the format.
+
+	After the format parameter, the function expects at least as many
+	additional arguments as specified by "format".
+
+	@stream
+	Pointer to a FILE object that identifies an output stream.
+	@format
+	string that contains the text to be written to the stream.
+	It can optionally contain embedded format specifiers that
+	are replaced by the values specified in subsequent additional
+	arguments and formatted as requested or are used as indicators
+	of how the output text should appear in a console..
+
+	For further info on formatting output please refer to:
+	http://www.cplusplus.com/reference/cstdio/fprintf/
+
+================================================================================
+
+template<typename... Ts>
+inline void cfprintf_t(	cpf::type::stream ustream,
+						const cpf::type::nstr &format,
+						cpf::type::arg_pack<Ts...> args_tup)
 	
-	How to set-up cprintf
-	
-	This project uses CMake as a build configuration tool. Those who do not have a copy of CMake can obtain a copy 
-	from http://www.cmake.org/cmake/resources/software.html
-	
-	This basic set-up helper doc assumes the use of CMake from the command-line, those that wish to use the Graphical
-	User Interface can use various on-line tutorials on how to do it.
-	
-	Make sure it (CMake executable) is in your <PATH> upon installation. This is typically done automatically by 
-	the installer. You can confirm this by calling Cmake from you console/terminal after installation has completed.
-	This can be done by simply typing "cmake" in you console. If its not recognised as a valid command, either verify 
-	that its location is contained in your system environment variable <PATH> and restart the console/ terminal
-	application OR you may need to simply restart your console/ terminal.
-	
-	Steps:
-	
-	* change directory to the root directory of cprintf "cd c:/path/to/cprintf"
-	* create a build directry and cd into it i.e "mkdir build -> cd build"
-	* call CMake (this is still from within your build directory)
-		- cmake -DCPF_BUILD_SAMPLES=ON ..
-	
-	The above steps should configure the project and create a Visual Studio solution file for you if on 
-	Microsoft Windows.
-	If on Windows, you need only open the solution file to build and run the samples. Linux users can
-	(as one of the many methods) simply call cmake again from within the build directory as defined below:
-	"cmake --build ./"
-	
-	From here on you can begin to inspect the code samples and get familiar with on how to use the library's 
-	interface.
-	
-	The samples are organised by category aimed at highlighting the keys feature and aspects of the library
-	and how to use them.
-	
-	___________________________________
-	
-	Many thanks
-	
-	Floyd Chitalu
-	
-	http://www.linkedin.com/pub/floyd-chitalu/74/489/988/
-	___________________________________
-	
-	As this project is still a work-in-progress, feedback is always welcome. I also ask that: be there a
-	need to improve a particular feature, it may not always be feesable for me to attend to the issue immidiately
-	as I have other commitments.
-	Other than that, I hope you enjoy using cprintf and that [it will] be helpful in the development as-well-as 
-	enhancement of your work irrespective of your endeavours. 
-	
-	
-	
-	
-*/
+	Instead of accepting variadic arguments this function expects a Tuple.
+	Elements of this object must abide the same restrictions
+	imposed on those permitted to cfprintf.
+
+	see cfprintf doc-string for more info.
+
+________________________________________________________________________________
+
+As this project is still a work-in-progress, feedback is always welcome. I also ask that: be there a
+need to improve a particular feature, it may not always be feesable for me to attend to the issue immidiately
+as I have other commitments.
+Other than that, I hope you enjoy using cprintf and that [it will] be helpful in the development as-well-as 
+enhancement of your work irrespective of your endeavours. 
+
+Many thanks!
+
+Floyd M. Chitalu
+________________________________________________________________________________

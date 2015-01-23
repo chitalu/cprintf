@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "cprintf/cprintf.hpp"
 
+#if CPF_DBG_CONFIG
 /*
 	narrow character string debug log
 */
@@ -50,6 +51,7 @@ $g@func:$c	$g*%s$c
 $g@line:$c	$g*%d$c
 
 >> log: $?)debug_str";
+#endif //CPF_DBG_CONFIG
 
 //cprintf("Characters:\t%c %%\n", 65);
 cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
@@ -99,12 +101,12 @@ cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
 	ssp_ = cpf::intern::search_for(L"%", printed_string_, ssp_, '%');
 	if (ssp_ != 0)
 	{
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 		fwprintf(ustream, printed_string_.substr(0, ssp_).c_str());
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
 	}
@@ -197,13 +199,13 @@ void cpf::intern::write_post_arg_str(	cpf::type::stream ustream,
 	{
 		if (!printed_string_.empty())
 		{
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 /*see: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html*/
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 			fwprintf(ustream, printed_string_.c_str());
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
 			printed_string_.clear();
@@ -221,12 +223,12 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 
 	ssp_ = 0;
 
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 	fwprintf(ustream, printed_string_.c_str());
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
 	std::advance(meta_iter, 1);
@@ -234,12 +236,12 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 	while (cpf::intern::get_num_arg_specs(meta_iter->second.second) == 0)
 	{
 		cpf::intern::configure(ustream, meta_iter->second.first);
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 		fwprintf(ustream, meta_iter->second.second.c_str());
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
 		std::advance(meta_iter, 1);
@@ -256,7 +258,7 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 
 CPF_API cpf::type::str cpf::intern::wconv(const cpf::type::nstr &src)
 {
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 	return cpf::type::str(); //skip
 #else
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
@@ -266,7 +268,7 @@ CPF_API cpf::type::str cpf::intern::wconv(const cpf::type::nstr &src)
 
 CPF_API cpf::type::nstr cpf::intern::nconv(const cpf::type::str &src)
 {
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 	return cpf::type::nstr(); //skip
 #else
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
@@ -336,14 +338,14 @@ CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
     {
 		cpf::intern::configure(ustream, meta_iter->second.first);
 
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
 		fwprintf(ustream, meta_iter->second.second.c_str());
 
-#ifdef __gnu_linux__
+#ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
 		std::advance(meta_iter, 1);

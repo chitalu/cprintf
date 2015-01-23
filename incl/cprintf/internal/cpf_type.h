@@ -42,8 +42,6 @@ namespace cpf
 {
 	namespace type
 	{
-#ifdef __gnu_linux__
-
 		/*
 			"templated c-string wrapper"
 
@@ -59,13 +57,15 @@ namespace cpf
 
 			used to simply assert string laterals
 		*/
-		template<typename T>
+		template<class T = wchar_t>
 		class strl_
 		{
 			const T *  begin_;
 			unsigned size_;
 
 		public:
+			typedef T EType;
+
 			/*
 				a constructor template with different sizes of the array. This is the
 				only template that we need. In the constructor we change template parameter
@@ -75,7 +75,7 @@ namespace cpf
 				to constexpr objects.
 			*/
 			template< unsigned N >
-			constexpr strl_(const T(&arr)[N]) :
+			/*constexpr*/ strl_(const T(&arr)[N]) :
 				begin_(arr),
 				size_(N - 1)
 			{
@@ -83,22 +83,20 @@ namespace cpf
 					Size of string literal is always at least 1 due to the terminating
 					zero; hence the assertion, and N - 1 in the initializer.
 				*/
-				static_assert(N >= 1, "CPF-CT-ERR: Expected string-literal");
+				static_assert(N >= 2, "CPF-CT-ERR: expected string-literal with atleast 1 character");
 			}
 
-			constexpr operator const T *(void) const	{ return begin_; }
-			constexpr unsigned size(void) const	{	return size_;	}
+			/*constexpr*/ operator const T *(void) const	{ return begin_; }
+			/*constexpr*/ unsigned size(void) const	{ return size_; }
 		};
-#endif
+
 		/*
 			library native string types...
 		*/
 		typedef std::wstring str;
 		typedef std::string nstr;
-#ifdef __gnu_linux__
-		typedef strl_<char> nstrl;
 		typedef strl_<wchar_t> strl;
-#endif
+		typedef strl_<char> nstrl;
 
 		typedef const wchar_t* cstr;
 
