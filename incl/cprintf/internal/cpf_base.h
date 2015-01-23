@@ -25,6 +25,14 @@ THE SOFTWARE.
 #ifndef __CPF_BASE_H__
 #define __CPF_BASE_H__
 
+#if defined(_WIN64) || defined(_WIN32)
+#define CPF_WINDOWS_BUILD 1
+#elif defined(__APPLE__)
+#define CPF_MAC_BUILD 1
+#elif defined(__linux)
+#define CPF_LINUX_BUILD 1
+#endif
+
 #if !defined(CPF_DBG_CONFIG) /*... in compiler flags*/
 
 #ifndef NDEBUG
@@ -35,7 +43,7 @@ THE SOFTWARE.
 
 #endif /* !defined(CPF_DBG_CONFIG) */
 
-#ifdef _WIN32 /* windows */
+#ifdef CPF_WINDOWS_BUILD
 
 /*
  * CPF_BUILD_AS_SHARED is defined for shared library.
@@ -52,7 +60,7 @@ THE SOFTWARE.
 #  endif
 #endif
  
-#else /* UNIX */
+#elif defined(CPF_LINUX_BUILD) /*| defined(CPF_MAC_BUILD)*/
 
 #ifndef CPF_BUILD_AS_SHARED
 #  	define CPF_API extern
@@ -72,7 +80,7 @@ THE SOFTWARE.
 #  	endif
 #endif
 
-#endif
+#endif /*#ifdef CPF_WINDOWS_BUILD*/
 
 #include "cpf_type.h"
 

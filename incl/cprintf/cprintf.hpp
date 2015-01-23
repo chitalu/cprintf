@@ -25,15 +25,10 @@ THE SOFTWARE.
 #ifndef __CPF_H__
 #define __CPF_H__
 
-#if CPF_DBG_CONFIG
-#include <cstdarg> //only used by debug functions
-#endif
-
 #include <tuple>
 #include <memory>
 #include <algorithm>
 #include <type_traits>
-
 
 #if !defined(__gnu_linux__)
 /*
@@ -571,7 +566,9 @@ inline void cprintf_s( cpf::type::nstrl format, Ts... args)
 
 #endif
 
-#ifndef	NDEBUG
+#if CPF_DBG_CONFIG
+
+#include <cstdarg> //only used by debug-assist functionality
 
 /*
 	The following are auxillary macros ideal for debugging purposes.
