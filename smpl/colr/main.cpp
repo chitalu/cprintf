@@ -153,7 +153,5 @@ int main(void)
 		exec_ok = false;
 	}
 
-	cprintf_dbg("test\n")
-
 	return exec_ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
