@@ -54,7 +54,7 @@ const std::initializer_list<cpf::type::str> cpf::intern::attr_esc_seqs = {
 	L"`c", L"`w", L"`.", 
 	L"`*", L"``", L"`?",
 	L"`!", L"`~", L"`|",
-	L"`f", L"`l"/*...$bld -> $b`ld*/
+	L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
 };
 
 const std::initializer_list<wchar_t> cpf::intern::std_fmt_specs = {

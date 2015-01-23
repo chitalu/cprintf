@@ -36,18 +36,6 @@ namespace cpf
 {
 	namespace intern
 	{
-#if CPF_DBG_CONFIG
-		/*
-			narrow character string debug log
-		*/
-		CPF_API const cpf::type::nstr dbg_log_fmt_nstr;
-
-		/*
-			wide character string debug log
-		*/
-		CPF_API const cpf::type::str dbg_log_fmt_str;
-#endif
-
 		template <std::size_t...>
 		struct indices
 		{	 };
@@ -331,9 +319,9 @@ namespace cpf
 
 			/*
 				note: 	only when "arg0" has been passed to std::fwprintf does
-				variadic-argument based recursion proceed onto the
-				next one subsequently after arg0. Else recurse back
-				into this function with the same arguments.
+						variadic-argument based recursion proceed onto the
+						next one subsequently after arg0. Else recurse back
+						into this function with the same arguments.
 			*/
 			if (printed_arg0)
 			{
