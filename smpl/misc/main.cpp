@@ -3,6 +3,41 @@
 #include <thread>
 #include <chrono>
 
+void multithreaded_call(void)
+{
+	auto big_string = R"bs(
+THREAD INDEX(%d). i = %d
+
+
+
+
+
+
+$y*ADD $w*m*SOME$?.c* COLOUR!$?
+
+
+
+
+
+
+
+)bs";
+
+	auto f = [&](int p)
+	{
+		for (int i(0); i < 5; ++i)
+			cprintf<CPF_ATOMIC>(big_string, p, i);
+	};
+	
+	std::thread threads[10];
+
+	for (int i(0); i < 10; ++i)
+		threads[i] = std::thread(f, i);
+
+	for (int i(0); i < 10; ++i)
+		threads[i].join();
+}
+
 void progress_bar(void)
 {
 	std::size_t c = 0; float m = 20.0f;
@@ -95,6 +130,9 @@ int main(void)
 
 	try
 	{
+		multithreaded_call();
+		std::getchar();
+		cprintf("$!");
 		args_and_colours();
 		std::getchar();
 		cprintf("$!");

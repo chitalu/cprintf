@@ -57,7 +57,7 @@ void cpf::intern::save_stream_state(cpf::type::stream user_stream)
 
 	if (!ret_okay)
 	{
-		throw cpf::type::except(L"CPF-RT-ERR: failed to retrieve terminal attributes");
+		throw cpf::type::except(L"CPF-RT-ERR: system call failed to retrieve terminal attributes");
 	}
 	saved_terminal_colour = cbsi.wAttributes;
 #else

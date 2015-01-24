@@ -32,9 +32,10 @@ namespace cpf
 {
 	namespace intern
 	{
-		CPF_API void arg_check(cpf::type::cstr format);
-
 		/*
+			format specifier-to-argument correspondence check
+			i.e "%d" must correspond to an integral, "%p" to a pointer etc.
+
 			verifies that the format string contains arguments which
 			match the given % sequence(s) in the correct order.
 			note that this is only able to test those format specifiers
@@ -42,8 +43,11 @@ namespace cpf
 
 			We perform runtime checks on the validity of arguments when compared to
 			their corresonding format specifiers.
+
 			This is only done in client debug builds.
-			*/
+		*/
+		CPF_API void arg_check(cpf::type::cstr format);
+
 		template<class T, typename... Ts>
 		void arg_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 		{

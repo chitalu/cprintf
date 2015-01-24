@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <type_traits>
 
+#include <mutex>
+
 #if !defined(CPF_LINUX_BUILD)
 /*
 	Note:	GCC does not yet support multi-byte conversion functionality from the following
@@ -32,10 +34,20 @@
 // CPF_ATOMIC if using multiple threads in code.
 #define CPF_NON 0x0
 
+#define CPF_LOCK_CRITICAL_SECTION {cpf::intern::user_thread_mutex.lock();}
+
+#define CPF_UNLOCK_CRITICAL_SECTION {cpf::intern::user_thread_mutex.unlock();}
+
 namespace cpf
 {
 	namespace intern
 	{
+		/*
+			on specifiation of CPF_ATOMIC as a template parameter flag to the API, this mutex is used 
+			to insure atomicity upon invocation since the API is not re-entrant.  
+		*/
+		CPF_API std::mutex user_thread_mutex;  
+
 		template <std::size_t...>
 		struct indices
 		{	 };
@@ -345,8 +357,11 @@ namespace cpf
 			auto mf_begin = meta_format.cbegin();
 			/*
 				end point comparator...
-			*/
+				*/
 			auto mf_endpoint_cmp = meta_format.cend();
+
+			bool success(true);
+			cpf::type::except ex;
 
 			/*
 				note:	the try catch block is necessary to restore stream
@@ -366,17 +381,13 @@ namespace cpf
 											mf_begin->second.second,
 											0u,
 											std::forward<Ts>(args)...);
+			}
+			/*runtime error occurred during function execution.*/
+			catch (cpf::type::except &e){ ex = e;  success = false; }
 
-				cpf::intern::restore_stream_state(ustream, true);
-			}
-			catch (cpf::type::except &e)
-			{
-				/*
-					executed only on occurance of a runtime error during function execution.
-				*/
-				cpf::intern::restore_stream_state(ustream, true);
-				throw e;//rethrow!
-			}
+			cpf::intern::restore_stream_state(ustream, true);
+
+			if (!success) throw ex;//rethrow!
 		}
 	}
 }

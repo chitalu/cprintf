@@ -112,7 +112,7 @@ namespace cpf
 		struct except
 		{
 		private:
-			const str m_msg;
+			str m_msg;
 		public:
 			except(void) :m_msg(L"CPF-RT-ERR"){}
 			except(const str _msg) :m_msg(_msg){}
@@ -124,6 +124,11 @@ namespace cpf
 			}
 			inline const char* msg(void)const{
 				return "FIX THIS!"; //cpf::intern::nconv(m_msg);	}
+			}
+
+			inline void operator=(str &m)
+			{
+				m_msg = m;
 			}
 		};
 

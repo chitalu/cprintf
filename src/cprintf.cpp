@@ -22,10 +22,11 @@ THE SOFTWARE.
 
 */
 
-#include "cprintf/internal/cpf_tconf.h"
 #include "cprintf/internal/cpf_srch.h"
 
 #include "cprintf/cprintf.hpp"
+
+#include <mutex>
 
 #if CPF_DBG_CONFIG
 /*
@@ -52,6 +53,12 @@ $g@line:$c	$g*%d$c
 
 >> log: $?)debug_str";
 #endif //CPF_DBG_CONFIG
+
+/*
+	atomicity mutex variable used for multithreaded invocations of
+	API
+*/
+std::mutex cpf::intern::user_thread_mutex;
 
 //cprintf("Characters:\t%c %%\n", 65);
 cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
