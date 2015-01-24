@@ -110,6 +110,10 @@ inline void cprintf_t(const cpf::type::nstr &format, cpf::type::arg_pack<Ts...> 
 	cfprintf_t<FLAGS>(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
 
+/*
+	string literal APIs
+*/
+
 template<std::size_t FLAGS = CPF_NON, typename... Ts>
 inline void cfwprintf_s(cpf::type::stream ustream, cpf::type::strl format, Ts... args)
 {

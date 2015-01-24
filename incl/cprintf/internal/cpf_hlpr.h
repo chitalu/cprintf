@@ -23,15 +23,19 @@
 
 /*
 	API compile-time determined runtime flags
+
+	cprintf<FLAGS>(...);
 */
 
-// guarrantees atomicity of API call such that no other thread shall 
-// execute this function until the current has finished
+// guarrantees atomicity of API invocation such that no other client thread shall 
+// execute instructions within until a [current thread of execution] has finished.
+// should the user fail to specify this value as a template parameter to the API, 
+// the behavior cannot be guarranted and such it conclusively recognised as undefined.
 #define CPF_ATOMIC 0xF
 
 // signifies sequential client program. Note however that none of the API functions 
 // are re-entant, as such it is the users' responsibilty to enable atomicity via
-// CPF_ATOMIC if using multiple threads in code.
+// CPF_ATOMIC if using multiple threads in a client program.
 #define CPF_NON 0x0
 
 #define CPF_LOCK_CRITICAL_SECTION {cpf::intern::user_thread_mutex.lock();}
