@@ -43,54 +43,6 @@ namespace cpf
 	namespace type
 	{
 		/*
-			"templated c-string wrapper"
-
-			This is useful for a couple of reasons. Once we have created an
-			object of this type we store the size of the string in it: we no
-			longer need to use templates. While templates are useful for many
-			compile-time applications, using them incurs cost of instantiating
-			more and more of them. Second, We can pass our objects by value.
-			While passing literals by a reference to array worked in basic example,
-			it will not work if we use it in conditional operator, because using
-			conditional operator with a throw in it, requires an array-to-pointer
-			decay.
-
-			used to simply assert string laterals
-		*/
-		template<class T = wchar_t>
-		class strl_
-		{
-			const T *  begin_;
-			unsigned size_;
-
-		public:
-			typedef T UType;
-
-			/*
-				a constructor template with different sizes of the array. This is the
-				only template that we need. In the constructor we change template parameter
-				for class member, and henceforth we can use a normal, non-template class.
-				We initialize the pointer with a reference to array. Pointers to objects
-				are valid for constexpr functions and constructors, provided they point
-				to constexpr objects.
-			*/
-			template< unsigned N >
-			/*constexpr*/ strl_(const T(&arr)[N]) :
-				begin_(arr),
-				size_(N - 1)
-			{
-				/*
-					Size of string literal is always at least 1 due to the terminating
-					zero; hence the assertion, and N - 1 in the initializer.
-				*/
-				static_assert(N >= 2, "CPF-CT-ERR: expected string-literal with atleast 1 character");
-			}
-
-			/*constexpr*/ operator const T *(void) const	{ return begin_; }
-			/*constexpr*/ unsigned size(void) const	{ return size_; }
-		};
-
-		/*
 			library native string types...
 		*/
 		typedef std::wstring str;
