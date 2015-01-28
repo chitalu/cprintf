@@ -71,7 +71,7 @@ namespace cpf
 	auto fname =  log_str_t(\
 	std::find_if(pathname.rbegin(), pathname.rend(),fpath_sep_func()).base(),\
 	pathname.end());\
-	api_func(stderr, log_str, \
+	api_func<CPF_STDE>(log_str, \
 	fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__);
 
 /*
@@ -81,23 +81,11 @@ namespace cpf
 	const cpf::type::str pathname = cpf::wconv(__FILE__);\
 	CPF_DBG_LOG_WRITE(cfwprintf, cpf::type::str, cpf::intern::dbg_log_fmt_str.c_str())
 
-#define cfwprintf_dbg(ustream, format, ...) \
-	do{\
-	CPF_DBG_LOG_STR \
-	cfwprintf(ustream, format, ##__VA_ARGS__);\
-	}while (0);
-
 #define cwprintf_dbg(format, ...) \
-	cfwprintf_dbg(stderr, format, ##__VA_ARGS__)
-
-#define cfwprintf_t_dbg(ustream, format, tup) \
 	do{\
 	CPF_DBG_LOG_STR \
-	cfwprintf_t(ustream, format, tup); \
-	} while (0);\
-
-#define cwprintf_t_dbg(format, tup) \
-	cfwprintf_t_dbg(stderr, format, tup);
+	cwprintf<CPF_STDE>(format, ##__VA_ARGS__);\
+	}while (0);
 
 /*
 	narrow character string variants
@@ -106,34 +94,24 @@ namespace cpf
 	const cpf::type::nstr pathname = __FILE__;\
 	CPF_DBG_LOG_WRITE(cfprintf, cpf::type::nstr, cpf::intern::dbg_log_fmt_nstr.c_str())
 
-#define cfprintf_dbg(ustream, format, ...) \
+#define cprintf_dbg(format, ...) \
 	do{\
 	CPF_DBG_LOG_NSTR \
-	cfprintf(ustream, format, ##__VA_ARGS__);\
+	cprintf<CPF_STDE>(format, ##__VA_ARGS__);\
 	}while (0);
 
-#define cprintf_dbg(format, ...) \
-	cfprintf_dbg(stderr, format, ##__VA_ARGS__)
-
-#define cfprintf_t_dbg(ustream, format, tup) \
+#define cprintf_t_dbg(format, tup) \
 	do{\
 	CPF_DBG_LOG_NSTR \
-	cfprintf_t(ustream, format, tup); \
+	cprintf_t<CPF_STDE>(format, tup); \
 	} while (0);\
-
-#define cprintf_t_dbg(format, tup) \
-	cfprintf_t_dbg(stderr, format, tup);
 
 #else // do nothing...
 
-#define cfwprintf_dbg(ustream, format, ...) 
 #define cwprintf_dbg(format, ...) 
-#define cfwprintf_t_dbg(ustream, format, tup) 
 #define cwprintf_t_dbg(format, tup) 
 
-#define cfprintf_dbg(ustream, format, ...) 
 #define cprintf_dbg(format, ...) 
-#define cfprintf_t_dbg(ustream, format, tup) 
 #define cprintf_t_dbg(format, tup) 
 
 #endif /*#if CPF_DBG_CONFIG*/

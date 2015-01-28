@@ -27,20 +27,26 @@
 	cprintf<FLAGS>(...);
 */
 
-// guarrantees atomicity of API invocation such that no other client thread shall 
-// execute instructions within until a [current thread of execution] has finished.
-// should the user fail to specify this value as a template parameter to the API, 
-// the behavior cannot be guarranted and such it conclusively recognised as undefined.
-#define CPF_ATOMIC 0xF
+// write to standard output stream (default)
+#define CPF_STDO 0x1
 
-// signifies sequential client program. Note however that none of the API functions 
-// are re-entant, as such it is the users' responsibilty to enable atomicity via
+// write to standard error stream
+#define CPF_STDE 0x2
+
+// Flag to guarrantee atomicity of API invocation such that no other client thread shall 
+// execute instructions within until the [current client thread of execution] has finished.
+// Should the user fail to specify this value as a template parameter to the API in their
+// mutlithreaded program, the behavior and outcome are undefined.
+// non-specification implies a sequential client program. Note however that no part of the API 
+// is re-entant, and as such it is the users' responsibilty to enable atomicity via
 // CPF_ATOMIC if using multiple threads in a client program.
-#define CPF_NON 0x0
+#define CPF_ATOMIC 0x4
 
-#define CPF_LOCK_CRITICAL_SECTION {cpf::intern::user_thread_mutex.lock();}
+#define CPF_FLAG_ERR (CPF_STDO | CPF_STDE | CPF_ATOMIC)
 
-#define CPF_UNLOCK_CRITICAL_SECTION {cpf::intern::user_thread_mutex.unlock();}
+#define CPF_MARK_CRITICAL_SECTION if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.lock();}
+
+#define CPF_UNMARK_CRITICAL_SECTION if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.unlock();}
 
 namespace cpf
 {
@@ -136,6 +142,8 @@ namespace cpf
 			@returns wide version of src
 		*/
 		CPF_API cpf::type::str wconv(const cpf::type::nstr &src);
+		//pass through
+		CPF_API const cpf::type::str &wconv(const cpf::type::str &src);
 
 		/*
 			convert from wide character string to narrow character string
@@ -241,45 +249,6 @@ namespace cpf
 							T0&& arg0,
 							Ts&&... args)
 		{
-			/*
-				----------------------------------
-				Compile-Time argument verification
-				----------------------------------
-			*/
-			static_assert(
-				/*
-					check if argument is a char-type pointer (narrow or wide)
-				*/
-				(	std::is_pointer<T0>::value and
-					(	
-						std::is_same<wchar_t*, T0>::value			or std::is_same<char*, T0>::value				or
-						std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value		or
-						std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value			or
-						std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
-					)
-				) or
-				/*
-					check if argument is of type std::string or std::wstring
-				*/
-				(
-					std::is_same<cpf::type::str, T0>::value or
-					std::is_same<cpf::type::nstr, T0>::value
-				) or
-				/*
-					check if argument is of type "float", "double" or "long double"
-				*/
-				std::is_floating_point<T0>::value or
-				/*
-					check if argument is of type "char" "short" "int" "long" ("unsigned" included)
-				*/
-				std::is_integral<T0>::value,
-				/*
-					------------------------------
-					End Of Type-Check Condition...
-					------------------------------
-				*/
-				"CPF-CT-ERR: Illegal argument type");
-
 			cpf::type::str printed_string_ = printed_string;
 
 			/*	

@@ -25,153 +25,74 @@
 
 #include <cprintf/internal/cpf_hlpr.h>
 
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-void cfwprintf(cpf::type::stream ustream, const cpf::type::str &format, Ts... args)
+template<	std::size_t FLAGS = CPF_STDO, 
+			typename T0, 
+			typename... Ts>
+typename std::enable_if<	std::is_same<T0, std::string>::value or
+							std::is_same<T0, std::wstring>::value or
+							std::is_pointer<T0>::value and
+							(
+								std::is_same<wchar_t*, T0>::value			or std::is_same<char*, T0>::value					or
+								std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value			or
+								std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value				or
+								std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
+							),//end of condition
+							T0>
+cprintf(T0 f, Ts... args)
 {
+	static_assert(	(((FLAGS bitand CPF_STDO) == CPF_STDO) and	((FLAGS bitand CPF_STDE) != CPF_STDE)) or
+					(((FLAGS bitand CPF_STDO) != CPF_STDO) and	((FLAGS bitand CPF_STDE) == CPF_STDE)),
+					"CPF-CT-ERR: invalid stream specification");
+
+	static_assert(	(FLAGS xor CPF_FLAG_ERR) <= CPF_FLAG_ERR,
+					"CPF-CT-ERR: invalid API flags detected");
+
 #if CPF_DBG_CONFIG
-	if (ustream == nullptr) 
-		throw cpf::type::except(L"CPF-RT-ERR: output stream is undefined (null)");
-
-	cpf::intern::arg_check(format.c_str(), std::forward<Ts>(args)...);
+	cpf::intern::arg_check(	cpf::intern::wconv(std::forward<T0>(f)).c_str(), 
+							std::forward<Ts>(args)...);
 #endif
 
-	if (FLAGS & CPF_ATOMIC)	CPF_LOCK_CRITICAL_SECTION
+	CPF_MARK_CRITICAL_SECTION;
 	{
-		cpf::intern::dispatch(ustream, format, std::forward<Ts>(args)...);
+		cpf::intern::dispatch(	((FLAGS bitand CPF_STDO) == CPF_STDO) ? stdout : stderr,
+								cpf::intern::wconv(std::forward<T0>(f)),
+								std::forward<Ts>(args)...);
 	}
-	if (FLAGS & CPF_ATOMIC)	CPF_UNLOCK_CRITICAL_SECTION
+	CPF_UNMARK_CRITICAL_SECTION;
+
+	return /*std::result_of<decltype(cprintf<FLAGS, T0, Ts...>)>::type();*/std::enable_if<true, T0>();
 }
 
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfprintf(cpf::type::stream ustream, const cpf::type::nstr &format, Ts... args)
-{
-	/*
-		GCC or clang do not yet support multi-byte conversion functionality...
-
-		http://stackoverflow.com/questions/24497956/is-codecvt-not-supported-by-clang-or-gcc
-		http://stackoverflow.com/questions/15615136/is-codecvt-not-a-std-header?rq=1
-		https://gcc.gnu.org/onlinedocs/libstdc++/manual/facets.html#std.localization.facet.codecvt
-		https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#status.iso.2011
-	*/
-#if defined(CPF_LINUX_BUILD)
-	printf("the header \"codecvt\" is missing!\nuse wide char API variants (cwpr...)\n");
-	return; //skip
-#else
-	auto converter = std::wstring_convert<std::codecvt_utf8<wchar_t>>();
-	auto multibyte_version = converter.from_bytes(format);
-
-	cfwprintf<FLAGS>(ustream, multibyte_version.c_str(), std::forward<Ts>(args)...);
-#endif
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cwprintf(const cpf::type::str &format, Ts... args)
-{
-	cfwprintf<FLAGS>(stdout, format, std::forward<Ts>(args)...);
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cprintf(const cpf::type::nstr &format, Ts... args)
-{
-	cfprintf<FLAGS>(stdout, format, std::forward<Ts>(args)...);
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfwprintf_t(cpf::type::stream ustream,
-						const cpf::type::str &format,
+template<	std::size_t FLAGS = CPF_STDO, 
+			typename T0, 
+			typename... Ts>
+inline void cprintf_t(	T0 f,
 						cpf::type::arg_pack<Ts...> args_tup)
 {
-	auto predef_args_tup = std::make_tuple(ustream, format);
+	auto predef_args_tup = std::make_tuple(f);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 
-	cpf::intern::apply_tuple(cfwprintf<FLAGS, Ts...>, call_args);
+	cpf::intern::apply_tuple(cprintf<FLAGS, T0, Ts...>, call_args);
 }
 
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfprintf_t(	cpf::type::stream ustream,
-						const cpf::type::nstr &format,
-						cpf::type::arg_pack<Ts...> args_tup)
+template<	std::size_t FLAGS = CPF_STDO,
+			typename T0, 
+			unsigned N,
+			typename... Ts>
+inline void cprintf_s(T0 (&f)[N], Ts... args)
 {
-	auto predef_args_tup = std::make_tuple(ustream, format);
-	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
-
-	cpf::intern::apply_tuple(cfprintf<FLAGS, Ts...>, call_args);
+	static_assert(N >= 2, "CPF-CT-ERR: expected string-literal of size >= 1");
+	cprintf<FLAGS>(	f, std::forward<Ts>(args)...);
 }
 
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cwprintf_t(const cpf::type::str &format, cpf::type::arg_pack<Ts...> args_tup)
+template<	std::size_t FLAGS = CPF_STDO,
+			typename T0,
+			unsigned N,
+			typename... Ts>
+inline void cprintf_ts(T0(&f)[N], cpf::type::arg_pack<Ts...> args_tup)
 {
-	cfwprintf_t<FLAGS>(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cprintf_t(const cpf::type::nstr &format, cpf::type::arg_pack<Ts...> args_tup)
-{		
-	cfprintf_t<FLAGS>(stdout, format, std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
-}
-
-/*
-	string literal APIs
-*/
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfwprintf_s(cpf::type::stream ustream, cpf::type::strl format, Ts... args)
-{
-	cfwprintf<FLAGS>(	ustream, 
-						static_cast<const cpf::type::strl::EType*>(format),
-						std::forward<Ts>(args)...);
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfprintf_s(cpf::type::stream ustream, cpf::type::nstrl format, Ts... args)
-{
-	cfprintf<FLAGS>(	ustream,
-						static_cast<const cpf::type::nstrl::EType*>(format),
-						std::forward<Ts>(args)...);
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cwprintf_s(cpf::type::strl format, Ts... args)
-{
-	cwprintf<FLAGS>(static_cast<const cpf::type::strl::EType*>(format),
-					std::forward<Ts>(args)...);
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cprintf_s( cpf::type::nstrl format, Ts... args)
-{
-	cprintf<FLAGS>(	static_cast<const cpf::type::nstrl::EType*>(format), 
-					std::forward<Ts>(args)...);
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfwprintf_ts(cpf::type::stream ustream, cpf::type::strl format, cpf::type::arg_pack<Ts...> args_tup)
-{
-	cfwprintf<FLAGS>(	ustream,
-						static_cast<const cpf::type::strl::EType*>(format),
-						std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cfprintf_ts(cpf::type::stream ustream, cpf::type::nstrl format, cpf::type::arg_pack<Ts...> args_tup)
-{
-	cfprintf<FLAGS>(ustream,
-					static_cast<const cpf::type::nstrl::EType*>(format),
-					std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cwprintf_ts(cpf::type::strl format, cpf::type::arg_pack<Ts...> args_tup)
-{
-	cwprintf<FLAGS>(static_cast<const cpf::type::strl::EType*>(format),
-					std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
-}
-
-template<std::size_t FLAGS = CPF_NON, typename... Ts>
-inline void cprintf_ts(cpf::type::nstrl format, cpf::type::arg_pack<Ts...> args_tup)
-{
-	cprintf<FLAGS>(	static_cast<const cpf::type::nstrl::EType*>(format),
-					std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
+	static_assert(N >= 2, "CPF-CT-ERR: expected string-literal of size >= 1");
+	cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
 }
 
 #include <cprintf/internal/cpf_dbgh.h>

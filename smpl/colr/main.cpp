@@ -25,7 +25,10 @@ int main(void)
 		"`*", "``", "`?" "`!",
 		"`~", "`|", "`f", "`l"
 	*/
-
+	struct{
+		int x;
+	}foo;
+	//cprintf(foo);
 	try
 	{
 		//last two characters are printed with bright red foreground colour 
@@ -79,8 +82,8 @@ int main(void)
 		//wide character
 		auto ws = LR"rsl(raw $ystring lateral$? %s
 )rsl";
-		cwprintf(ws, L"foo");
-		cwprintf(L"as argument: %s", ws);
+		cprintf(ws, L"foo");
+		cprintf(L"as argument: %s", ws);
 
 		//printing types std::string and std::wstring in colour.
 		//again, same as before
@@ -89,7 +92,7 @@ int main(void)
 		cprintf("as argument: %s", std_str);
 
 		std::wstring std_wstr = L"yey! $g*Go me!! %d\n";
-		cwprintf(std_wstr, std_wstr.size());
+		cprintf(std_wstr, std_wstr.size());
 		cprintf("as argument: %s", std_wstr);
 
 		/*
@@ -141,7 +144,7 @@ int main(void)
 		{
 			auto s = cpf::type::str(i);
 
-			cwprintf((L"$" + s + L"%s" + L"$?\t").c_str(), i);
+			cprintf((L"$" + s + L"%s" + L"$?\t").c_str(), i);
 
 			if ((++count % 8) == 0)
 				printf("\n");

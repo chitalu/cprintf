@@ -51,6 +51,45 @@ namespace cpf
 		template<class T, typename... Ts>
 		void arg_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 		{
+			/*
+				----------------------------------
+				Compile-Time argument verification
+				----------------------------------
+			*/
+			static_assert(
+				/*
+					check if argument is a char-type pointer (narrow or wide)
+				*/
+				(	std::is_pointer<T>::value and
+					(
+						std::is_same<wchar_t*, T>::value			or std::is_same<char*, T>::value				or
+						std::is_same<unsigned char*, T>::value		or std::is_same<signed char*, T>::value			or
+						std::is_same<const wchar_t*, T>::value		or std::is_same<const char*, T>::value			or
+						std::is_same<const signed char*, T>::value	or std::is_same<const unsigned char*, T>::value
+					)
+				) or
+				/*
+					check if argument is of type std::string or std::wstring
+				*/
+				(
+					std::is_same<cpf::type::str, T>::value or
+					std::is_same<cpf::type::nstr, T>::value
+				) or
+				/*
+					check if argument is of type "float", "double" or "long double"
+				*/
+				std::is_floating_point<T>::value or
+				/*
+					check if argument is of type "char" "short" "int" "long" ("unsigned" included)
+				*/
+				std::is_integral<T>::value,
+				/*
+					------------------------------
+					End Of Type-Check Condition...
+					------------------------------
+				*/
+				"CPF-CT-ERR: illegal argument type");
+
 			cpf::type::str prestr = L"CPF-RT-ERR: fmt-spec to arg-type mismatch, ";
 
 			for (; *format; ++format)

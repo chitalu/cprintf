@@ -55,7 +55,7 @@ $g@line:$c	$g*%d$c
 #endif //CPF_DBG_CONFIG
 
 /*
-	atomicity mutex variable used for multithreaded invocations of
+	atomicity mutex variable used for synchronising client-multithreaded invocations of
 	API
 */
 std::mutex cpf::intern::user_thread_mutex;
@@ -262,6 +262,11 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 	perhaps it could even be possible to add a printf function variant that 
 	can be instantiated with either
 */
+
+CPF_API const cpf::type::str &cpf::intern::wconv(const cpf::type::str &src)
+{
+	return src;
+}
 
 CPF_API cpf::type::str cpf::intern::wconv(const cpf::type::nstr &src)
 {

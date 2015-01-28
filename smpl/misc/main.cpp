@@ -1,9 +1,10 @@
+#define CPF_EXPERIMENTAL
 #include <cprintf/cprintf.hpp>
 
 #include <thread>
 #include <chrono>
 
-void multithreaded_call(void)
+void flag_specification(void)
 {
 	auto big_string = R"bs(
 THREAD INDEX(%d). i = %d
@@ -26,7 +27,7 @@ $y*ADD $w*m*SOME$?.c* COLOUR!$?
 	auto f = [&](int p)
 	{
 		for (int i(0); i < 5; ++i)
-			cprintf<CPF_ATOMIC>(big_string, p, i);
+			cprintf<CPF_STDE | CPF_ATOMIC>(big_string, p, i);
 	};
 	
 	std::thread threads[10];
@@ -52,7 +53,7 @@ void progress_bar(void)
 		}
 		auto downloaded = ((float)c/m) * 512.0f;
 		auto data = std::make_tuple("some-big-file", downloaded, progress, 512.0f - downloaded, bar.c_str());
-		cprintf_t("$0,2`filename: $c*%s$?\ndownloaded: %.2f (%.2f%%)\nremaining: %.2f\nprogress: $gg%s", data);
+		//cprintf_t("$0,2`filename: $c*%s$?\ndownloaded: %.2f (%.2f%%)\nremaining: %.2f\nprogress: $gg%s", data);
 	}
 }
 
@@ -127,10 +128,10 @@ void lull_token(void)
 int main(void)
 {
 	bool exec_ok = true;
-
+	
 	try
 	{
-		multithreaded_call();
+		flag_specification();
 		std::getchar();
 		cprintf("$!");
 		args_and_colours();

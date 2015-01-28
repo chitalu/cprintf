@@ -64,7 +64,7 @@ namespace cpf
 			unsigned size_;
 
 		public:
-			typedef T EType;
+			typedef T UType;
 
 			/*
 				a constructor template with different sizes of the array. This is the
@@ -95,8 +95,6 @@ namespace cpf
 		*/
 		typedef std::wstring str;
 		typedef std::string nstr;
-		typedef strl_<wchar_t> strl;
-		typedef strl_<char> nstrl;
 
 		typedef const wchar_t* cstr;
 
