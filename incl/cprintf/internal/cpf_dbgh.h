@@ -29,14 +29,6 @@ namespace cpf
 {
 	namespace intern
 	{
-		/*
-			narrow character string debug log
-		*/
-		CPF_API const cpf::type::nstr dbg_log_fmt_nstr;
-
-		/*
-			wide character string debug log
-		*/
 		CPF_API const cpf::type::str dbg_log_fmt_str;
 	}
 }
@@ -53,66 +45,38 @@ namespace cpf
 	rendering a client call impotent.
 */
 
-#ifdef _WIN32
+#ifdef CPF_WINDOWS_BUILD
 #define CPF_SEP_COND (character == '\\' || character == '/');
 #else
 #define CPF_SEP_COND ( character == '/');
 #endif
 
-/*
-	Note the the anonymous struct for os specific dir path wrangling
-*/
-#define CPF_DBG_LOG_WRITE(api_func, log_str_t, log_str)\
+#define CPF_DBG_LOG_STAMP\
+	const cpf::type::str pname__ = CPF_WIDEN_STRING_LITERAL(__FILE__);\
 	typedef struct {\
 		bool operator()(char character) const{\
 			return CPF_SEP_COND;\
 		}\
-	}fpath_sep_func;\
-	auto fname =  log_str_t(\
-	std::find_if(pathname.rbegin(), pathname.rend(),fpath_sep_func()).base(),\
-	pathname.end());\
-	api_func<CPF_STDE>(log_str, \
-	fname.c_str(), __TIME__, __DATE__, __FUNCTION__, __LINE__);
+	}sep__;\
+	auto fname__ =  cpf::type::str(std::find_if(pname__.rbegin(), pname__.rend(),sep__()).base(), pname__.end());\
+	cprintf<CPF_STDE>(cpf::intern::dbg_log_fmt_str, fname__, __TIME__, __DATE__, __FUNCTION__, __LINE__);
 
-/*
-	wide character string variants
-*/
-#define CPF_DBG_LOG_STR\
-	const cpf::type::str pathname = cpf::wconv(__FILE__);\
-	CPF_DBG_LOG_WRITE(cfwprintf, cpf::type::str, cpf::intern::dbg_log_fmt_str.c_str())
-
-#define cwprintf_dbg(format, ...) \
+#define cprintf_dbg(f, ...) \
 	do{\
-	CPF_DBG_LOG_STR \
-	cwprintf<CPF_STDE>(format, ##__VA_ARGS__);\
-	}while (0);
+		CPF_DBG_LOG_STAMP \
+		cprintf<CPF_STDE>(f, ##__VA_ARGS__);\
+	}while (0)
 
-/*
-	narrow character string variants
-*/
-#define CPF_DBG_LOG_NSTR\
-	const cpf::type::nstr pathname = __FILE__;\
-	CPF_DBG_LOG_WRITE(cfprintf, cpf::type::nstr, cpf::intern::dbg_log_fmt_nstr.c_str())
-
-#define cprintf_dbg(format, ...) \
+#define cprintf_t_dbg(f, t) \
 	do{\
-	CPF_DBG_LOG_NSTR \
-	cprintf<CPF_STDE>(format, ##__VA_ARGS__);\
-	}while (0);
-
-#define cprintf_t_dbg(format, tup) \
-	do{\
-	CPF_DBG_LOG_NSTR \
-	cprintf_t<CPF_STDE>(format, tup); \
-	} while (0);\
+		CPF_DBG_LOG_STAMP \
+		cprintf_t<CPF_STDE>(f, t); \
+	} while (0)
 
 #else // do nothing...
 
-#define cwprintf_dbg(format, ...) 
-#define cwprintf_t_dbg(format, tup) 
-
-#define cprintf_dbg(format, ...) 
-#define cprintf_t_dbg(format, tup) 
+#define cprintf_dbg(f, ...) 
+#define cprintf_t_dbg(f, t) 
 
 #endif /*#if CPF_DBG_CONFIG*/
 

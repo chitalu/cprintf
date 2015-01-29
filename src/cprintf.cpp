@@ -30,18 +30,6 @@ THE SOFTWARE.
 
 #if CPF_DBG_CONFIG
 /*
-	narrow character string debug log
-*/
-CPF_API const cpf::type::nstr cpf::intern::dbg_log_fmt_nstr =
-R"debug_str($cdbg
-$g@file:$c	$g*%s$c
-$g@time:$c	$g*%s$c-$g*%s$c 
-$g@func:$c	$g*%s$c
-$g@line:$c	$g*%d$c
-
->> log: $?)debug_str";
-
-/*
 	wide character string debug log
 */
 CPF_API const cpf::type::str cpf::intern::dbg_log_fmt_str =

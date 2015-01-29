@@ -3,7 +3,6 @@
 int main(void)
 {
 	bool exec_ok = true;
-
 	/*
 		The use cprintf tokens means that some characters cannot just be printed without 
 		being escaped. More generally, only the Pesa “$” needs to be escaped. All other "secondary"
@@ -25,10 +24,7 @@ int main(void)
 		"`*", "``", "`?" "`!",
 		"`~", "`|", "`f", "`l"
 	*/
-	struct{
-		int x;
-	}foo;
-	//cprintf(foo);
+	
 	try
 	{
 		//last two characters are printed with bright red foreground colour 

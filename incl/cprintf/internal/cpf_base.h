@@ -87,6 +87,14 @@
 
 #define CPF_ESC_CHAR ('`')
 
+// from narrow to wide e.g. const char* -> const wchar_t*
+// string literals only.
+//#define CPF_WIDEN_STRING_LITERAL(str) L##str	
+
+#define CPF_WIDEN_2__(x) L##x
+#define CPF_WIDEN_1__(x) CPF_WIDEN_2__(x)
+#define CPF_WIDEN_STRING_LITERAL(s) CPF_WIDEN_1__(s)
+
 /*
 	Note:	preprocessor defintions contained hereinafter
 			this "#include" may conflict with user code.
