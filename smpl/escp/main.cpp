@@ -5,7 +5,7 @@ int main(void)
 	auto ret = cprintf("floyd\n");
 
 	ret = cprintf("hello %d %d\n", ret.f, ret.c);
-
+	
 	/*cprintf("bar$r`r\n");
 
 	cprintf("bar $r*`red\n");

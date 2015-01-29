@@ -53,6 +53,12 @@ namespace cpf
 
 			// API return code
 			retcode_t c;
+
+			template<typename Ty>
+			inline bool operator==(const typename std::enable_if<std::is_integral<Ty>::value, Ty>::type &rhs)
+			{
+				return (c == rhs);
+			}
 		};
 		/*
 			library native string types...
