@@ -58,7 +58,7 @@ cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
 		if (pos == obj.size() - 1)
 		{
 			/*this would imply the following: cprintf("foo bar %");*/
-			throw cpf::type::except(L"CPF-RT-ERR: invalid format specifier ('%') position.");
+			throw CPF_FSPEC_ERR;// invalid format specifier('%') position.
 		}
 		std::int32_t n_ = n;
 
@@ -154,13 +154,13 @@ cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
 				}
 				else
 				{
-					throw cpf::type::except(L"CPF-RT-ERR: invalid format specifier detail");
+					throw CPF_FSPEC_ERR;// invalid format specifier detail
 				}
 
 				//last iteration
 				if (i == (_max - 1) && !is_in(crnt_char, cpf::intern::ext_fmtspec_terms))
 				{
-					throw cpf::type::except(L"CPF-RT-ERR: invalid format specifier");
+					throw CPF_FSPEC_ERR;// invalid format specifier
 				}	
 			}
 			if (parsed_complete_f_spec)

@@ -32,6 +32,6 @@ CPF_API void cpf::intern::arg_check(cpf::type::cstr format)
 		{
 			continue;
 		}
-		throw cpf::type::except(L"CPF-RT-ERR: bad format specifier");
+		throw CPF_FSPEC_ARG_ERR; //bad format specifier
 	}
 }

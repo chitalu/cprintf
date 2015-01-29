@@ -57,6 +57,7 @@ namespace cpf
 				----------------------------------
 			*/
 			static_assert(
+				std::is_pointer<T>::value or
 				/*
 					check if argument is a char-type pointer (narrow or wide)
 				*/
@@ -103,13 +104,13 @@ namespace cpf
 				{
 				case 'f': case 'e': case 'g':
 					if (!std::is_floating_point<T>::value)
-						throw cpf::type::except((prestr + L"expected a [floating point] value"));
+						throw CPF_FSPEC_ARG_ERR; // expected a[floating point] value
 					break;
 				case 'd': case 'i': case 'o': case 'u': case 'c': case 'x':
 				case 'l': //note that this is actually in "inter_fmt_specs"
 				case '#': //note that this is actually in "inter_fmt_specs"
 					if (!std::is_integral<T>::value)
-						throw cpf::type::except(prestr + L"expected an [integral] value");
+						throw CPF_FSPEC_ARG_ERR; // expected an[integral] value"
 					break;
 				case 's':
 					if (!((std::is_pointer<T>::value and
@@ -122,24 +123,22 @@ namespace cpf
 						std::is_same<cpf::type::str, T>::value or
 						std::is_same<cpf::type::nstr, T>::value))
 					{
-						throw cpf::type::except(prestr + L"expected a value of type [c-string, std::string or std::wstring]");
+						throw CPF_FSPEC_ARG_ERR; // expected a value of type[c - string, std::string or std::wstring]
 					}
 					break;
 				case 'p':
 					if (!std::is_pointer<T>::value)
-						throw cpf::type::except(prestr + L"expected a [pointer] value");
+						throw CPF_FSPEC_ARG_ERR; // expected a[pointer] value
 					break;
 				default:
-					/*
-						Note: does note cover all edge cases
-						*/
+					//	Note: does note cover all edge cases
 					break;
 				}
 
 				return arg_check(++format, std::forward<Ts>(args)...);
 			}
 
-			throw cpf::type::except(L"CPF-RT-ERR: invalid argument count");
+			throw CPF_FSPEC_ARG_ERR; // invalid argument count
 		}
 	}
 }

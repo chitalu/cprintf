@@ -89,11 +89,28 @@
 
 // from narrow to wide e.g. const char* -> const wchar_t*
 // string literals only.
-//#define CPF_WIDEN_STRING_LITERAL(str) L##str	
-
 #define CPF_WIDEN_2__(x) L##x
 #define CPF_WIDEN_1__(x) CPF_WIDEN_2__(x)
 #define CPF_WIDEN_STRING_LITERAL(s) CPF_WIDEN_1__(s)
+
+/*
+	error codes.
+*/
+
+// no error
+#define CPF_NO_ERR 0x0000
+
+// invalid token(s) encountered in format string
+#define CPF_TOKEN_ERR 0xC001
+
+// invalid format specifier(s) in format string
+#define CPF_FSPEC_ERR 0xC002
+
+// mismatch between a format specifier and its corresponding argument 
+#define CPF_FSPEC_ARG_ERR 0xC003
+
+// error occurred following internal system configurations 
+#define CPF_SYSTEM_ERR 0xC004
 
 /*
 	Note:	preprocessor defintions contained hereinafter

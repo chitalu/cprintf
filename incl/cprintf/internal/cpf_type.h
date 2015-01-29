@@ -42,6 +42,18 @@ namespace cpf
 {
 	namespace type
 	{
+		typedef int retcode_t;
+
+		template<bool B, typename T>
+		class ret_t : std::enable_if<B, T>
+		{
+		public:
+			// user format string
+			typename std::enable_if<B, T>::type f;
+
+			// API return code
+			retcode_t c;
+		};
 		/*
 			library native string types...
 		*/
@@ -58,29 +70,6 @@ namespace cpf
 #else
 		typedef cpf::type::str colour;
 #endif
-
-		struct except
-		{
-		private:
-			str m_msg;
-		public:
-			except(void) :m_msg(L"CPF-RT-ERR"){}
-			except(const str _msg) :m_msg(_msg){}
-			~except(void){}
-
-			inline const wchar_t* wmsg(void)const
-			{
-				return m_msg.c_str();
-			}
-			inline const char* msg(void)const{
-				return "FIX THIS!"; //cpf::intern::nconv(m_msg);	}
-			}
-
-			inline void operator=(str &m)
-			{
-				m_msg = m;
-			}
-		};
 
 		typedef std::pair<cpf::type::str, cpf::type::str> string_pair;
 		typedef std::vector<cpf::type::str> string_vector;

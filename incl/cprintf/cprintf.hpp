@@ -28,7 +28,7 @@
 template<	std::size_t FLAGS = CPF_STDO, 
 			typename T0, 
 			typename... Ts>
-typename std::enable_if<	std::is_same<T0, std::string>::value or
+typename cpf::type::ret_t<	std::is_same<T0, std::string>::value or
 							std::is_same<T0, std::wstring>::value or
 							std::is_pointer<T0>::value and
 							(
@@ -36,7 +36,7 @@ typename std::enable_if<	std::is_same<T0, std::string>::value or
 								std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value			or
 								std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value				or
 								std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
-							),//end of condition
+							),//end of test condition
 							T0>
 cprintf(T0 f, Ts... args)
 {
@@ -47,20 +47,18 @@ cprintf(T0 f, Ts... args)
 	static_assert(	(FLAGS xor CPF_FLAG_ERR) <= CPF_FLAG_ERR,
 					"CPF-CT-ERR: invalid API flags detected");
 
-#if CPF_DBG_CONFIG
-	cpf::intern::arg_check(	cpf::intern::wconv(std::forward<T0>(f)).c_str(), 
-							std::forward<Ts>(args)...);
-#endif
+	//TODO: cpf::type::ret_t<true, T0> needs to be automatically deduced
+	cpf::type::ret_t<true, T0> ret;	ret.f = f;
 
 	CPF_MARK_CRITICAL_SECTION;
 	{
-		cpf::intern::dispatch(	((FLAGS bitand CPF_STDO) == CPF_STDO) ? stdout : stderr,
-								cpf::intern::wconv(std::forward<T0>(f)),
-								std::forward<Ts>(args)...);
+		ret.c = cpf::intern::dispatch(	((FLAGS bitand CPF_STDO) == CPF_STDO) ? stdout : stderr,
+										cpf::intern::wconv(std::forward<T0>(f)),
+										std::forward<Ts>(args)...);
 	}
 	CPF_UNMARK_CRITICAL_SECTION;
 
-	return /*std::result_of<decltype(cprintf<FLAGS, T0, Ts...>)>::type();*/std::enable_if<true, T0>();
+	return ret;/*std::result_of<decltype(cprintf<FLAGS, T0, Ts...>)>::type();*/
 }
 
 template<	std::size_t FLAGS = CPF_STDO, 

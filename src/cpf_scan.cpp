@@ -357,9 +357,7 @@ cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_,
 	cpf::type::str attribute_string = format_str_.substr(ssp, offset_pos);
 
 	if (attribute_string.size() == 0)
-	{
-		throw cpf::type::except(L"CPF-RT-ERR: invalid '$' token encountered on parse");
-	}
+		throw CPF_TOKEN_ERR;// invalid '$' token encountered on parse
 
 	attrib_end_pos += offset_pos;
 	return attribute_string;

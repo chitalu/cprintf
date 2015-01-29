@@ -323,18 +323,16 @@ namespace cpf
 		}
 
 		template<typename... Ts>
-		void dispatch(cpf::type::stream ustream, const cpf::type::str &format, Ts&&... args)
+		unsigned char dispatch(cpf::type::stream ustream, const cpf::type::str &format, Ts&&... args)
 		{
-			auto meta_format = cpf::intern::process_format_string(format);
+			auto meta_f = cpf::intern::process_format_string(format);
 
-			auto mf_begin = meta_format.cbegin();
-			/*
-				end point comparator...
-				*/
-			auto mf_endpoint_cmp = meta_format.cend();
+			auto mf_begin = meta_f.cbegin();
+			
+			// end-point comparator...
+			auto mf_endpoint_cmp = meta_f.cend();
 
-			bool success(true);
-			cpf::type::except ex;
+			cpf::type::retcode_t rcode = CPF_NO_ERR;
 
 			/*
 				note:	the try catch block is necessary to restore stream
@@ -344,6 +342,10 @@ namespace cpf
 			try
 			{
 				cpf::intern::save_stream_state(ustream);
+
+#if CPF_DBG_CONFIG
+				cpf::intern::arg_check(format.c_str(), std::forward<Ts>(args)...);
+#endif
 
 				/*
 					make actual call to do printing and system terminal configurations
@@ -355,12 +357,14 @@ namespace cpf
 											0u,
 											std::forward<Ts>(args)...);
 			}
-			/*runtime error occurred during function execution.*/
-			catch (cpf::type::except &e){ ex = e;  success = false; }
+			catch (decltype(rcode) &c)
+			{ 
+				rcode = c; // runtime error! 
+			}
 
 			cpf::intern::restore_stream_state(ustream, true);
 
-			if (!success) throw ex;//rethrow!
+			return rcode;
 		}
 	}
 }
