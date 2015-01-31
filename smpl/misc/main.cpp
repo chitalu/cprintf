@@ -127,28 +127,19 @@ void lull_token(void)
 
 int main(void)
 {
-	bool exec_ok = true;
-	
-	try
-	{
-		flag_specification();
-		std::getchar();
-		cprintf("$!");
-		args_and_colours();
-		std::getchar();
-		cprintf("$!");
-		progress_bar();
-		std::getchar();
-		cprintf("$!");
-		rand_colours();
-		std::getchar();
-		cprintf("$!");
-		lull_token();
-	}
-	catch (cpf::type::except &e)
-	{
-		fwprintf(stderr, L"cprintf sample failed\n%s\n", e.msg());
-		exec_ok = false;
-	}
-	return exec_ok ? EXIT_SUCCESS : EXIT_FAILURE;
+	flag_specification();
+	std::getchar();
+	cprintf("$!");
+	args_and_colours();
+	std::getchar();
+	cprintf("$!");
+	progress_bar();
+	std::getchar();
+	cprintf("$!");
+	rand_colours();
+	std::getchar();
+	cprintf("$!");
+	lull_token();
+
+	return 0;
 }

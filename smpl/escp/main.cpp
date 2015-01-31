@@ -1,12 +1,8 @@
 #include <cprintf/cprintf.hpp>
 
 int main(void)
-{
-	auto ret = cprintf("floyd\n");
-
-	ret = cprintf("hello %d %d\n", ret.f, ret.c);
-	
-	/*cprintf("bar$r`r\n");
+{	
+	cprintf("bar$r`r\n");
 
 	cprintf("bar $r*`red\n");
 
@@ -18,7 +14,7 @@ int main(void)
 
 	cprintf("$r*#`bright red background\n");
 
-	cprintf("`$? `$r `$g `$b `$y `$m `$c `$w `$rg `$gb* `$b*y `$y*m* `$m ");*/
+	cprintf("`$? `$r `$g `$b `$y `$m `$c `$w `$rg `$gb* `$b*y `$y*m* `$m ");
 
 	return EXIT_SUCCESS;
 }
