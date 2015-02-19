@@ -27,7 +27,7 @@
 #define CPF_WINDOWS_BUILD 1
 #elif defined(__APPLE__)
 #define CPF_MAC_BUILD 1
-#elif defined(__linux)
+#elif defined(__gnu_linux__)
 #define CPF_LINUX_BUILD 1
 #endif
 
@@ -67,13 +67,13 @@
 #  		if defined(__GNUC__) && __GNUC__>=4
 #   		define CPF_API extern __attribute__ ((visibility("default")))
 #		else
-#   		#pragma warning Unknown dynamic link import/export semantics.
+#   		pragma warning Unknown dynamic link import/export semantics.
 #  		endif
 #  	else
 #		if defined(__GNUC__) && __GNUC__>=4
 #   		define CPF_API 
 #		else
-#   		#pragma warning Unknown dynamic link import/export semantics.
+#   		pragma warning Unknown dynamic link import/export semantics.
 #  		endif
 #  	endif
 #endif
