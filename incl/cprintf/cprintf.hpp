@@ -44,21 +44,23 @@ cprintf(T0 f, Ts... args)
 					(((FLAGS bitand CPF_STDO) != CPF_STDO) and	((FLAGS bitand CPF_STDE) == CPF_STDE)),
 					"CPF-CT-ERR: invalid stream specification");
 
-	static_assert(	(FLAGS xor CPF_FLAG_ERR) <= CPF_FLAG_ERR,
+	static_assert(	(FLAGS xor CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
 					"CPF-CT-ERR: invalid API flags detected");
 
-	//TODO: cpf::type::ret_t<true, T0> needs to be automatically deduced
+	//so close!!!
+	//TODO: resolve this
+	//typename std::result_of<decltype(cprintf<FLAGS, T0, Ts...>(f, args...))>::type ret;
 	cpf::type::ret_t<true, T0> ret;	ret.f = f;
 
-	CPF_MARK_CRITICAL_SECTION;
+	CPF_MARK_CRITICAL_SECTION_;
 	{
 		ret.c = cpf::intern::dispatch(	((FLAGS bitand CPF_STDO) == CPF_STDO) ? stdout : stderr,
-										cpf::intern::wconv(std::forward<T0>(f)),
+										std::forward<T0>(f),
 										std::forward<Ts>(args)...);
 	}
-	CPF_UNMARK_CRITICAL_SECTION;
+	CPF_UNMARK_CRITICAL_SECTION_;
 
-	return ret;/*std::result_of<decltype(cprintf<FLAGS, T0, Ts...>)>::type();*/
+	return ret;
 }
 
 template<	std::size_t FLAGS = CPF_STDO, 

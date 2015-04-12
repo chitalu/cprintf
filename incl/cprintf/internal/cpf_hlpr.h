@@ -21,32 +21,9 @@
 #include <cprintf/internal/cpf_carg.h>
 #include <cprintf/internal/cpf_tconf.h>
 
-/*
-	API compile-time determined runtime flags
+#define CPF_MARK_CRITICAL_SECTION_ if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.lock();}
 
-	cprintf<FLAGS>(...);
-*/
-
-// write to standard output stream (default)
-#define CPF_STDO 0x1
-
-// write to standard error stream
-#define CPF_STDE 0x2
-
-// Flag to guarrantee atomicity of API invocation such that no other client thread shall 
-// execute instructions within until the [current client thread of execution] has finished.
-// Should the user fail to specify this value as a template parameter to the API in their
-// mutlithreaded program, the behavior and outcome are undefined.
-// non-specification implies a sequential client program. Note however that no part of the API 
-// is re-entant, and as such it is the users' responsibilty to enable atomicity via
-// CPF_ATOMIC if using multiple threads in a client program.
-#define CPF_ATOMIC 0x4
-
-#define CPF_FLAG_ERR (CPF_STDO | CPF_STDE | CPF_ATOMIC)
-
-#define CPF_MARK_CRITICAL_SECTION if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.lock();}
-
-#define CPF_UNMARK_CRITICAL_SECTION if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.unlock();}
+#define CPF_UNMARK_CRITICAL_SECTION_ if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.unlock();}
 
 namespace cpf
 {
@@ -121,7 +98,7 @@ namespace cpf
 		inline auto _apply_tuple(Op&& op, Tuple&& t, I<Indices...>&&) ->
 		decltype(std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...))
 		{
-				return std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...);
+			return std::forward<Op>(op)(std::get<Indices>(std::forward<Tuple>(t))...);
 		}
 
 		/*
@@ -134,22 +111,23 @@ namespace cpf
 			inline auto apply_tuple(Op&& op, Tuple&& t) ->
 			decltype(_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{}))
 		{
-				return	_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{});
+			return	_apply_tuple(std::forward<Op>(op), std::forward<Tuple>(t), Indices{});
 		}
 
 		/*
 			convert from narraow character string to wide character string
 			@returns wide version of src
 		*/
-		CPF_API cpf::type::str wconv(const cpf::type::nstr &src);
+		CPF_API cpf::type::str wconv(cpf::type::nstr &&src);
+
 		//pass through
-		CPF_API const cpf::type::str &wconv(const cpf::type::str &src);
+		CPF_API const cpf::type::str wconv(cpf::type::str &&src);
 
 		/*
 			convert from wide character string to narrow character string
 			@returns narrow version of src
 		*/
-		CPF_API cpf::type::nstr nconv(const cpf::type::str &src);
+		CPF_API cpf::type::nstr nconv(cpf::type::str &&src);
 
 		/*
 			@return number of printf argument tokens "%" in a given string
@@ -195,32 +173,32 @@ namespace cpf
 			some tiny extra wizardry has to be done before printing the following types...
 		*/
 		template<>
-		void write_arg<cpf::type::str>(	cpf::type::stream ustream,
+		CPF_API void write_arg<cpf::type::str>(cpf::type::stream ustream,
 										cpf::type::str const &format,
 										cpf::type::str&& arg);
 
 		template<>
-		void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
+		CPF_API void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
 										cpf::type::str const &format,
 										cpf::type::nstr&& arg);
 
 		template<>
-		void write_arg<char*>(	cpf::type::stream ustream,
+		CPF_API void write_arg<char*>(cpf::type::stream ustream,
 								cpf::type::str const &format,
 								char*&& arg);
 
 		template<>
-		void write_arg<signed char*>(	cpf::type::stream ustream,
+		CPF_API void write_arg<signed char*>(cpf::type::stream ustream,
 										cpf::type::str const &format,
 										signed char*&& arg);
 
 		template<>
-		void write_arg<const char*>(cpf::type::stream ustream,
+		CPF_API void write_arg<const char*>(cpf::type::stream ustream,
 									cpf::type::str const &format,
 									const char*&& arg);
 
 		template<>
-		void write_arg<const signed char*>(	cpf::type::stream ustream,
+		CPF_API void write_arg<const signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const signed char*&& arg);
 
@@ -322,17 +300,19 @@ namespace cpf
 			}
 		}
 
-		template<typename... Ts>
-		unsigned char dispatch(cpf::type::stream ustream, const cpf::type::str &format, Ts&&... args)
+		template<typename T0, typename... Ts>
+		cpf::type::retcode_t dispatch(cpf::type::stream ustream, T0 &&raw_format, Ts&&... args)
 		{
-			auto meta_f = cpf::intern::process_format_string(format);
+			cpf::type::str format;
+			try	{
+				format = cpf::intern::wconv(std::forward<T0>(raw_format));
+			}
+			catch(...) {
+				// runtime string conversion error
+				return cpf::type::retcode_t(CPF_NWCONV_ERR);
+			}
 
-			auto mf_begin = meta_f.cbegin();
-			
-			// end-point comparator...
-			auto mf_endpoint_cmp = meta_f.cend();
-
-			cpf::type::retcode_t rcode = CPF_NO_ERR;
+			cpf::type::retcode_t rcode(CPF_NO_ERR);
 
 			/*
 				note:	the try catch block is necessary to restore stream
@@ -341,11 +321,15 @@ namespace cpf
 			*/
 			try
 			{
+#if CPF_DBG_CONFIG
+				cpf::intern::arg_check(std::forward<const wchar_t*>(format.c_str()), std::forward<Ts>(args)...);
+#endif
 				cpf::intern::save_stream_state(ustream);
 
-#if CPF_DBG_CONFIG
-				cpf::intern::arg_check(format.c_str(), std::forward<Ts>(args)...);
-#endif
+				auto meta_f = cpf::intern::process_format_string(format);
+				auto mf_begin = meta_f.cbegin();
+				// end-point comparator...
+				auto mf_endpoint_cmp = meta_f.cend();
 
 				/*
 					make actual call to do printing and system terminal configurations

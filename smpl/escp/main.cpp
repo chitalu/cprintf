@@ -2,6 +2,9 @@
 
 int main(void)
 {	
+	std::decay<const int*>::type y;
+	auto x = std::is_same<std::remove_pointer<int*>::type, int>::value;
+
 	cprintf("bar$r`r\n");
 
 	cprintf("bar $r*`red\n");

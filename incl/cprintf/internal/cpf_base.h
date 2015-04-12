@@ -94,10 +94,33 @@
 #define CPF_WIDEN_STRING_LITERAL(s) CPF_WIDEN_1__(s)
 
 /*
+	API flags
+
+	cprintf<FLAGS>(...);
+*/
+
+// write to standard output stream (default)
+#define CPF_STDO 0x1
+
+// write to standard error stream
+#define CPF_STDE 0x2
+
+// Flag to guarrantee atomicity of API invocation such that no other client thread shall 
+// execute instructions within until the [current client thread of execution] has finished.
+// Should the user fail to specify this value as a template parameter to the API in their
+// mutlithreaded program, the behavior and outcome are undefined.
+// non-specification implies a sequential client program. Note however that no part of the API 
+// is re-entant, and as such it is the users' responsibilty to enable atomicity via
+// CPF_ATOMIC if using multiple threads in a client program.
+#define CPF_ATOMIC 0x4
+
+#define CPF_FLAG_MASK_ (CPF_STDO | CPF_STDE | CPF_ATOMIC)
+
+/*
 	error codes.
 */
 
-// no error
+// no error (every is just fine)
 #define CPF_NO_ERR 0x0000
 
 // invalid token(s) encountered in format string
@@ -107,10 +130,14 @@
 #define CPF_FSPEC_ERR 0xC002
 
 // mismatch between a format specifier and its corresponding argument 
-#define CPF_FSPEC_ARG_ERR 0xC003
+#define CPF_ARG_ERR 0xC003
 
 // error occurred following internal system configurations 
 #define CPF_SYSTEM_ERR 0xC004
+
+// error occurred while attempting to convert narrow-character string
+// to its wide-character form for internal use. 
+#define CPF_NWCONV_ERR 0xC005
 
 /*
 	Note:	preprocessor defintions contained hereinafter

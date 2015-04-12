@@ -251,12 +251,12 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 	can be instantiated with either
 */
 
-CPF_API const cpf::type::str &cpf::intern::wconv(const cpf::type::str &src)
+const cpf::type::str cpf::intern::wconv(cpf::type::str &&src)
 {
-	return src;
+	return std::move(src);
 }
 
-CPF_API cpf::type::str cpf::intern::wconv(const cpf::type::nstr &src)
+cpf::type::str cpf::intern::wconv(cpf::type::nstr &&src)
 {
 #ifdef CPF_LINUX_BUILD
 	return cpf::type::str(); //skip
@@ -266,7 +266,7 @@ CPF_API cpf::type::str cpf::intern::wconv(const cpf::type::nstr &src)
 #endif
 }
 
-CPF_API cpf::type::nstr cpf::intern::nconv(const cpf::type::str &src)
+cpf::type::nstr cpf::intern::nconv(cpf::type::str &&src)
 {
 #ifdef CPF_LINUX_BUILD
 	return cpf::type::nstr(); //skip
@@ -281,7 +281,7 @@ void cpf::intern::write_arg<cpf::type::str>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											cpf::type::str&& arg)
 {
-	cpf::intern::write_arg(ustream, format, arg.c_str());
+	cpf::intern::write_arg(ustream, format, std::forward<const wchar_t*>(arg.c_str()));
 }
 
 template<>
@@ -289,7 +289,7 @@ void cpf::intern::write_arg<cpf::type::nstr>(cpf::type::stream ustream,
 												cpf::type::str const &format,
 												cpf::type::nstr&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(ustream, format, cpf::intern::wconv(arg));
+	cpf::intern::write_arg<cpf::type::str>(ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(std::forward<cpf::type::nstr>(arg))));
 }
 
 template<>
@@ -297,7 +297,7 @@ void cpf::intern::write_arg<char*>(cpf::type::stream ustream,
 									cpf::type::str const &format,
 									char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(ustream, format, cpf::intern::wconv(arg));
+	cpf::intern::write_arg<cpf::type::str>(ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(std::forward<char*>(arg))));
 }
 
 template<>
@@ -305,7 +305,7 @@ void cpf::intern::write_arg<const char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(ustream, format, cpf::intern::wconv(arg));
+	cpf::intern::write_arg<cpf::type::str>(	ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(std::forward<const char*>(arg))));
 }
 
 template<>
@@ -313,9 +313,7 @@ void cpf::intern::write_arg<signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											signed char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(	ustream,
-											format, 
-											cpf::intern::wconv(reinterpret_cast<char*>(arg)));
+	cpf::intern::write_arg<cpf::type::str>(	ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(reinterpret_cast<char*>(arg))));
 }
 
 template<>
@@ -323,9 +321,7 @@ void cpf::intern::write_arg<const signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const signed char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(	ustream,
-											format,
-											cpf::intern::wconv(reinterpret_cast<const char*>(arg)));
+	cpf::intern::write_arg<cpf::type::str>(	ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(reinterpret_cast<const char*>(arg))));
 }
 
 CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
@@ -354,3 +350,4 @@ CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
 	/*restore defaults*/
 	cpf::intern::configure(ustream, cpf::type::string_vector({ L"?" }));
 }
+
