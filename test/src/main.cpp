@@ -1,5 +1,5 @@
-﻿//#include <gtest/gtest.h>
-//#include <cprintf/cprintf.hpp>
+﻿#include <gtest/gtest.h>
+#include <cprintf/cprintf.hpp>
 //
 //#ifdef _WIN32
 //
@@ -80,14 +80,15 @@
 //	ASSERT_NO_THROW(cwprintf(L"cpf test :: $r`red\n"));
 //}
 //
-//int main(int argc, char **argv)
-//{
-//	cfprintf(stdout, "test hello 0\n");
-//	cfwprintf(stdout, L"test hello 1\n");
-//	cfprintf_dbg(stdout, "debug-print test hello 0\n");
-//	cfprintf_dbg(stdout, "debug-print test hello 1\n");
-//	::testing::InitGoogleTest(&argc, argv);
-//	int ret = RUN_ALL_TESTS();
-//	std::getchar();
-//	return ret;
-//}
+int main(int argc, char **argv)
+{
+	///cprintf_(1);
+	cprintf("test hello 0\n");
+	cprintf(L"test hello 1\n");
+	cprintf("debug-print test hello 0\n");
+	cprintf_dbg("debug-print test hello 1\n");
+	::testing::InitGoogleTest(&argc, argv);
+	int ret = RUN_ALL_TESTS();
+	std::getchar();
+	return ret;
+}

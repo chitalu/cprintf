@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include "cprintf/internal/cpf_base.h"
 
+#include <inttypes.h>
 #include <cstdint>
 #include <utility>
 #include <vector>

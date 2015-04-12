@@ -63,6 +63,24 @@ cprintf(T0 f, Ts... args)
 	return ret;
 }
 
+//template<std::size_t FLAGS = CPF_STDO, typename T>
+//inline void cprintf_arg0_impl(std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
+//{
+//	cprintf<FLAGS, T>("%f", static_cast<double>(arg0));
+//}
+//
+//template<std::size_t FLAGS = CPF_STDO, typename T>
+//inline void cprintf_arg0_impl(std::enable_if<std::is_integral<T>::value, T>::type &&arg0)
+//{
+//	cprintf<FLAGS, T>("%" PRId64, static_cast<std::int64_t>(arg0));
+//}
+
+//template<std::size_t FLAGS = CPF_STDO, typename T>
+//inline void cprintf_(std::enable_if<std::is_arithmetic<T>::value, T>::type arg0)
+//{
+//	//cprintf_arg0_impl<FLAGS, T>(std::forward<T>(arg0));
+//}
+
 template<	std::size_t FLAGS = CPF_STDO, 
 			typename T0, 
 			typename... Ts>
