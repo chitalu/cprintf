@@ -8,7 +8,7 @@
 
 #include <mutex>
 
-#if !defined(CPF_LINUX_BUILD)
+#ifdef CPF_WINDOWS_BUILD
 /*
 	Note:	GCC does not yet support multi-byte conversion functionality from the following
 	header, as a result narrow-string variants of cprintf's API will do nothing until
