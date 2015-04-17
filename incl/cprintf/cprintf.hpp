@@ -25,33 +25,8 @@
 
 #include <cprintf/internal/cpf_hlpr.h>
 
-//template<typename T0>
-//struct fstype_check_t : public std::enable_if <
-//	std::is_same<T0, std::string>::value or
-//	std::is_same<T0, std::wstring>::value or
-//	std::is_pointer<T0>::value and
-//	(
-//	std::is_same<wchar_t*, T0>::value			or std::is_same<char*, T0>::value					or
-//	std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value			or
-//	std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value				or
-//	std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
-//	),
-//	T0 > {};
-
-template<	std::size_t FLAGS = CPF_STDO, 
-			typename T0, 
-			typename... Ts>
-typename cpf::type::ret_t<	std::is_same<T0, std::string>::value or
-							std::is_same<T0, std::wstring>::value or
-							std::is_pointer<T0>::value and
-							(
-								std::is_same<wchar_t*, T0>::value			or std::is_same<char*, T0>::value					or
-								std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value			or
-								std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value				or
-								std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
-							),//end of test condition
-							T0>
-cprintf(T0 f, Ts... args)
+template< std::size_t FLAGS = CPF_STDO, typename F = cpf::type::str, typename... Fs>
+auto cprintf(F f, Fs... args) -> cpf::type::ret_t<F>
 {
 	static_assert(	(((FLAGS bitand CPF_STDO) == CPF_STDO) and	((FLAGS bitand CPF_STDE) != CPF_STDE)) or
 					(((FLAGS bitand CPF_STDO) != CPF_STDO) and	((FLAGS bitand CPF_STDE) == CPF_STDE)),
@@ -60,72 +35,88 @@ cprintf(T0 f, Ts... args)
 	static_assert(	(FLAGS xor CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
 					"CPF-CT-ERR: invalid API flags detected");
 
+	/*static_assert(	!std::is_same<typename cpf::type::is_wstype_t<F>::type, cpf::type::stub_t>::value ||
+					!std::is_same<typename cpf::type::is_nstype_t<F>::type, cpf::type::stub_t>::value,
+					"CPF-CT-ERR: invalid format string type");*/
+
 	//so close!!!
 	//TODO: resolve this
-	cpf::type::ret_t<true, T0> ret;	ret.f = f;
-	//typename std::result_of<decltype(cprintf<FLAGS, T0, Ts...>(f, args...))>::type ret2;
+	cpf::type::ret_t<F> ret;	ret.f = f;
+	//typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type ret2;
 	//static_assert(std::is_same<decltype(ret2), decltype(ret)>::value, "");
 
 
 	CPF_MARK_CRITICAL_SECTION_;
 	{
 		ret.c = cpf::intern::dispatch(	((FLAGS bitand CPF_STDO) == CPF_STDO) ? stdout : stderr,
-										std::forward<T0>(f),
-										std::forward<Ts>(args)...);
+										std::forward<F>(f),
+										std::forward<Fs>(args)...);
 	}
 	CPF_UNMARK_CRITICAL_SECTION_;
 
 	return ret;
 }
 
-//template<std::size_t FLAGS = CPF_STDO, typename T>
-//inline void cprintf_arg0_impl(std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
-//{
-//	cprintf<FLAGS, T>("%f", static_cast<double>(arg0));
-//}
-//
-//template<std::size_t FLAGS = CPF_STDO, typename T>
-//inline void cprintf_arg0_impl(std::enable_if<std::is_integral<T>::value, T>::type &&arg0)
-//{
-//	cprintf<FLAGS, T>("%" PRId64, static_cast<std::int64_t>(arg0));
-//}
+template<std::size_t FLAGS = CPF_STDO, typename T>
+inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
+{
+	return cprintf<FLAGS>(cpf::type::str(L"%f"), static_cast<double>(arg0));
+}
 
-//template<std::size_t FLAGS = CPF_STDO, typename T>
-//inline void cprintf_(std::enable_if<std::is_arithmetic<T>::value, T>::type arg0)
-//{
-//	//cprintf_arg0_impl<FLAGS, T>(std::forward<T>(arg0));
-//}
+template<std::size_t FLAGS = CPF_STDO, typename T>
+inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0)
+{
+	return cprintf<FLAGS>(	cpf::type::str(L"%") + cpf::intern::wconv(PRId64),	std::forward<std::int64_t>(arg0));
+}
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint64_t>::type &&arg0)
+{
+	return cprintf<FLAGS>(cpf::type::str(L"%llu"),	std::forward<std::uint64_t>(arg0));
+}
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0)
+{
+	return cprintf<FLAGS>(cpf::type::str(L"%p"), std::forward<T>(arg0));
+}
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+inline cpf::type::ret_t<typename std::enable_if<std::is_scalar<T>::value, cpf::type::str>::type> cprintf_x(T arg0)
+{
+	return cprintf_arg0_impl<FLAGS, T>(std::forward<T>(arg0));
+}
 
 template<	std::size_t FLAGS = CPF_STDO, 
 			typename T0, 
-			typename... Ts>
+			typename... Fs>
 inline void cprintf_t(	T0 f,
-						cpf::type::arg_pack<Ts...> args_tup)
+						cpf::type::arg_pack<Fs...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(f);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 
-	cpf::intern::apply_tuple(cprintf<FLAGS, T0, Ts...>, call_args);
+	cpf::intern::apply_tuple(cprintf<FLAGS, T0, Fs...>, call_args);
 }
 
 template<	std::size_t FLAGS = CPF_STDO,
 			typename T0, 
 			unsigned N,
-			typename... Ts>
-inline void cprintf_s(T0 (&f)[N], Ts... args)
+			typename... Fs>
+inline void cprintf_s(T0 (&f)[N], Fs... args)
 {
 	static_assert(N >= 2, "CPF-CT-ERR: expected string-literal of size >= 1");
-	cprintf<FLAGS>(	f, std::forward<Ts>(args)...);
+	cprintf<FLAGS>(	f, std::forward<Fs>(args)...);
 }
 
 template<	std::size_t FLAGS = CPF_STDO,
 			typename T0,
 			unsigned N,
-			typename... Ts>
-inline void cprintf_ts(T0(&f)[N], cpf::type::arg_pack<Ts...> args_tup)
+			typename... Fs>
+inline void cprintf_ts(T0(&f)[N], cpf::type::arg_pack<Fs...> args_tup)
 {
 	static_assert(N >= 2, "CPF-CT-ERR: expected string-literal of size >= 1");
-	cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack<Ts...>>(args_tup));
+	cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack<Fs...>>(args_tup));
 }
 
 #include <cprintf/internal/cpf_dbgh.h>

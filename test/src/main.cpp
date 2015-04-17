@@ -80,13 +80,48 @@
 //	ASSERT_NO_THROW(cwprintf(L"cpf test :: $r`red\n"));
 //}
 //
+
+const char *byte_to_binary(__int64 x)
+{
+	static char b[64];
+	b[0] = '\0';
+
+	auto z = 1LL << 62LL; // 63LL; = neg
+	for (; z > 0; z >>= 1)
+	{
+		auto h = (x & z);
+		strcat(b, ((x & z) == z) ? "1" : "0");
+	}
+
+	return b;
+}
+
 int main(int argc, char **argv)
 {
-	///cprintf_(1);
-	cprintf("test hello 0\n");
-	cprintf(L"test hello 1\n");
+	// cprintf("bar %d", 68) << "foo: " << 2 << "\n"; 
+
+	{
+		/* binary string to int */
+
+		char *tmp;
+		char *b = "0101";
+
+		printf("%d\n", strtol(b, &tmp, 2));
+	}
+
+	{
+		/* byte to binary string */
+
+		printf("%s\n", byte_to_binary(4LL));
+	}
+
+	int foo[3];
+	cprintf_x(foo);
+
+	auto r = cprintf("test hello 0\n");
+	/*cprintf(L"test hello 1\n");
 	cprintf("debug-print test hello 0\n");
-	cprintf_dbg("debug-print test hello 1\n");
+	cprintf_dbg("debug-print test hello 1\n");*/
 	::testing::InitGoogleTest(&argc, argv);
 	int ret = RUN_ALL_TESTS();
 	std::getchar();

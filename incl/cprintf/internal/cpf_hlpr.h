@@ -295,7 +295,7 @@ namespace cpf
 		}
 
 		template<typename T0, typename... Ts>
-		cpf::type::retcode_t dispatch(cpf::type::stream ustream, T0 &&raw_format, Ts&&... args)
+		cpf::type::rcode_t dispatch(cpf::type::stream ustream, T0 &&raw_format, Ts&&... args)
 		{
 			cpf::type::str format;
 			try	{
@@ -303,10 +303,10 @@ namespace cpf
 			}
 			catch(...) {
 				// runtime string conversion error
-				return cpf::type::retcode_t(CPF_NWCONV_ERR);
+				return cpf::type::rcode_t(CPF_NWCONV_ERR);
 			}
 
-			cpf::type::retcode_t rcode(CPF_NO_ERR);
+			cpf::type::rcode_t rcode(CPF_NO_ERR);
 
 			/*
 				note:	the try catch block is necessary to restore stream

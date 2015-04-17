@@ -43,26 +43,8 @@ namespace cpf
 {
 	namespace type
 	{
-		typedef int retcode_t;
-
-		template<bool B, typename T>
-		class ret_t : std::enable_if<B, T>
-		{
-		public:
-			// user format string
-			typename std::enable_if<B, T>::type f;
-
-			// API return code
-			retcode_t c;
-
-			template<typename Ty>
-			inline bool operator==(const typename std::enable_if<std::is_integral<Ty>::value, Ty>::type &rhs)
-			{
-				return (c == rhs);
-			}
-		};
 		/*
-			library native string types...
+		library native string types...
 		*/
 		typedef std::wstring str;
 		typedef std::string nstr;
@@ -90,6 +72,82 @@ namespace cpf
 		using arg_pack = std::tuple<Ts...>;
 
 		typedef FILE* stream;
+
+		typedef int rcode_t;
+
+		struct stub_t {};
+
+		//check if T is a narrow character string type
+		template<typename T>
+		struct is_nstype_t : 
+			std::conditional<
+				std::is_same<T, std::string>::value || 
+				std::is_pointer<T>::value &&
+				(
+					std::is_same<char*, T>::value || std::is_same<unsigned char*, T>::value || 
+					std::is_same<signed char*, T>::value || std::is_same<const char*, T>::value ||	
+					std::is_same<const signed char*, T>::value || std::is_same<const unsigned char*, T>::value
+				),
+				T, //first type
+				stub_t//second type
+			>
+		{	};
+
+		//check if T is a wide character string type
+		template<typename T>
+		struct is_wstype_t : 
+			std::conditional<
+				std::is_same<T, std::wstring>::value ||
+				std::is_pointer<T>::value && (std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value),
+				T, //first type
+				stub_t //second type
+			>
+		{	};
+
+		// this struct is used to abstract format-string type checks. Also functions 
+		// as holder of the "base" string type used to declare a variable that holds
+		// the returned format string from the library in addition to the return 
+		// code
+		template<typename T>
+		struct ftype_t : 
+			public std::enable_if <
+				!std::is_same<typename is_wstype_t<T>::type, stub_t>::value || 
+				!std::is_same<typename is_nstype_t<T>::type, stub_t>::value, 
+				T 
+			>
+		{};
+
+		// helper struct used to define the format string representative STL type. 
+		// this type can either be std::string or std::wstring
+		template<typename T>
+		struct fstr_t : 
+			std::conditional<	!std::is_same<typename is_wstype_t<T>::type, stub_t>::value,
+								str, 
+								nstr
+							>
+		{	};
+
+		// API return type holds the return code signifying the status
+		// of a particular invocation. The return code can be a value 
+		// set to any of the possible values defined in cpf_base.h
+		// As an auxilliary feature this type also returns the format string
+		// specified by the user.
+		template<typename T>
+		class ret_t : ftype_t<T>
+		{
+		public:
+			// user format string
+			typename fstr_t<typename ftype_t<T>::type>::type f;
+
+			// API return code
+			rcode_t c;
+
+			template<typename U>
+			inline bool operator==(const typename std::enable_if<std::is_integral<U>::value, U>::type &rhs)
+			{
+				return (c == rhs);
+			}
+		};
 	}
 }
 
