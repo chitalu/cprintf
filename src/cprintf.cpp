@@ -251,11 +251,6 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 	can be instantiated with either
 */
 
-const cpf::type::str cpf::intern::wconv(cpf::type::str &&src)
-{
-	return std::move(src);
-}
-
 cpf::type::str cpf::intern::wconv(cpf::type::nstr &&src)
 {
 #ifdef CPF_LINUX_BUILD
@@ -266,14 +261,9 @@ cpf::type::str cpf::intern::wconv(cpf::type::nstr &&src)
 #endif
 }
 
-cpf::type::nstr cpf::intern::nconv(cpf::type::str &&src)
+cpf::type::str cpf::intern::wconv(cpf::type::str &&src)
 {
-#ifdef CPF_LINUX_BUILD
-	return cpf::type::nstr(); //skip
-#else
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-	return converter.to_bytes(src);
-#endif
+	return std::move(src);
 }
 
 template<>

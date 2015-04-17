@@ -27,7 +27,7 @@
 #define CPF_WINDOWS_BUILD 1
 #elif defined(__APPLE__)
 #define CPF_MAC_BUILD 1
-#elif defined(__gnu_linux__)
+#elif defined(__linux__)
 #define CPF_LINUX_BUILD 1
 #endif
 

@@ -115,19 +115,13 @@ namespace cpf
 		}
 
 		/*
-			convert from narraow character string to wide character string
+			convert from narrow character string to wide character string
 			@returns wide version of src
 		*/
 		CPF_API cpf::type::str wconv(cpf::type::nstr &&src);
 
-		//pass through
-		CPF_API const cpf::type::str wconv(cpf::type::str &&src);
-
-		/*
-			convert from wide character string to narrow character string
-			@returns narrow version of src
-		*/
-		CPF_API cpf::type::nstr nconv(cpf::type::str &&src);
+		// pass through ...
+		CPF_API cpf::type::str wconv(cpf::type::str &&src);
 
 		/*
 			@return number of printf argument tokens "%" in a given string
@@ -173,32 +167,32 @@ namespace cpf
 			some tiny extra wizardry has to be done before printing the following types...
 		*/
 		template<>
-		CPF_API void write_arg<cpf::type::str>(cpf::type::stream ustream,
+		void write_arg<cpf::type::str>(cpf::type::stream ustream,
 										cpf::type::str const &format,
 										cpf::type::str&& arg);
 
 		template<>
-		CPF_API void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
+		void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
 										cpf::type::str const &format,
 										cpf::type::nstr&& arg);
 
 		template<>
-		CPF_API void write_arg<char*>(cpf::type::stream ustream,
+		void write_arg<char*>(cpf::type::stream ustream,
 								cpf::type::str const &format,
 								char*&& arg);
 
 		template<>
-		CPF_API void write_arg<signed char*>(cpf::type::stream ustream,
+		void write_arg<signed char*>(cpf::type::stream ustream,
 										cpf::type::str const &format,
 										signed char*&& arg);
 
 		template<>
-		CPF_API void write_arg<const char*>(cpf::type::stream ustream,
+		void write_arg<const char*>(cpf::type::stream ustream,
 									cpf::type::str const &format,
 									const char*&& arg);
 
 		template<>
-		CPF_API void write_arg<const signed char*>(cpf::type::stream ustream,
+		void write_arg<const signed char*>(cpf::type::stream ustream,
 											cpf::type::str const &format,
 											const signed char*&& arg);
 

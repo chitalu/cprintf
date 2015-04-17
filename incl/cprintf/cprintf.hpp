@@ -25,6 +25,19 @@
 
 #include <cprintf/internal/cpf_hlpr.h>
 
+//template<typename T0>
+//struct fstype_check_t : public std::enable_if <
+//	std::is_same<T0, std::string>::value or
+//	std::is_same<T0, std::wstring>::value or
+//	std::is_pointer<T0>::value and
+//	(
+//	std::is_same<wchar_t*, T0>::value			or std::is_same<char*, T0>::value					or
+//	std::is_same<unsigned char*, T0>::value		or std::is_same<signed char*, T0>::value			or
+//	std::is_same<const wchar_t*, T0>::value		or std::is_same<const char*, T0>::value				or
+//	std::is_same<const signed char*, T0>::value	or std::is_same<const unsigned char*, T0>::value
+//	),
+//	T0 > {};
+
 template<	std::size_t FLAGS = CPF_STDO, 
 			typename T0, 
 			typename... Ts>
@@ -49,8 +62,10 @@ cprintf(T0 f, Ts... args)
 
 	//so close!!!
 	//TODO: resolve this
-	//typename std::result_of<decltype(cprintf<FLAGS, T0, Ts...>(f, args...))>::type ret;
 	cpf::type::ret_t<true, T0> ret;	ret.f = f;
+	//typename std::result_of<decltype(cprintf<FLAGS, T0, Ts...>(f, args...))>::type ret2;
+	//static_assert(std::is_same<decltype(ret2), decltype(ret)>::value, "");
+
 
 	CPF_MARK_CRITICAL_SECTION_;
 	{
