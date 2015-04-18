@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 */
 
-#include "cpf_cdef.h"
+#include <cprintf/internal/cpf_cdef.h>
 #include <assert.h>
 
 /*
