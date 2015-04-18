@@ -148,6 +148,7 @@ namespace cpf
 			{
 				return (c == rhs);
 			}
+
 		};
 	}
 }

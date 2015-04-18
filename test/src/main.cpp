@@ -116,8 +116,8 @@ int main(int argc, char **argv)
 	}
 
 	cprintf_x(8LL);
-
-	auto r = cprintf("test hello 0\n");
+	//ru << "foo";
+	cprintf("test hello 0\n");
 	/*cprintf(L"test hello 1\n");
 	cprintf("debug-print test hello 0\n");
 	cprintf_dbg("debug-print test hello 1\n");*/

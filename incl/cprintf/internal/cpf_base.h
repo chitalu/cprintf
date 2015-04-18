@@ -114,8 +114,7 @@
 // CPF_ATOMIC if using multiple threads in a client program.
 #define CPF_ATOMIC 0x4
 
-
-#define CPF_CATPURE 0x8
+#define CPF_CAPtURE 0x8
 
 #define CPF_FLAG_MASK_ (CPF_STDO | CPF_STDE | CPF_ATOMIC)
 
