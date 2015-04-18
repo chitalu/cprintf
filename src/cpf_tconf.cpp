@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #include <wchar.h> //wcstol
-#include "cprintf/internal/cpf_tconf.h"
+#include <cprintf/internal/cpf_tconf.h>
 
 #if _WIN32
 

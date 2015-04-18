@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CPF_CDEF_H__
 #define __CPF_CDEF_H__
 
-#include "cprintf/internal/cpf_base.h"
+#include <cprintf/internal/cpf_base.h>
 
 #ifdef _WIN32
 

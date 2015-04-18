@@ -59,7 +59,7 @@ inline auto x_API_impl(typename std::enable_if<std::is_floating_point<T>::value,
 template<std::size_t FLAGS = CPF_STDO, typename T>
 inline auto x_API_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
-	return cprintf<FLAGS>(	cpf::type::str(L"%") + cpf::intern::wconv(PRId64),	std::forward<std::int64_t>(arg0));
+	return cprintf<FLAGS>(	cpf::type::str(L"%lld"), std::forward<std::int64_t>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
