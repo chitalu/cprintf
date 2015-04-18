@@ -16,6 +16,7 @@
 */
 #include <codecvt> //wstring_convert
 #endif
+#include <cstdint>
 
 #include <cprintf/internal/cpf_scan.h>
 #include <cprintf/internal/cpf_carg.h>
@@ -156,11 +157,44 @@ namespace cpf
 										cpf::type::meta::const_iterator &meta_iter);
 
 		template<typename T>
+		void binary_write_helper(	cpf::type::stream ustream,
+									typename std::enable_if<std::is_scalar<T>::value>::type&& arg)
+		{
+			//...
+
+			std::fwprintf(ustream, L"%s", arg);
+		}
+
+		template<typename T>
+		void binary_write_helper(	cpf::type::stream ustream,
+									typename std::enable_if<!std::is_scalar<T>::value>::type&& arg)
+		{
+
+		}
+
+		template<typename T>
+		void write_in_binary(	cpf::type::stream ustream,
+								T&& arg)
+		{
+			typedef typename std::conditional<	
+				!std::is_scalar<T>::value,
+				T,
+				typename std::conditional<std::is_signed<T>::value, std::int64_t, std::uint64_t>::type
+			>::type foo_t;
+
+			//....
+			//binary_write_helper<T>(ustream, arg);
+		}
+
+		template<typename T>
 		void write_arg(	cpf::type::stream ustream,
 						cpf::type::str const &format,
 						T&& arg)
 		{
-			std::fwprintf(ustream, format.c_str(), arg);
+			if (format == L"%b")
+				write_in_binary(ustream, arg);
+			else
+				std::fwprintf(ustream, format.c_str(), arg);
 		}
 
 		/*
