@@ -75,6 +75,7 @@ namespace cpf
 
 		typedef int rcode_t;
 
+		//placeholder type
 		struct stub_t {};
 
 		//check if T is a narrow character string type

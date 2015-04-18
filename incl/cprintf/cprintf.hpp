@@ -35,16 +35,9 @@ auto cprintf(F f, Fs... args) -> cpf::type::ret_t<F>
 	static_assert(	(FLAGS xor CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
 					"CPF-CT-ERR: invalid API flags detected");
 
-	/*static_assert(	!std::is_same<typename cpf::type::is_wstype_t<F>::type, cpf::type::stub_t>::value ||
-					!std::is_same<typename cpf::type::is_nstype_t<F>::type, cpf::type::stub_t>::value,
-					"CPF-CT-ERR: invalid format string type");*/
-
-	//so close!!!
 	//TODO: resolve this
-	cpf::type::ret_t<F> ret;	ret.f = f;
-	//typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type ret2;
-	//static_assert(std::is_same<decltype(ret2), decltype(ret)>::value, "");
-
+	//typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type ret;
+	cpf::type::ret_t<F> ret; ret.f = f;
 
 	CPF_MARK_CRITICAL_SECTION_;
 	{
@@ -58,65 +51,56 @@ auto cprintf(F f, Fs... args) -> cpf::type::ret_t<F>
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
+inline auto x_API_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%f"), static_cast<double>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0)
+inline auto x_API_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(	cpf::type::str(L"%") + cpf::intern::wconv(PRId64),	std::forward<std::int64_t>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint64_t>::type &&arg0)
+inline auto x_API_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%llu"),	std::forward<std::uint64_t>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline cpf::type::ret_t<cpf::type::str> cprintf_arg0_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0)
+inline auto x_API_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%p"), std::forward<T>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline cpf::type::ret_t<typename std::enable_if<std::is_scalar<T>::value, cpf::type::str>::type> cprintf_x(T arg0)
+inline auto cprintf_x(T arg0) -> cpf::type::ret_t<typename std::enable_if<std::is_scalar<T>::value, cpf::type::str>::type>
 {
-	return cprintf_arg0_impl<FLAGS, T>(std::forward<T>(arg0));
+	return x_API_impl<FLAGS, T>(std::forward<T>(arg0));
 }
 
-template<	std::size_t FLAGS = CPF_STDO, 
-			typename T0, 
-			typename... Fs>
-inline void cprintf_t(	T0 f,
-						cpf::type::arg_pack<Fs...> args_tup)
+template< std::size_t FLAGS = CPF_STDO, typename F, typename... Fs>
+inline auto cprintf_t(F f, cpf::type::arg_pack<Fs...> args_tup) -> cpf::type::ret_t<F>
 {
 	auto predef_args_tup = std::make_tuple(f);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
 
-	cpf::intern::apply_tuple(cprintf<FLAGS, T0, Fs...>, call_args);
+	return cpf::intern::apply_tuple(cprintf<FLAGS, F, Fs...>, call_args);
 }
 
-template<	std::size_t FLAGS = CPF_STDO,
-			typename T0, 
-			unsigned N,
-			typename... Fs>
-inline void cprintf_s(T0 (&f)[N], Fs... args)
+template< std::size_t FLAGS = CPF_STDO, typename F, unsigned N, typename... Fs>
+inline auto cprintf_s(F(&f)[N], Fs... args) -> cpf::type::ret_t<F>
 {
 	static_assert(N >= 2, "CPF-CT-ERR: expected string-literal of size >= 1");
-	cprintf<FLAGS>(	f, std::forward<Fs>(args)...);
+	return cprintf<FLAGS>(	f, std::forward<Fs>(args)...);
 }
 
-template<	std::size_t FLAGS = CPF_STDO,
-			typename T0,
-			unsigned N,
-			typename... Fs>
-inline void cprintf_ts(T0(&f)[N], cpf::type::arg_pack<Fs...> args_tup)
+template<std::size_t FLAGS = CPF_STDO, typename F, unsigned N, typename... Fs>
+inline auto cprintf_ts(F(&f)[N], cpf::type::arg_pack<Fs...> args_tup) -> cpf::type::ret_t<F>
 {
 	static_assert(N >= 2, "CPF-CT-ERR: expected string-literal of size >= 1");
-	cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack<Fs...>>(args_tup));
+	return cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack<Fs...>>(args_tup));
 }
 
 #include <cprintf/internal/cpf_dbgh.h>

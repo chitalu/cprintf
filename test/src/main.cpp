@@ -98,7 +98,7 @@ const char *byte_to_binary(__int64 x)
 
 int main(int argc, char **argv)
 {
-	// cprintf("bar %d", 68) << "foo: " << 2 << "\n"; 
+	// cprintf() << "foo: " << 2 << "\n"; 
 
 	{
 		/* binary string to int */
@@ -115,8 +115,7 @@ int main(int argc, char **argv)
 		printf("%s\n", byte_to_binary(4LL));
 	}
 
-	int foo[3];
-	cprintf_x(foo);
+	cprintf_x(8LL);
 
 	auto r = cprintf("test hello 0\n");
 	/*cprintf(L"test hello 1\n");
