@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include <map>
 #include <string>
 #include <cstdio>
+#include <array>
 
 namespace cpf
 {
@@ -75,34 +76,103 @@ namespace cpf
 
 		typedef int rcode_t;
 
-		//placeholder type
-		struct stub_t {};
+		template<typename T>
+		struct byte_t
+		{
+			union{
+				T value;
+			}u;
+		};
+
+		template<typename T>
+		struct byte2_t
+		{
+			union{
+				struct{
+					byte_t<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type> lo, hi;
+				};
+				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 2U> a;
+				T value;
+			}u;
+		};
+
+		template<typename T>
+		struct byte4_t
+		{
+			union{
+				struct{
+					byte2_t<typename std::conditional<std::is_signed<T>::value, std::int16_t, std::uint16_t>::type> lo, hi;
+				};
+				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 4U> a;
+				T value;
+			}u;
+		};
+
+		template<typename T>
+		struct byte8_t
+		{
+			union{
+				struct{
+					byte4_t<typename std::conditional<std::is_signed<T>::value, std::int32_t, std::uint32_t>::type> lo, hi;
+				};
+				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 8U> a;
+				T value;
+			}u;
+		};
+
+		typedef byte8_t<std::int64_t> signed_bytes_t;
+		typedef byte8_t<std::uint64_t> unsigned_bytes_t;
+
+		template<bool B>
+		using boolean_type_t = std::conditional<B, std::true_type, std::false_type>;
+
+		//wide character pointer (signed, unsigned, const, and non-const)
+		template<typename T>
+		struct is_nchar_ptr_t : 
+			boolean_type_t<
+				std::is_same<char*, T>::value || std::is_same<unsigned char*, T>::value ||
+				std::is_same<signed char*, T>::value || std::is_same<const char*, T>::value ||
+				std::is_same<const signed char*, T>::value || std::is_same<const unsigned char*, T>::value
+			>::type
+		{	};
+
+		//wide character pointer (const and non-const)
+		template<typename T>
+		struct is_wchar_ptr_t :
+			boolean_type_t<std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value>::type
+		{	};
+
+		//signifies a char pointer type (wide or narrow)
+		template<typename T>
+		struct is_char_ptr_t :
+			boolean_type_t<is_nchar_ptr_t<T>::value || is_wchar_ptr_t<T>::value>::type
+		{	};
 
 		//check if T is a narrow character string type
 		template<typename T>
-		struct is_nstype_t : 
-			std::conditional<
-				std::is_same<T, std::string>::value || 
-				std::is_pointer<T>::value &&
-				(
-					std::is_same<char*, T>::value || std::is_same<unsigned char*, T>::value || 
-					std::is_same<signed char*, T>::value || std::is_same<const char*, T>::value ||	
-					std::is_same<const signed char*, T>::value || std::is_same<const unsigned char*, T>::value
-				),
-				T, //first type
-				stub_t//second type
-			>
+		struct is_nstype_t : boolean_type_t<
+			std::is_same<T, std::string>::value ||
+			std::is_pointer<T>::value &&
+			(
+				std::is_same<char*, T>::value || std::is_same<unsigned char*, T>::value ||
+				std::is_same<signed char*, T>::value || std::is_same<const char*, T>::value ||
+				std::is_same<const signed char*, T>::value || std::is_same<const unsigned char*, T>::value
+			)
+		>::type
 		{	};
 
 		//check if T is a wide character string type
 		template<typename T>
 		struct is_wstype_t : 
-			std::conditional<
-				std::is_same<T, std::wstring>::value ||
-				std::is_pointer<T>::value && (std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value),
-				T, //first type
-				stub_t //second type
-			>
+			boolean_type_t<	std::is_same<T, std::wstring>::value ||
+						std::is_pointer<T>::value && (std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value)
+					>::type
+		{	};
+
+		//checks if the user given format string is of a permitted type
+		template<typename T>
+		struct is_valid_stype_t : 
+			boolean_type_t<is_wstype_t<T>::value || is_nstype_t<T>::value>::type
 		{	};
 
 		// this struct is used to abstract format-string type checks. Also functions 
@@ -110,22 +180,13 @@ namespace cpf
 		// the returned format string from the library in addition to the return 
 		// code
 		template<typename T>
-		struct ftype_t : 
-			public std::enable_if <
-				!std::is_same<typename is_wstype_t<T>::type, stub_t>::value || 
-				!std::is_same<typename is_nstype_t<T>::type, stub_t>::value, 
-				T 
-			>
-		{};
+		struct ftype_t : std::enable_if<is_valid_stype_t<T>::value, T>
+		{	};
 
 		// helper struct used to define the format string representative STL type. 
 		// this type can either be std::string or std::wstring
 		template<typename T>
-		struct fstr_t : 
-			std::conditional<	!std::is_same<typename is_wstype_t<T>::type, stub_t>::value,
-								str, 
-								nstr
-							>
+		struct std_str_t : std::conditional<is_wstype_t<T>::value, str, nstr>
 		{	};
 
 		// API return type holds the return code signifying the status
@@ -138,7 +199,7 @@ namespace cpf
 		{
 		public:
 			// user format string
-			typename fstr_t<typename ftype_t<T>::type>::type f;
+			typename std_str_t<typename ftype_t<T>::type>::type f;
 
 			// API return code
 			rcode_t c;

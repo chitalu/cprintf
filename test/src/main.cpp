@@ -114,8 +114,15 @@ int main(int argc, char **argv)
 
 		printf("%s\n", byte_to_binary(4LL));
 	}
-
+	
+	cpf::type::signed_bytes_t c;
+	c.u.value = std::int64_t(10008750000010LL);
+	auto x = sizeof(c);
+	auto y = sizeof(cpf::type::signed_bytes_t);
+	//cpf::type::byte_t<> x;
 	cprintf_x(8LL);
+	cprintf_x("const char pointer");
+
 	//ru << "foo";
 	cprintf("test hello 0\n");
 	/*cprintf(L"test hello 1\n");

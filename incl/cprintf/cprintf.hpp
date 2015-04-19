@@ -47,7 +47,7 @@ auto cprintf(F f, Fs... args) -> cpf::type::ret_t<F>
 	}
 	CPF_UNMARK_CRITICAL_SECTION_;
 
-	return ret;
+	return std::move(ret);
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>

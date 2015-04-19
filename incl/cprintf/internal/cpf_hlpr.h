@@ -155,22 +155,31 @@ namespace cpf
 										cpf::type::str& printed_string_,
 										cpf::type::size& ssp_,
 										cpf::type::meta::const_iterator &meta_iter);
+		
+		cpf::type::str get_binary_string_repr(const std::int64_t &arg);
+		cpf::type::str get_binary_string_repr(const std::uint64_t &arg);
 
 		template<typename T>
 		void binary_write_helper(	cpf::type::stream ustream,
-									typename std::enable_if<std::is_scalar<T>::value>::type&& arg)
+									typename std::enable_if<std::is_scalar<T>::value, 
+															T
+									>::type&& arg)
 		{
 			//...
 
 			std::fwprintf(ustream, L"%s", arg);
 		}
 
+		// Enabled if "T" is a string type that is NOT a pointer.
+		// That is, when printing an argument that does not yeild
+		// std::false_type for cpf::type::is_char_ptr_t<T>::value
 		template<typename T>
 		void binary_write_helper(	cpf::type::stream ustream,
-									typename std::enable_if<!std::is_scalar<T>::value>::type&& arg)
-		{
-
-		}
+									typename std::enable_if<cpf::type::is_valid_stype_t<T>::value &&
+															!cpf::type::is_char_ptr_t<T>::value,
+															T
+									>::type&& arg)
+		{	}
 
 		template<typename T>
 		void write_in_binary(	cpf::type::stream ustream,
@@ -183,7 +192,7 @@ namespace cpf
 			>::type foo_t;
 
 			//....
-			//binary_write_helper<T>(ustream, arg);
+			binary_write_helper<T>(ustream, std::forward<T>(arg));
 		}
 
 		template<typename T>
@@ -192,7 +201,7 @@ namespace cpf
 						T&& arg)
 		{
 			if (format == L"%b")
-				write_in_binary(ustream, arg);
+				write_in_binary(ustream, std::forward<T>(arg));
 			else
 				std::fwprintf(ustream, format.c_str(), arg);
 		}
