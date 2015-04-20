@@ -104,6 +104,7 @@ namespace cpf
 					byte2_t<typename std::conditional<std::is_signed<T>::value, std::int16_t, std::uint16_t>::type> lo, hi;
 				};
 				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 4U> a;
+				float as_float;
 				T value;
 			}u;
 		};
@@ -116,6 +117,7 @@ namespace cpf
 					byte4_t<typename std::conditional<std::is_signed<T>::value, std::int32_t, std::uint32_t>::type> lo, hi;
 				};
 				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 8U> a;
+				double as_double;
 				T value;
 			}u;
 		};
@@ -210,6 +212,26 @@ namespace cpf
 				return (c == rhs);
 			}
 
+		};
+
+		template<typename T0 = str, typename ...Ts>
+		class arg_t
+		{
+		public:
+			typedef typename std_str_t<typename ftype_t<typename std::enable_if<is_valid_stype_t<T0>::value, T0>::type>::type>::type cpf_sep_t;
+
+			arg_t(const cpf_sep_t &sep) :
+				cpf_sep(sep)
+			{	}
+			arg_t(void) :
+				cpf_sep(L" ")
+			{	}
+			virtual ~arg_t(void)
+			{	}
+		protected:
+			//how values in "cpf_values" are separated
+			cpf_sep_t cpf_sep;
+			arg_pack<Ts...> cpf_values;
 		};
 	}
 }
