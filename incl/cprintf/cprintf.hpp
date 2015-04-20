@@ -51,33 +51,33 @@ auto cprintf(F f, Fs... args) -> cpf::type::ret_t<F>
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline auto x_API_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
+inline auto x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%f"), static_cast<double>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline auto x_API_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
+inline auto x_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(	cpf::type::str(L"%lld"), std::forward<std::int64_t>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline auto x_API_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
+inline auto x_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint64_t>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%llu"),	std::forward<std::uint64_t>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline auto x_API_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
+inline auto x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0) -> cpf::type::ret_t<cpf::type::str>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%p"), std::forward<T>(arg0));
 }
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline auto cprintf_x(T arg0) -> cpf::type::ret_t<typename std::enable_if<std::is_scalar<T>::value, cpf::type::str>::type>
+inline auto cprintx(T arg0) -> cpf::type::ret_t<typename std::enable_if<std::is_scalar<T>::value, cpf::type::str>::type>
 {
-	return x_API_impl<FLAGS, T>(std::forward<T>(arg0));
+	return x_impl<FLAGS, T>(std::forward<T>(arg0));
 }
 
 template< std::size_t FLAGS = CPF_STDO, typename F, typename... Fs>

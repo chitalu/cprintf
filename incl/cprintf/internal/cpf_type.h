@@ -153,22 +153,14 @@ namespace cpf
 		//check if T is a narrow character string type
 		template<typename T>
 		struct is_nstype_t : boolean_type_t<
-			std::is_same<T, std::string>::value ||
-			std::is_pointer<T>::value &&
-			(
-				std::is_same<char*, T>::value || std::is_same<unsigned char*, T>::value ||
-				std::is_same<signed char*, T>::value || std::is_same<const char*, T>::value ||
-				std::is_same<const signed char*, T>::value || std::is_same<const unsigned char*, T>::value
-			)
+			std::is_same<T, std::string>::value ||	is_nchar_ptr_t<T>::value
 		>::type
 		{	};
 
 		//check if T is a wide character string type
 		template<typename T>
 		struct is_wstype_t : 
-			boolean_type_t<	std::is_same<T, std::wstring>::value ||
-						std::is_pointer<T>::value && (std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value)
-					>::type
+			boolean_type_t<std::is_same<T, std::wstring>::value || is_wchar_ptr_t<T>::value>::type
 		{	};
 
 		//checks if the user given format string is of a permitted type
@@ -215,23 +207,23 @@ namespace cpf
 		};
 
 		template<typename T0 = str, typename ...Ts>
-		class arg_t
+		class uarg_t
 		{
 		public:
 			typedef typename std_str_t<typename ftype_t<typename std::enable_if<is_valid_stype_t<T0>::value, T0>::type>::type>::type cpf_sep_t;
 
-			arg_t(const cpf_sep_t &sep) :
-				cpf_sep(sep)
-			{	}
-			arg_t(void) :
-				cpf_sep(L" ")
-			{	}
-			virtual ~arg_t(void)
+			uarg_t(const cpf_sep_t &seperator) :
+				cpf_s_(seperator)
+			{		
+				static_assert(sizeof...(Ts) > 0, "CPF-CT-ERR: non-specifciation of printable argument(s)");
+			}
+
+			virtual ~uarg_t(void)
 			{	}
 		protected:
 			//how values in "cpf_values" are separated
-			cpf_sep_t cpf_sep;
-			arg_pack<Ts...> cpf_values;
+			cpf_sep_t cpf_s_;
+			arg_pack<Ts...> cpf_v_;
 		};
 	}
 }

@@ -120,8 +120,19 @@ int main(int argc, char **argv)
 	auto x = sizeof(c);
 	auto y = sizeof(cpf::type::signed_bytes_t);
 	//cpf::type::byte_t<> x;
-	cprintf_x(8LL);
-	cprintf_x("const char pointer");
+	cprintx(8LL);
+	cprintx("const char pointer");
+
+	class foo : public cpf::type::uarg_t<std::string, int>
+	{
+	public:
+		foo() : cpf::type::uarg_t<std::string, int>("jkjk")
+		{
+			std::get<0>(cpf_v_) = 12345;
+		}
+
+		~foo(){}
+	}f;
 
 	//ru << "foo";
 	cprintf("test hello 0\n");
