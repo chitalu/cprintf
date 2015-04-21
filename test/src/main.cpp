@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	/*cprintf("test hello 0\n", 8);
 	cprintf("test hello 0\n", 8LL);
 	cprintf("test hello 0\n", "8LL");*/
-	cprintf("test hello 0\n", "8LL", 4, f);
+	//cprintf("test hello 0\n", "8LL", 4, f);
 	/*cprintf(L"test hello 1\n");
 	cprintf("debug-print test hello 0\n");
 	cprintf_dbg("debug-print test hello 1\n");*/

@@ -250,7 +250,7 @@ namespace cpf
 							"CPF-CT-ERR: variadic-argument type not allowed");
 		};
 
-		template<std::size_t FLAGS>
+		/*template<std::size_t FLAGS>
 		struct check_flags_
 		{
 			static_assert(	(((FLAGS & CPF_STDO) == CPF_STDO) &&((FLAGS & CPF_STDE) != CPF_STDE)) ||
@@ -259,7 +259,7 @@ namespace cpf
 
 			static_assert(	(FLAGS ^ CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
 							"CPF-CT-ERR: invalid API flags detected");
-		};
+		};*/
 	}
 }
 
