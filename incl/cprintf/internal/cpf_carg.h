@@ -46,51 +46,11 @@ namespace cpf
 
 			This is only done in client debug builds.
 		*/
-		CPF_API void arg_check(cpf::type::cstr format);
+		CPF_API void fmtspec_to_argtype_check(cpf::type::cstr format);
 
-		template<class T, typename... Ts>
-		void arg_check(cpf::type::cstr format, T&& farg, Ts&&... args)
+		template<class T = int, typename... Ts>
+		void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 		{
-			/*
-				----------------------------------
-				Compile-Time argument verification
-				----------------------------------
-			*/
-			static_assert(
-				std::is_pointer<T>::value or
-				/*
-					check if argument is a char-type pointer (narrow or wide)
-				*/
-				(	std::is_pointer<T>::value and
-					(
-						std::is_same<wchar_t*, T>::value			or std::is_same<char*, T>::value				or
-						std::is_same<unsigned char*, T>::value		or std::is_same<signed char*, T>::value			or
-						std::is_same<const wchar_t*, T>::value		or std::is_same<const char*, T>::value			or
-						std::is_same<const signed char*, T>::value	or std::is_same<const unsigned char*, T>::value
-					)
-				) or
-				/*
-					check if argument is of type std::string or std::wstring
-				*/
-				(
-					std::is_same<cpf::type::str, T>::value or
-					std::is_same<cpf::type::nstr, T>::value
-				) or
-				/*
-					check if argument is of type "float", "double" or "long double"
-				*/
-				std::is_floating_point<T>::value or
-				/*
-					check if argument is of type "char" "short" "int" "long" ("unsigned" included)
-				*/
-				std::is_integral<T>::value,
-				/*
-					------------------------------
-					End Of Type-Check Condition...
-					------------------------------
-				*/
-				"CPF-CT-ERR: illegal argument type");
-
 			cpf::type::str prestr = L"CPF-RT-ERR: fmt-spec to arg-type mismatch, ";
 
 			for (; *format; ++format)
@@ -135,7 +95,7 @@ namespace cpf
 					break;
 				}
 
-				return arg_check(++format, std::forward<Ts>(args)...);
+				return fmtspec_to_argtype_check(++format, std::forward<Ts>(args)...);
 			}
 
 			throw CPF_ARG_ERR; // invalid argument count

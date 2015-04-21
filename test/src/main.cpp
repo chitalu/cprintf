@@ -120,22 +120,28 @@ int main(int argc, char **argv)
 	auto x = sizeof(c);
 	auto y = sizeof(cpf::type::signed_bytes_t);
 	//cpf::type::byte_t<> x;
-	cprintx(8LL);
-	cprintx("const char pointer");
+	//cprintx(8LL);
+	//cprintx("const char pointer");
 
 	class foo : public cpf::type::uarg_t<std::string, int>
 	{
 	public:
-		foo() : cpf::type::uarg_t<std::string, int>("jkjk")
+		foo(void) : cpf::type::uarg_t<std::string, int>("jkjk")
 		{
 			std::get<0>(cpf_v_) = 12345;
 		}
 
-		~foo(){}
+		~foo(void){}
 	}f;
 
+	//cpf::type::check_variadic_parameters_<cpf::type::uarg_t<std::string>> fg;
+	//varg_check_t<float, int, short> fg_;
+
 	//ru << "foo";
-	cprintf("test hello 0\n");
+	/*cprintf("test hello 0\n", 8);
+	cprintf("test hello 0\n", 8LL);
+	cprintf("test hello 0\n", "8LL");*/
+	cprintf("test hello 0\n", "8LL", 4, f);
 	/*cprintf(L"test hello 1\n");
 	cprintf("debug-print test hello 0\n");
 	cprintf_dbg("debug-print test hello 1\n");*/

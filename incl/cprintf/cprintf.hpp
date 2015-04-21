@@ -28,6 +28,10 @@
 template< std::size_t FLAGS = CPF_STDO, typename F = cpf::type::str, typename... Fs>
 auto cprintf(F f, Fs... args) -> cpf::type::ret_t<F>
 {
+	using namespace cpf::type;
+	check_variadic_parameters_<Fs...> _;
+	//check_flags_<FLAGS> __;
+
 	static_assert(	(((FLAGS bitand CPF_STDO) == CPF_STDO) and	((FLAGS bitand CPF_STDE) != CPF_STDE)) or
 					(((FLAGS bitand CPF_STDO) != CPF_STDO) and	((FLAGS bitand CPF_STDE) == CPF_STDE)),
 					"CPF-CT-ERR: invalid stream specification");

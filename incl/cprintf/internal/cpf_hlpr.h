@@ -161,9 +161,7 @@ namespace cpf
 
 		template<typename T>
 		void binary_write_helper(	cpf::type::stream ustream,
-									typename std::enable_if<std::is_scalar<T>::value, 
-															T
-									>::type&& arg)
+									T arg)
 		{
 			//...
 
@@ -175,7 +173,7 @@ namespace cpf
 		// std::false_type for cpf::type::is_char_ptr_t<T>::value
 		template<typename T>
 		void binary_write_helper(	cpf::type::stream ustream,
-									typename std::enable_if<cpf::type::is_valid_stype_t<T>::value &&
+									typename std::enable_if<cpf::type::is_string_t<T>::value &&
 															!cpf::type::is_char_ptr_t<T>::value,
 															T
 									>::type&& arg)
@@ -185,12 +183,6 @@ namespace cpf
 		void write_in_binary(	cpf::type::stream ustream,
 								T&& arg)
 		{
-			typedef typename std::conditional<	
-				!std::is_scalar<T>::value,
-				T,
-				typename std::conditional<std::is_signed<T>::value, std::int64_t, std::uint64_t>::type
-			>::type foo_t;
-
 			//....
 			binary_write_helper<T>(ustream, std::forward<T>(arg));
 		}
@@ -359,7 +351,7 @@ namespace cpf
 			try
 			{
 #if CPF_DBG_CONFIG
-				cpf::intern::arg_check(std::forward<const wchar_t*>(format.c_str()), std::forward<Ts>(args)...);
+				cpf::intern::fmtspec_to_argtype_check(std::forward<const wchar_t*>(format.c_str()), std::forward<Ts>(args)...);
 #endif
 				cpf::intern::save_stream_state(ustream);
 
