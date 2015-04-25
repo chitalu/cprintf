@@ -278,12 +278,13 @@ namespace cpf
 			verify_args_<T, U, Us...>,
 			ubase_t<typename std_str_t<typename ftype_t<T>::type>::type, U, Us...>
 		{
+			typedef typename ubase_t<typename std_str_t<typename ftype_t<T>::type>::type, U, Us...>::cpf_stype ubase_stype_t;
 		public:
 
 			uarg_t(void)
 			{	
-				std::get<0>(cpf_arg) = 
-				cpf_stype(
+				std::get<0>(this->cpf_arg) = 
+				ubase_stype_t(
 					1,
 					std::conditional<	
 						is_wstype_t<T>::value,
@@ -293,8 +294,8 @@ namespace cpf
 				);
 			}
 
-			uarg_t(cpf_stype seperator)
-			{	std::get<0>(cpf_arg) = (seperator);	}
+			uarg_t(ubase_stype_t seperator)
+			{	std::get<0>(this->cpf_arg) = (seperator);	}
 
 			virtual ~uarg_t(void)
 			{	}
