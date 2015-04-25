@@ -329,9 +329,10 @@ namespace cpf
 			}
 		}
 
-		template<typename T0, typename... Ts>
-		cpf::type::rcode_t dispatch(cpf::type::stream ustream, T0 &&raw_format, Ts&&... args)
+		template<std::size_t FLAGS, typename T0, typename... Ts>
+		cpf::type::rcode_t dispatch(T0 &&raw_format, Ts&&... args)
 		{
+			cpf::type::stream ustream = ((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr;
 			cpf::type::str format;
 			try	{
 				format = cpf::intern::wconv(std::forward<T0>(raw_format));

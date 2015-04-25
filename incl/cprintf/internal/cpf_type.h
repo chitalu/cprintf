@@ -214,7 +214,7 @@ namespace cpf
 							"CPF-CT-ERR: invalid API flags detected");
 		};
 
-		template<typename T>
+		template<typename T = str>
 		struct verify_format_
 		{
 			typedef T type;
@@ -238,7 +238,7 @@ namespace cpf
 		// specified by the user.
 		template<
 			typename verify_flags_,
-			typename verify_format_ = void>
+			typename verify_format_ = str>
 		struct status_t : 
 			ubase_t<typename std_str_t<typename ftype_t<typename verify_format_::type>::type>::type,
 					typename std::conditional<	(verify_flags_::FLAGS::value & CPF_CAPTURE) == CPF_CAPTURE, 

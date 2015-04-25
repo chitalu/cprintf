@@ -30,19 +30,18 @@ auto cprintf(F f, Fs... args)
 -> cpf::type::status_t<	cpf::type::verify_flags_<FLAGS>,
 						cpf::type::verify_format_<F>>
 {
-	using namespace cpf::type;
+	using namespace cpf::type;	using namespace cpf::intern;
+	
 	//TODO: resolve this
-	//typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type sstatus;
-	status_t<	cpf::type::verify_flags_<FLAGS>,
-				cpf::type::verify_format_<F>
-	> status; 
+	//typedef typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type return_type;
+	//return_type status; 
+	
+	status_t<verify_flags_<FLAGS>, verify_format_<F>> status; 
 	std::get<0>(status.cpf_arg) = f;
 
 	CPF_MARK_CRITICAL_SECTION_;
 	{
-		status.c = cpf::intern::dispatch(	((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr,
-										std::forward<F>(f),
-										std::forward<Fs>(args)...);
+		status.c = dispatch<FLAGS>(std::forward<F>(f),	std::forward<Fs>(args)...);
 	}
 	CPF_UNMARK_CRITICAL_SECTION_;
 
@@ -52,7 +51,7 @@ auto cprintf(F f, Fs... args)
 template<std::size_t FLAGS = CPF_STDO, typename T>
 inline auto x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0) 
 -> cpf::type::status_t<	cpf::type::verify_flags_<FLAGS>,
-						cpf::type::verify_format_<T>>
+						cpf::type::verify_format_<>>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%f"), static_cast<double>(arg0));
 }
@@ -60,7 +59,7 @@ inline auto x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>:
 template<std::size_t FLAGS = CPF_STDO, typename T>
 inline auto x_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_t>::type &&arg0) 
 -> cpf::type::status_t<	cpf::type::verify_flags_<FLAGS>,
-						cpf::type::verify_format_<T>>
+						cpf::type::verify_format_<>>
 {
 	return cprintf<FLAGS>(	cpf::type::str(L"%lld"), std::forward<std::int64_t>(arg0));
 }
@@ -68,7 +67,7 @@ inline auto x_impl(typename std::enable_if<std::is_signed<T>::value, std::int64_
 template<std::size_t FLAGS = CPF_STDO, typename T>
 inline auto x_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint64_t>::type &&arg0) 
 -> cpf::type::status_t<	cpf::type::verify_flags_<FLAGS>,
-						cpf::type::verify_format_<T>>
+						cpf::type::verify_format_<>>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%llu"),	std::forward<std::uint64_t>(arg0));
 }
@@ -76,7 +75,7 @@ inline auto x_impl(typename std::enable_if<std::is_unsigned<T>::value, std::uint
 template<std::size_t FLAGS = CPF_STDO, typename T>
 inline auto x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0) 
 -> cpf::type::status_t<	cpf::type::verify_flags_<FLAGS>,
-						cpf::type::verify_format_<T>>
+						cpf::type::verify_format_<>>
 {
 	return cprintf<FLAGS>(cpf::type::str(L"%p"), std::forward<T>(arg0));
 }
@@ -84,7 +83,7 @@ inline auto x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &
 template<std::size_t FLAGS = CPF_STDO, typename T>
 inline auto cprintx(T arg0) 
 -> cpf::type::status_t<	cpf::type::verify_flags_<FLAGS>, 
-						cpf::type::verify_format_<T>>
+						cpf::type::verify_format_<>>
 {
 	return x_impl<FLAGS, T>(std::forward<T>(arg0));
 }
