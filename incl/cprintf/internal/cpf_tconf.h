@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define __CPF_CONFIG_H__
 
 #include "cprintf/internal/cpf_cdef.h"
+#include <cprintf/internal/cpf_type.h>
 
 namespace cpf
 {

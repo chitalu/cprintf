@@ -117,18 +117,19 @@ int main(int argc, char **argv)
 	
 	cpf::type::signed_bytes_t c;
 	c.u.value = std::int64_t(10008750000010LL);
+	auto b = c.u.as_double;
 	auto x = sizeof(c);
 	auto y = sizeof(cpf::type::signed_bytes_t);
 	//cpf::type::byte_t<> x;
 	//cprintx(8LL);
 	//cprintx("const char pointer");
 
-	class foo : public cpf::type::uarg_t<std::string, int>
+	class foo : public cpf::type::uarg_t<char*, int>
 	{
 	public:
-		foo(void) : cpf::type::uarg_t<std::string, int>("jkjk")
+		foo(void) : cpf::type::uarg_t<char*, int>()
 		{
-			std::get<0>(cpf_v_) = 12345;
+			std::get<1>(cpf_arg) = 12345;
 		}
 
 		~foo(void){}
@@ -138,8 +139,8 @@ int main(int argc, char **argv)
 	//varg_check_t<float, int, short> fg_;
 
 	//ru << "foo";
-	/*cprintf("test hello 0\n", 8);
-	cprintf("test hello 0\n", 8LL);
+	cprintf("test hello 0\n");
+	/*cprintf("test hello 0\n", 8LL);
 	cprintf("test hello 0\n", "8LL");*/
 	//cprintf("test hello 0\n", "8LL", 4, f);
 	/*cprintf(L"test hello 1\n");

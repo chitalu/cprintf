@@ -29,8 +29,6 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
-#include <cprintf/internal/cpf_base.h>
-
 #include <inttypes.h>
 #include <cstdint>
 #include <utility>
@@ -39,6 +37,8 @@ THE SOFTWARE.
 #include <string>
 #include <cstdio>
 #include <array>
+
+#include <cprintf/internal/cpf_base.h>
 
 namespace cpf
 {
@@ -190,76 +190,115 @@ namespace cpf
 		struct std_str_t : std::conditional<is_wstype_t<T>::value, str, nstr>
 		{	};
 
+		template<typename T = str, typename ...Ts>
+		struct ubase_t
+		{
+			static_assert(is_string_t<T>::value, "CPF-CT-ERR: invalid string type");
+			typedef T cpf_stype;
+		
+			std::tuple<	typename std_str_t<typename ftype_t<T>::type>::type,
+						Ts...
+			> cpf_arg;
+		};
+
+		template<std::size_t FLAGS_>
+		struct verify_flags_
+		{
+			typedef std::integral_constant<std::size_t, FLAGS_> FLAGS;
+
+			static_assert(	(((FLAGS_ & CPF_STDO) == CPF_STDO) && ((FLAGS_ & CPF_STDE) != CPF_STDE)) ||
+							(((FLAGS_ & CPF_STDO) != CPF_STDO) && ((FLAGS_ & CPF_STDE) == CPF_STDE)),
+							"CPF-CT-ERR: invalid stream specification");
+
+			static_assert(	(FLAGS_ ^ CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
+							"CPF-CT-ERR: invalid API flags detected");
+		};
+
+		template<typename T>
+		struct verify_format_
+		{
+			typedef T type;
+			static_assert(is_string_t<T>::value, "CPF-CT-ERR: Invalid format string type");
+		};
+
+		template<typename T>
+		struct resolve_capture_t
+		{
+			typedef typename std::conditional<
+				is_wstype_t<T>::value,
+				str,
+				nstr
+			>::type type;
+		};
+
 		// API return type holds the return code signifying the status
 		// of a particular invocation. The return code can be a value 
 		// set to any of the possible values defined in cpf_base.h
 		// As an auxilliary feature this type also returns the format string
 		// specified by the user.
-		template<typename T>
-		class ret_t : ftype_t<T>
+		template<
+			typename verify_flags_,
+			typename verify_format_ = void>
+		struct status_t : 
+			ubase_t<typename std_str_t<typename ftype_t<typename verify_format_::type>::type>::type,
+					typename std::conditional<	(verify_flags_::FLAGS::value & CPF_CAPTURE) == CPF_CAPTURE, 
+												typename resolve_capture_t<typename verify_format_::type>::type, 
+												stub_t>::type>
 		{
-			static_assert(is_string_t<T>::value, "CPF-CT-ERR: invalid format string type");
+			//typedef typename std::conditional<!std::is_same<void, verify_args_>::value, typename verify_args_, stub_t>::type _;
 		public:
-			// user format string
-			typename std_str_t<typename ftype_t<T>::type>::type f;
 
 			// API return code
 			rcode_t c;
-
-			template<typename U>
-			inline bool operator==(const typename std::enable_if<std::is_integral<U>::value, U>::type &rhs)
+			
+			inline bool operator==(const rcode_t &rhs)
 			{
 				return (c == rhs);
 			}
 
 		};
 
-		template<typename T0 = str, typename ...Ts>
-		class uarg_t
-		{
-			static_assert(is_string_t<T0>::value, "CPF-CT-ERR: invalid uarg_t separator type");
-		public:
-			typedef typename std_str_t<typename ftype_t<typename std::enable_if<is_string_t<T0>::value, T0>::type>::type>::type cpf_sep_t;
-
-			uarg_t(const cpf_sep_t &seperator) :
-				cpf_s_(seperator)
-			{		
-				static_assert(sizeof...(Ts) > 0, "CPF-CT-ERR: non-specification of printable argument(s)");
-			}
-
-			virtual ~uarg_t(void)
-			{	}
-		protected:
-			//how values in "cpf_values" are separated
-			cpf_sep_t cpf_s_;
-			arg_pack<Ts...> cpf_v_;
-		};
-
 		template <typename T = int, typename... Ts>
-		struct check_variadic_parameters_ {
+		struct verify_args_ {
 			typedef T current_type;
 
 			typedef typename boolean_type_t<
-				is_string_t<current_type>::value || 
+				is_string_t<current_type>::value ||
 				std::is_scalar<current_type>::value
 			>::type current;
 
-			typedef check_variadic_parameters_<Ts...> Next;
+			typedef verify_args_<Ts...> Next;
 
-			static_assert(	current::value && Next::current::value, 
-							"CPF-CT-ERR: variadic-argument type not allowed");
+			static_assert(current::value && Next::current::value,
+				"CPF-CT-ERR: variadic-argument type not allowed");
 		};
 
-		/*template<std::size_t FLAGS>
-		struct check_flags_
+		template<typename T, typename U, typename ...Us>
+		struct uarg_t :
+			verify_args_<T, U, Us...>,
+			ubase_t<typename std_str_t<typename ftype_t<T>::type>::type, U, Us...>
 		{
-			static_assert(	(((FLAGS & CPF_STDO) == CPF_STDO) &&((FLAGS & CPF_STDE) != CPF_STDE)) ||
-							(((FLAGS & CPF_STDO) != CPF_STDO) &&((FLAGS & CPF_STDE) == CPF_STDE)),
-							"CPF-CT-ERR: invalid stream specification");
+		public:
 
-			static_assert(	(FLAGS ^ CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
-							"CPF-CT-ERR: invalid API flags detected");
-		};*/
+			uarg_t(void)
+			{	
+				std::get<0>(cpf_arg) = 
+				cpf_stype(
+					1,
+					std::conditional<	
+						is_wstype_t<T>::value,
+						std::integral_constant<wchar_t, ' '>,
+						std::integral_constant<char, ' ' >
+					> ::type::value
+				);
+			}
+
+			uarg_t(cpf_stype seperator)
+			{	std::get<0>(cpf_arg) = (seperator);	}
+
+			virtual ~uarg_t(void)
+			{	}
+		};
 	}
 }
 

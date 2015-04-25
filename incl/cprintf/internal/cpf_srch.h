@@ -25,7 +25,8 @@ THE SOFTWARE.
 #ifndef __CPF_FIND_H__
 #define __CPF_FIND_H__
 
-#include "cpf_base.h"
+#include <cprintf/internal/cpf_base.h>
+#include <cprintf/internal/cpf_type.h>
 
 namespace cpf
 {

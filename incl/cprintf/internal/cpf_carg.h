@@ -51,7 +51,8 @@ namespace cpf
 		template<class T = int, typename... Ts>
 		void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 		{
-			cpf::type::str prestr = L"CPF-RT-ERR: fmt-spec to arg-type mismatch, ";
+			using namespace cpf::type;
+			cpf::type::verify_args_<T, Ts...> _;
 
 			for (; *format; ++format)
 			{
@@ -73,22 +74,16 @@ namespace cpf
 						throw CPF_ARG_ERR; // expected an[integral] value"
 					break;
 				case 's':
-					if (!((std::is_pointer<T>::value and
-						(
-						std::is_same<wchar_t*, T>::value			or std::is_same<char*, T>::value				or
-						std::is_same<unsigned char*, T>::value		or std::is_same<signed char*, T>::value			or
-						std::is_same<const wchar_t*, T>::value		or std::is_same<const char*, T>::value			or
-						std::is_same<const signed char*, T>::value	or std::is_same<const unsigned char*, T>::value
-						)) or
-						std::is_same<cpf::type::str, T>::value or
-						std::is_same<cpf::type::nstr, T>::value))
-					{
+					if (!cpf::type::is_string_t<T>::value)
 						throw CPF_ARG_ERR; // expected a value of type[c - string, std::string or std::wstring]
-					}
 					break;
 				case 'p':
 					if (!std::is_pointer<T>::value)
 						throw CPF_ARG_ERR; // expected a[pointer] value
+					break;
+				case 'b':
+					if (!std::is_scalar<T>::value)
+						throw CPF_ARG_ERR; // expected a scalar, i.e 
 					break;
 				default:
 					//	Note: does note cover all edge cases
