@@ -79,7 +79,7 @@ namespace cpf
 		template<typename T>
 		struct byte_t
 		{
-			static_assert(sizeof(T) == 1, "CPF-CT-ERR: invalid template argument size for byte_t");
+			static_assert(sizeof(T) == 1, "CPRINTF COMPILATION ERROR: invalid template argument size for byte_t");
 			union{
 				T value;
 			}u;
@@ -88,7 +88,7 @@ namespace cpf
 		template<typename T>
 		struct byte2_t
 		{
-			static_assert(sizeof(T) == 2, "CPF-CT-ERR: invalid template argument size for byte2_t");
+			static_assert(sizeof(T) == 2, "CPRINTF COMPILATION ERROR: invalid template argument size for byte2_t");
 			union{
 				struct{
 					byte_t<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type> lo, hi;
@@ -101,7 +101,7 @@ namespace cpf
 		template<typename T>
 		struct byte4_t
 		{
-			static_assert(sizeof(T) == 4, "CPF-CT-ERR: invalid template argument size for byte4_t");
+			static_assert(sizeof(T) == 4, "CPRINTF COMPILATION ERROR: invalid template argument size for byte4_t");
 			union{
 				struct{
 					byte2_t<typename std::conditional<std::is_signed<T>::value, std::int16_t, std::uint16_t>::type> lo, hi;
@@ -115,7 +115,7 @@ namespace cpf
 		template<typename T>
 		struct byte8_t
 		{
-			static_assert(sizeof(T) == 8, "CPF-CT-ERR: invalid template argument size for byte8_t");
+			static_assert(sizeof(T) == 8, "CPRINTF COMPILATION ERROR: invalid template argument size for byte8_t");
 			union{
 				struct{
 					byte4_t<typename std::conditional<std::is_signed<T>::value, std::int32_t, std::uint32_t>::type> lo, hi;
@@ -193,10 +193,11 @@ namespace cpf
 		template<typename T = str, typename ...Ts>
 		struct ubase_t
 		{
-			static_assert(is_string_t<T>::value, "CPF-CT-ERR: invalid string type");
+			static_assert(is_string_t<T>::value, "CPRINTF COMPILATION ERROR: invalid string type");
 			typedef T cpf_stype;
-		
-			std::tuple<	typename std_str_t<typename ftype_t<T>::type>::type,
+			
+			//first element is always of type std::[w]string!
+			std::tuple<	typename std_str_t<T>::type,
 						Ts...
 			> cpf_arg;
 		};
@@ -204,21 +205,21 @@ namespace cpf
 		template<std::size_t FLAGS_>
 		struct verify_flags_
 		{
-			typedef std::integral_constant<std::size_t, FLAGS_> FLAGS;
+			typedef std::integral_constant<std::size_t, FLAGS_> get;
 
 			static_assert(	(((FLAGS_ & CPF_STDO) == CPF_STDO) && ((FLAGS_ & CPF_STDE) != CPF_STDE)) ||
 							(((FLAGS_ & CPF_STDO) != CPF_STDO) && ((FLAGS_ & CPF_STDE) == CPF_STDE)),
-							"CPF-CT-ERR: invalid stream specification");
+							"CPRINTF COMPILATION ERROR: invalid stream specification");
 
 			static_assert(	(FLAGS_ ^ CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
-							"CPF-CT-ERR: invalid API flags detected");
+							"CPRINTF COMPILATION ERROR: invalid API flags detected");
 		};
 
 		template<typename T = str>
 		struct verify_format_
 		{
 			typedef T type;
-			static_assert(is_string_t<T>::value, "CPF-CT-ERR: Invalid format string type");
+			static_assert(is_string_t<T>::value, "CPRINTF COMPILATION ERROR: Invalid format string type");
 		};
 
 		template<typename T>
@@ -229,33 +230,6 @@ namespace cpf
 				str,
 				nstr
 			>::type type;
-		};
-
-		// API return type holds the return code signifying the status
-		// of a particular invocation. The return code can be a value 
-		// set to any of the possible values defined in cpf_base.h
-		// As an auxilliary feature this type also returns the format string
-		// specified by the user.
-		template<
-			typename verify_flags_,
-			typename verify_format_ = str>
-		struct status_t : 
-			ubase_t<typename std_str_t<typename ftype_t<typename verify_format_::type>::type>::type,
-					typename std::conditional<	(verify_flags_::FLAGS::value & CPF_CAPTURE) == CPF_CAPTURE, 
-												typename resolve_capture_t<typename verify_format_::type>::type, 
-												stub_t>::type>
-		{
-			//typedef typename std::conditional<!std::is_same<void, verify_args_>::value, typename verify_args_, stub_t>::type _;
-		public:
-
-			// API return code
-			rcode_t c;
-			
-			inline bool operator==(const rcode_t &rhs)
-			{
-				return (c == rhs);
-			}
-
 		};
 
 		template <typename T = int, typename... Ts>
@@ -270,19 +244,55 @@ namespace cpf
 			typedef verify_args_<Ts...> Next;
 
 			static_assert(current::value && Next::current::value,
-				"CPF-CT-ERR: variadic-argument type not allowed");
+				"CPRINTF COMPILATION ERROR: argument type not allowed");
+		};
+
+		template<std::size_t FLAGS, typename FMT = cpf::type::str, typename... VARGs>
+		struct verify_
+		{
+			typedef typename verify_flags_<FLAGS> flags;
+			// "FMT" represents the format string type as given by user upon 
+			// invoking API routine
+			typedef typename verify_format_<FMT> fmt;
+			verify_args_<VARGs...> decl_stub_;
+		};
+
+		// API return type holds the return code signifying the status
+		// of a particular invocation. The return code can be a value 
+		// set to any of the possible values defined in cpf_base.h
+		// As an auxilliary feature this type also returns the format string
+		// specified by the user.
+		template<typename DETAIL>
+		struct status_t : 
+			ubase_t<typename std_str_t<typename DETAIL::fmt::type>::type,
+					typename std::conditional<	(DETAIL::flags::get::value & CPF_CAPTURE) == CPF_CAPTURE,
+												typename resolve_capture_t<typename DETAIL::fmt::type>::type,
+												stub_t>::type>
+		{
+		public:
+
+			// API return code
+			rcode_t c;
+			
+			inline bool operator==(const rcode_t &rhs)
+			{
+				return (c == rhs);
+			}
+
 		};
 
 		template<typename T, typename U, typename ...Us>
 		struct uarg_t :
 			verify_args_<T, U, Us...>,
-			ubase_t<typename std_str_t<typename ftype_t<T>::type>::type, U, Us...>
+			ubase_t<typename std_str_t<T>::type, U, Us...>
 		{
-			typedef typename ubase_t<typename std_str_t<typename ftype_t<T>::type>::type, U, Us...>::cpf_stype ubase_stype_t;
+			static_assert(is_string_t<T>::value, "CPRINTF COMPILATION ERROR: Invalid separator type");
+			typedef typename ubase_t<typename std_str_t<T>::type, U, Us...>::cpf_stype ubase_stype_t;
 		public:
 
 			uarg_t(void)
 			{	
+				//set default value to be a space 
 				std::get<0>(this->cpf_arg) = 
 				ubase_stype_t(
 					1,

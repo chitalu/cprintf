@@ -139,7 +139,9 @@ int main(int argc, char **argv)
 	//varg_check_t<float, int, short> fg_;
 
 	//ru << "foo";
-	cprintf("test hello 0\n");
+	auto r = cprintf("test hello %d\n", 8);
+	cprintx(std::string("").c_str());
+
 	/*cprintf("test hello 0\n", 8LL);
 	cprintf("test hello 0\n", "8LL");*/
 	//cprintf("test hello 0\n", "8LL", 4, f);

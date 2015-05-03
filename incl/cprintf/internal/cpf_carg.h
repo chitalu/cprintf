@@ -51,9 +51,6 @@ namespace cpf
 		template<class T = int, typename... Ts>
 		void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 		{
-			using namespace cpf::type;
-			cpf::type::verify_args_<T, Ts...> _;
-
 			for (; *format; ++format)
 			{
 				if (*format != '%' || *++format == '%')
