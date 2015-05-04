@@ -81,69 +81,16 @@
 //}
 //
 
-const char *byte_to_binary(__int64 x)
-{
-	static char b[64];
-	b[0] = '\0';
-
-	auto z = 1LL << 62LL; // 63LL; = neg
-	for (; z > 0; z >>= 1)
-	{
-		auto h = (x & z);
-		strcat(b, ((x & z) == z) ? "1" : "0");
-	}
-
-	return b;
-}
-
 int main(int argc, char **argv)
 {
-	// cprintf() << "foo: " << 2 << "\n"; 
-
-	{
-		/* binary string to int */
-
-		char *tmp;
-		char *b = "0101";
-
-		//printf("%d\n", strtol(b, &tmp, 2));
-	}
-
-	{
-		/* byte to binary string */
-
-		//printf("%s\n", byte_to_binary(4LL));
-	}
-	
-	/*cpf::type::signed_bytes_t c;
-	c.u.value = std::int64_t(10008750000010LL);
-	auto b = c.u.as_double;
-	auto x = sizeof(c);
-	auto y = sizeof(cpf::type::signed_bytes_t);*/
-	//cpf::type::byte_t<> x;
-	//cprintx(8LL);
-	//cprintx("const char pointer");
-
-	class foo : public cpf::type::uarg_t<char*, int>
-	{
-	public:
-		foo(void) : cpf::type::uarg_t<char*, int>()
-		{
-			std::get<1>(cpf_arg) = 12345;
-		}
-
-		~foo(void){}
-	}f;
-
-	//cpf::type::check_variadic_parameters_<cpf::type::uarg_t<std::string>> fg;
-	//varg_check_t<float, int, short> fg_;
-
 	//ru << "foo";
 	//auto r = cprintf("test hello %d\n", 8);
 	//cprintx(std::string("").c_str());
+
 	char c = 123; short s = 1234; int i = 123456;
-	//null pointers not allowed
-	cprintf("test hello %b\n%b\n%b\n%b\n", c, s, i, std::string().c_str());
+	cprintf("TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", 
+			c, c, s, s, i, i, std::string().data(), std::string().data());
+
 	//cprintf("test hello 0\n", "8LL");
 	//cprintf("test hello 0\n", "8LL", 4, f);
 	/*cprintf(L"test hello 1\n");

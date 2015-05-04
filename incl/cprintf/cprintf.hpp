@@ -36,12 +36,11 @@ cprintf(F f, Fs... args)
 {
 	using namespace cpf::type;	using namespace cpf::intern;
 	// TODO:
-	// typedef typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type return_type;
+	// typedef typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f, args...))>::type rtype;
 	typedef std::unique_ptr<status_t<verify_<FLAGS, F, Fs...>>> ret_t;
 	
 	ret_t r(new typename ret_t::element_type);
-
-	std::get<0>(r->cpf_arg) = f;
+	r->f = f;
 
 	CPF_MARK_CRITICAL_SECTION_;
 	{

@@ -76,59 +76,6 @@ namespace cpf
 
 		typedef int rcode_t;
 
-		template<typename T>
-		struct byte_t
-		{
-			static_assert(sizeof(T) == 1, "CPRINTF COMPILATION ERROR: invalid template argument size for byte_t");
-			union{
-				T value;
-			}u;
-		};
-
-		template<typename T>
-		struct byte2_t
-		{
-			static_assert(sizeof(T) == 2, "CPRINTF COMPILATION ERROR: invalid template argument size for byte2_t");
-			union{
-				struct{
-					byte_t<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type> lo, hi;
-				};
-				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 2U> a;
-				T value;
-			}u;
-		};
-
-		template<typename T>
-		struct byte4_t
-		{
-			static_assert(sizeof(T) == 4, "CPRINTF COMPILATION ERROR: invalid template argument size for byte4_t");
-			union{
-				struct{
-					byte2_t<typename std::conditional<std::is_signed<T>::value, std::int16_t, std::uint16_t>::type> lo, hi;
-				};
-				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 4U> a;
-				float as_float;
-				T value;
-			}u;
-		};
-
-		template<typename T>
-		struct byte8_t
-		{
-			static_assert(sizeof(T) == 8, "CPRINTF COMPILATION ERROR: invalid template argument size for byte8_t");
-			union{
-				struct{
-					byte4_t<typename std::conditional<std::is_signed<T>::value, std::int32_t, std::uint32_t>::type> lo, hi;
-				};
-				std::array<typename std::conditional<std::is_signed<T>::value, std::int8_t, std::uint8_t>::type, 8U> a;
-				double as_double;
-				T value;
-			}u;
-		};
-
-		typedef byte8_t<std::int64_t> signed_bytes_t;
-		typedef byte8_t<std::uint64_t> unsigned_bytes_t;
-
 		template<bool B>
 		using boolean_type_t = std::conditional<B, std::true_type, std::false_type>;
 
@@ -268,15 +215,19 @@ namespace cpf
 		// As an auxilliary feature this type also returns the format string
 		// specified by the user.
 		template<typename DETAIL>
-		struct status_t : 
-			ubase_t<typename std_str_t<typename DETAIL::fmt::type>::type,
-					typename std::conditional<	(DETAIL::flags::get::value & CPF_CAPTURE) == CPF_CAPTURE,
-												typename resolve_capture_t<typename DETAIL::fmt::type>::type,
-												stub_t>::type>
+		struct status_t
 		{
 		public:
+			// user format string
+			typename std_str_t<typename DETAIL::fmt::type>::type f;
 
-			// API return code
+			// [conditional] captured output ...
+			typename std::conditional<	(DETAIL::flags::get::value & CPF_CAPTURE) == CPF_CAPTURE,
+										typename resolve_capture_t<typename DETAIL::fmt::type>::type,
+										stub_t
+			>::type f_;
+
+			// return code i.e. status of API invocation upon return
 			rcode_t c;
 			
 			inline bool operator==(const rcode_t &rhs)
@@ -284,36 +235,6 @@ namespace cpf
 				return (c == rhs);
 			}
 
-		};
-
-		template<typename T, typename U, typename ...Us>
-		struct uarg_t :
-			verify_args_<T, U, Us...>,
-			ubase_t<typename std_str_t<T>::type, U, Us...>
-		{
-			static_assert(is_string_t<T>::value, "CPRINTF COMPILATION ERROR: Invalid separator type");
-			typedef typename ubase_t<typename std_str_t<T>::type, U, Us...>::cpf_stype ubase_stype_t;
-		public:
-
-			uarg_t(void)
-			{	
-				//set default value to be a space 
-				std::get<0>(this->cpf_arg) = 
-				ubase_stype_t(
-					1,
-					std::conditional<	
-						is_wstype_t<T>::value,
-						std::integral_constant<wchar_t, ' '>,
-						std::integral_constant<char, ' ' >
-					> ::type::value
-				);
-			}
-
-			uarg_t(ubase_stype_t seperator)
-			{	std::get<0>(this->cpf_arg) = (seperator);	}
-
-			virtual ~uarg_t(void)
-			{	}
 		};
 	}
 }
