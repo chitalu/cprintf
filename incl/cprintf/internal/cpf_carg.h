@@ -79,7 +79,7 @@ namespace cpf
 						throw CPF_ARG_ERR; // expected a[pointer] value
 					break;
 				case 'b':
-					if (!std::is_scalar<T>::value)
+					if (cpf::type::is_std_str_t<T>::value)
 						throw CPF_ARG_ERR; // expected a scalar, i.e 
 					break;
 				default:

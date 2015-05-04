@@ -106,20 +106,20 @@ int main(int argc, char **argv)
 		char *tmp;
 		char *b = "0101";
 
-		printf("%d\n", strtol(b, &tmp, 2));
+		//printf("%d\n", strtol(b, &tmp, 2));
 	}
 
 	{
 		/* byte to binary string */
 
-		printf("%s\n", byte_to_binary(4LL));
+		//printf("%s\n", byte_to_binary(4LL));
 	}
 	
-	cpf::type::signed_bytes_t c;
+	/*cpf::type::signed_bytes_t c;
 	c.u.value = std::int64_t(10008750000010LL);
 	auto b = c.u.as_double;
 	auto x = sizeof(c);
-	auto y = sizeof(cpf::type::signed_bytes_t);
+	auto y = sizeof(cpf::type::signed_bytes_t);*/
 	//cpf::type::byte_t<> x;
 	//cprintx(8LL);
 	//cprintx("const char pointer");
@@ -139,11 +139,12 @@ int main(int argc, char **argv)
 	//varg_check_t<float, int, short> fg_;
 
 	//ru << "foo";
-	auto r = cprintf("test hello %d\n", 8);
-	cprintx(std::string("").c_str());
-
-	/*cprintf("test hello 0\n", 8LL);
-	cprintf("test hello 0\n", "8LL");*/
+	//auto r = cprintf("test hello %d\n", 8);
+	//cprintx(std::string("").c_str());
+	char c = 123; short s = 1234; int i = 123456;
+	//null pointers not allowed
+	cprintf("test hello %b\n%b\n%b\n%b\n", c, s, i, std::string().c_str());
+	//cprintf("test hello 0\n", "8LL");
 	//cprintf("test hello 0\n", "8LL", 4, f);
 	/*cprintf(L"test hello 1\n");
 	cprintf("debug-print test hello 0\n");

@@ -25,7 +25,7 @@
 
 #include <cprintf/internal/cpf_hlpr.h>
 
-// root API
+// core API
 
 template<	std::size_t FLAGS = CPF_STDO, 
 			typename F = cpf::type::str, 

@@ -176,6 +176,11 @@ namespace cpf
 			boolean_type_t<is_wstype_t<T>::value || is_nstype_t<T>::value>::type
 		{	};
 
+		template<typename T = stub_t>
+		struct is_std_str_t :
+			boolean_type_t<std::is_same<T, nstr>::value || std::is_same<T, str>::value>::type
+		{	};
+
 		// this struct is used to abstract format-string type checks. Also functions 
 		// as holder of the "base" string type used to declare a variable that holds
 		// the returned format string from the library in addition to the return 

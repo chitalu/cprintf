@@ -5,6 +5,7 @@
 #include <memory>
 #include <algorithm>
 #include <type_traits>
+#include <bitset>
 
 #include <mutex>
 
@@ -155,37 +156,25 @@ namespace cpf
 										cpf::type::str& printed_string_,
 										cpf::type::size& ssp_,
 										cpf::type::meta::const_iterator &meta_iter);
-		
-		cpf::type::str get_binary_string_repr(const std::int64_t &arg);
-		cpf::type::str get_binary_string_repr(const std::uint64_t &arg);
 
 		template<typename T>
-		void binary_write_helper(	cpf::type::stream ustream,
-									T arg)
+		void write_binary( cpf::type::stream ustream, 
+								typename std::enable_if<std::is_arithmetic<T>::value ||
+														std::is_pointer<T>::value,
+														T
+														>::type&& arg)
 		{
-			//...
-
-			std::fwprintf(ustream, L"%s", arg);
+			using namespace cpf::type;
+			typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t, T>::type ptype;
+			std::bitset<sizeof(T)* 8U> bits((ptype)(arg));
+			std::fwprintf(ustream, L"%s", bits.to_string<str::allocator_type::value_type>().c_str());
 		}
 
-		// Enabled if "T" is a string type that is NOT a pointer.
-		// That is, when printing an argument that does not yeild
-		// std::false_type for cpf::type::is_char_ptr_t<T>::value
+		// Enabled if "T" is a stl string type
 		template<typename T>
-		void binary_write_helper(	cpf::type::stream ustream,
-									typename std::enable_if<cpf::type::is_string_t<T>::value &&
-															!cpf::type::is_char_ptr_t<T>::value,
-															T
-									>::type&& arg)
+		void write_binary(	cpf::type::stream ustream,
+							typename std::enable_if<cpf::type::is_std_str_t<T>::value, T>::type&& arg)
 		{	}
-
-		template<typename T>
-		void write_in_binary(	cpf::type::stream ustream,
-								T&& arg)
-		{
-			//....
-			binary_write_helper<T>(ustream, std::forward<T>(arg));
-		}
 
 		template<typename T>
 		void write_arg(	cpf::type::stream ustream,
@@ -193,7 +182,7 @@ namespace cpf
 						T&& arg)
 		{
 			if (format == L"%b")
-				write_in_binary(ustream, std::forward<T>(arg));
+				write_binary<T>(ustream, std::forward<T>(arg));
 			else
 				std::fwprintf(ustream, format.c_str(), arg);
 		}

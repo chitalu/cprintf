@@ -63,7 +63,8 @@ const std::initializer_list<wchar_t> cpf::intern::std_fmt_specs = {
 	'g', 'G', 'i', 
 	'o', 's', 'u', 
 	'x', 'X', 'a', 
-	'A', 'p', 'n'
+	'A', 'p', 'n',
+	'b'
 };
 
 /*

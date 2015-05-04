@@ -50,6 +50,8 @@ namespace cpf
 			%u print an unsigned decimal (base 10) number
 			%x print a number in hex idecimal (base 16)
 			%% print a percent sign (\% also works)
+
+			%b print an arithmetic or pointer type as binary (custom extension)
 		*/
 		CPF_API const std::initializer_list<wchar_t> std_fmt_specs;
 
