@@ -202,10 +202,10 @@ namespace cpf
 		template<std::size_t FLAGS, typename FMT = cpf::type::str, typename... VARGs>
 		struct verify_
 		{
-			typedef typename verify_flags_<FLAGS> flags;
+			typedef verify_flags_<FLAGS> flags;
 			// "FMT" represents the format string type as given by user upon 
 			// invoking API routine
-			typedef typename verify_format_<FMT> fmt;
+			typedef verify_format_<FMT> fmt;
 			verify_args_<VARGs...> decl_stub_;
 		};
 

@@ -164,10 +164,12 @@ namespace cpf
 														T
 														>::type&& arg)
 		{
+#ifdef CPF_WINDOWS_BUILD
 			using namespace cpf::type;
 			typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t, T>::type ptype;
 			std::bitset<sizeof(T)* 8U> bits((ptype)(arg));
 			std::fwprintf(ustream, L"%s", bits.to_string<str::allocator_type::value_type>().c_str());
+#endif
 		}
 
 		// Enabled if "T" is a stl string type
