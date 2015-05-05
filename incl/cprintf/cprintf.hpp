@@ -144,7 +144,7 @@ struct xpromote_
 			typename std::conditional<
 				std::is_pointer<T>::value,
 				T,
-				cpf::type::stub_t
+				cpf::type::stub_t // used to generate compilde time error
 			>::type
 		>::type
 	>::type type;
@@ -155,7 +155,7 @@ inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::
 // TODO: Add documentation
 cprintx(X x)
 {
-	typedef typename xpromote_<T>::type scalar_t;
+	typedef typename xpromote_<X>::type scalar_t;
 	return std::move(cpf::intern::x_impl<FLAGS, scalar_t>(std::forward<scalar_t>(static_cast<scalar_t>(x))));
 }
 
