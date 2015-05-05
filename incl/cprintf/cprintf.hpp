@@ -150,13 +150,13 @@ struct xpromote_
 	>::type type;
 };
 
-template<std::size_t FLAGS = CPF_STDO, typename T>
-inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, typename xpromote_<T>::type>>>
+template<std::size_t FLAGS = CPF_STDO, typename X>
+inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, typename xpromote_<X>::type>>>
 // TODO: Add documentation
-cprintx(T arg0)
+cprintx(X x)
 {
 	typedef typename xpromote_<T>::type scalar_t;
-	return std::move(cpf::intern::x_impl<FLAGS, scalar_t>(std::forward<scalar_t>(static_cast<scalar_t>(arg0))));
+	return std::move(cpf::intern::x_impl<FLAGS, scalar_t>(std::forward<scalar_t>(static_cast<scalar_t>(x))));
 }
 
 #include <cprintf/internal/cpf_dbgh.h>
