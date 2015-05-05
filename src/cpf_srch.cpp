@@ -25,8 +25,8 @@ THE SOFTWARE.
 #include <cprintf/internal/cpf_srch.h>
 #include <cprintf/internal/cpf_type.h>
 
-cpf::type::size cpf::intern::search_for(const cpf::type::str& _what,
-										const cpf::type::str& _where,
+cpf::type::size cpf::intern::search_for(const cpf::type::str_t& _what,
+										const cpf::type::str_t& _where,
 										const cpf::type::size _offset,
 										const char& _esc_char)
 {

@@ -88,9 +88,10 @@ int main(int argc, char **argv)
 	//cprintx(std::string("").c_str());
 
 	char c = 123; short s = 1234; int i = 123456;
-	cprintf("TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", 
+	cprintf("TEST BINARY\n$y*%d = %b$?\n%d = %b\n%d = %b\n$c*%p = %b$?\n", 
 			c, c, s, s, i, i, std::string().data(), std::string().data());
 
+	std::string::value_type foo = 288;
 	//cprintf("test hello 0\n", "8LL");
 	//cprintf("test hello 0\n", "8LL", 4, f);
 	/*cprintf(L"test hello 1\n");

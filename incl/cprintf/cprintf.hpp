@@ -28,7 +28,7 @@
 // core API
 
 template<	std::size_t FLAGS = CPF_STDO, 
-			typename F = cpf::type::str, 
+			typename F = cpf::type::str_t, 
 			typename... Fs>
 std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, F, Fs...>>>
 // TODO: Add documentation
@@ -56,7 +56,7 @@ cprintf(F f, Fs... args)
 template< std::size_t FLAGS = CPF_STDO, typename F, typename... Fs>
 inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, F, Fs...>>>
 // TODO: Add documentation
-cprintf_t(F f, cpf::type::arg_pack<Fs...> args_tup)
+cprintf_t(F f, cpf::type::arg_pack_t<Fs...> args_tup)
 {
 	auto predef_args_tup = std::make_tuple(f);
 	auto call_args = std::tuple_cat(predef_args_tup, args_tup);
@@ -78,10 +78,10 @@ cprintf_s(F(&f)[N], Fs... args)
 template<std::size_t FLAGS = CPF_STDO, typename F, unsigned N, typename... Fs>
 inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, F, Fs...>>>
 // TODO: Add documentation
-cprintf_ts(F(&f)[N], cpf::type::arg_pack<Fs...> args_tup)
+cprintf_ts(F(&f)[N], cpf::type::arg_pack_t<Fs...> args_tup)
 {
 	static_assert(N >= 2, "CPRINTF COMPILATION ERROR: expected string-literal of size >= 1");
-	return cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack<Fs...>>(args_tup));
+	return cprintf_t<FLAGS>(f,	std::forward<cpf::type::arg_pack_t<Fs...>>(args_tup));
 }
 
 // X api
@@ -91,37 +91,37 @@ namespace cpf
 	namespace intern
 	{
 		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str, T>>>
+		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
 			x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
 		{
-			return std::move(cprintf<FLAGS>(cpf::type::str(L"%f"), arg0));
+			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%f"), arg0));
 		}
 
 		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str, T>>>
+		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
 			x_impl(typename std::enable_if<std::is_signed<T>::value, T>::type &&arg0)
 		{
-				return std::move(cprintf<FLAGS>(cpf::type::str(L"%lld"), arg0));
+				return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%lld"), arg0));
 		}
 
 		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str, T>>>
+		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
 			x_impl(typename std::enable_if<std::is_unsigned<T>::value, T>::type &&arg0)
 		{
-			return std::move(cprintf<FLAGS>(cpf::type::str(L"%llu"), arg0));
+			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%llu"), arg0));
 		}
 
 		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str, T>>>
+		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
 			x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0)
 		{
-			return std::move(cprintf<FLAGS>(cpf::type::str(L"%p"), arg0));
+			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%p"), arg0));
 		}
 	}
 }
 
 template<typename T>
-struct resolve_integral_t
+struct resolve_integral_type_
 {
 	typedef typename std::conditional<
 			std::is_signed<T>::value,
@@ -131,13 +131,13 @@ struct resolve_integral_t
 };
 
 template<typename T>
-struct xpromote_t
+struct xpromote_
 {
 	cpf::type::verify_args_<T> decl_stub_;
 
 	typedef typename std::conditional<
 		std::is_integral<T>::value,
-		typename resolve_integral_t<T>::type,
+		typename resolve_integral_type_<T>::type,
 		typename std::conditional<
 			std::is_floating_point<T>::value,
 			double,
@@ -151,11 +151,11 @@ struct xpromote_t
 };
 
 template<std::size_t FLAGS = CPF_STDO, typename T>
-inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str, typename xpromote_t<T>::type>>>
+inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, typename xpromote_<T>::type>>>
 // TODO: Add documentation
 cprintx(T arg0)
 {
-	typedef typename xpromote_t<T>::type scalar_t;
+	typedef typename xpromote_<T>::type scalar_t;
 	return std::move(cpf::intern::x_impl<FLAGS, scalar_t>(std::forward<scalar_t>(static_cast<scalar_t>(arg0))));
 }
 

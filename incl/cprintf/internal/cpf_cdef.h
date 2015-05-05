@@ -95,7 +95,7 @@ namespace cpf
 			the full standard/ cross platform set of colour tokens
 			that may be used to modify text appearance
 		*/
-		CPF_API const cpf::type::string_vector std_tokens;
+		CPF_API const cpf::type::str_vec_t std_tokens;
 
 		/*
 			tokens available on both windows and linux

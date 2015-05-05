@@ -44,48 +44,49 @@ namespace cpf
 {
 	namespace type
 	{
-		/*
-		library native string types...
-		*/
-		typedef std::wstring str;
-		typedef std::string nstr;
+		// Native string type
+		typedef std::wstring str_t;
+
+		typedef std::string nstr_t;
 
 		typedef const wchar_t* cstr;
 
-		typedef cpf::type::str::size_type size;
-		typedef cpf::type::nstr::size_type nsize;
+		typedef str_t::size_type size;
+		typedef nstr_t::size_type nsize;
 
 #ifdef _WIN32
 		typedef WORD colour;
 #else
-		typedef cpf::type::str colour;
+		typedef str_t colour;
 #endif
 
-		typedef std::pair<cpf::type::str, cpf::type::str> string_pair;
-		typedef std::vector<cpf::type::str> string_vector;
-		typedef string_vector attribute_group;
-		typedef std::map<cpf::type::size, std::pair<string_vector, cpf::type::str>> meta;
-		typedef cpf::type::meta::iterator meta_iterator;
-		typedef cpf::type::meta::const_iterator c_meta_iterator;
-		typedef std::map<const cpf::type::str, cpf::type::colour> token_value_map;
+		typedef std::pair<str_t, str_t> str_pair_t;
+		typedef std::vector<str_t> str_vec_t;
+		typedef str_vec_t attribute_group;
+		//format string in its meta form i.e. split state
+		typedef std::map<cpf::type::size, std::pair<str_vec_t, str_t>> meta_fmt_t;
+		typedef cpf::type::meta_fmt_t::iterator meta_iterator;
+		typedef cpf::type::meta_fmt_t::const_iterator c_meta_iterator;
+		typedef std::map<const str_t, cpf::type::colour> token_value_map;
 
 		template<typename ...Ts>
-		using arg_pack = std::tuple<Ts...>;
+		using arg_pack_t = std::tuple<Ts...>;
 
 		typedef FILE* stream;
 
 		typedef int rcode_t;
 
-		template<bool B>
-		using boolean_type_t = std::conditional<B, std::true_type, std::false_type>;
+		// placeholder type
+		struct stub_t 
+		{	};
 
-		//placeholder type
-		struct stub_t{};
+		template<bool B>
+		using get_btype_ = std::conditional<B, std::true_type, std::false_type>;
 
 		//wide character pointer (signed, unsigned, const, and non-const)
 		template<typename T>
-		struct is_nchar_ptr_t : 
-			boolean_type_t<
+		struct is_nchar_ptr_ : 
+			get_btype_<
 				std::is_same<char*, T>::value || std::is_same<unsigned char*, T>::value ||
 				std::is_same<signed char*, T>::value || std::is_same<const char*, T>::value ||
 				std::is_same<const signed char*, T>::value || std::is_same<const unsigned char*, T>::value
@@ -95,64 +96,44 @@ namespace cpf
 		//wide character pointer (const and non-const)
 		template<typename T>
 		struct is_wchar_ptr_t :
-			boolean_type_t<std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value>::type
+			get_btype_<std::is_same<wchar_t*, T>::value || std::is_same<const wchar_t*, T>::value>::type
 		{	};
 
 		//signifies a char pointer type (wide or narrow)
 		template<typename T>
 		struct is_char_ptr_t :
-			boolean_type_t<is_nchar_ptr_t<T>::value || is_wchar_ptr_t<T>::value>::type
+			get_btype_<is_nchar_ptr_<T>::value || is_wchar_ptr_t<T>::value>::type
 		{	};
 
 		//check if T is a narrow character string type
 		template<typename T>
-		struct is_nstype_t : boolean_type_t<
-			std::is_same<T, std::string>::value ||	is_nchar_ptr_t<T>::value
+		struct is_nstype_ : get_btype_<
+			std::is_same<T, std::string>::value ||	is_nchar_ptr_<T>::value
 		>::type
 		{	};
 
 		//check if T is a wide character string type
 		template<typename T>
-		struct is_wstype_t : 
-			boolean_type_t<std::is_same<T, std::wstring>::value || is_wchar_ptr_t<T>::value>::type
+		struct is_wstype_ : 
+			get_btype_<std::is_same<T, std::wstring>::value || is_wchar_ptr_t<T>::value>::type
 		{	};
 
 		//checks if the user given format string is of a permitted type
 		template<typename T = stub_t>
-		struct is_string_t : 
-			boolean_type_t<is_wstype_t<T>::value || is_nstype_t<T>::value>::type
+		struct is_permitted_string_type_ : 
+			get_btype_<is_wstype_<T>::value || is_nstype_<T>::value>::type
 		{	};
 
 		template<typename T = stub_t>
-		struct is_std_str_t :
-			boolean_type_t<std::is_same<T, nstr>::value || std::is_same<T, str>::value>::type
-		{	};
-
-		// this struct is used to abstract format-string type checks. Also functions 
-		// as holder of the "base" string type used to declare a variable that holds
-		// the returned format string from the library in addition to the return 
-		// code
-		template<typename T>
-		struct ftype_t : std::enable_if<is_string_t<T>::value, T>
+		struct is_STL_string_type_ :
+			get_btype_<std::is_same<T, nstr_t>::value || std::is_same<T, str_t>::value>::type
 		{	};
 
 		// helper struct used to define the format string representative STL type. 
 		// this type can either be std::string or std::wstring
 		template<typename T>
-		struct std_str_t : std::conditional<is_wstype_t<T>::value, str, nstr>
+		struct get_STL_string_type_ : std::conditional<is_wstype_<T>::value, str_t, nstr_t>
 		{	};
-
-		template<typename T = str, typename ...Ts>
-		struct ubase_t
-		{
-			static_assert(is_string_t<T>::value, "CPRINTF COMPILATION ERROR: invalid string type");
-			typedef T cpf_stype;
-			
-			//first element is always of type std::[w]string!
-			std::tuple<	typename std_str_t<T>::type,
-						Ts...
-			> cpf_arg;
-		};
 
 		template<std::size_t FLAGS_>
 		struct verify_flags_
@@ -167,20 +148,20 @@ namespace cpf
 							"CPRINTF COMPILATION ERROR: invalid API flags detected");
 		};
 
-		template<typename T = str>
+		template<typename T = str_t>
 		struct verify_format_
 		{
 			typedef T type;
-			static_assert(is_string_t<T>::value, "CPRINTF COMPILATION ERROR: Invalid format string type");
+			static_assert(is_permitted_string_type_<T>::value, "CPRINTF COMPILATION ERROR: Invalid format string type");
 		};
 
 		template<typename T>
-		struct resolve_capture_t
+		struct get_capture_type_
 		{
 			typedef typename std::conditional<
-				is_wstype_t<T>::value,
-				str,
-				nstr
+				is_wstype_<T>::value,
+				str_t,
+				nstr_t
 			>::type type;
 		};
 
@@ -188,9 +169,9 @@ namespace cpf
 		struct verify_args_ {
 			typedef T current_type;
 
-			typedef typename boolean_type_t<
-				is_string_t<current_type>::value ||
-				std::is_scalar<current_type>::value
+			typedef typename get_btype_<
+				is_permitted_string_type_<current_type>::value ||
+				(std::is_arithmetic<current_type>::value || std::is_pointer<current_type>::value)
 			>::type current;
 
 			typedef verify_args_<Ts...> Next;
@@ -199,7 +180,10 @@ namespace cpf
 				"CPRINTF COMPILATION ERROR: argument type not allowed");
 		};
 
-		template<std::size_t FLAGS, typename FMT = cpf::type::str, typename... VARGs>
+
+		// pass-through type used to check at compile when the users
+		// specified arguments of the correct types to the API
+		template<std::size_t FLAGS, typename FMT = cpf::type::str_t, typename... VARGs>
 		struct verify_
 		{
 			typedef verify_flags_<FLAGS> flags;
@@ -218,12 +202,16 @@ namespace cpf
 		struct status_t
 		{
 		public:
-			// user format string
-			typename std_str_t<typename DETAIL::fmt::type>::type f;
+
+			// the original Type of the format string as specified by client 
+			typedef typename DETAIL::fmt::type ftype_t;
+
+			// user format string 
+			typename get_STL_string_type_<typename DETAIL::fmt::type>::type f;
 
 			// [conditional] captured output ...
 			typename std::conditional<	(DETAIL::flags::get::value & CPF_CAPTURE) == CPF_CAPTURE,
-										typename resolve_capture_t<typename DETAIL::fmt::type>::type,
+										typename get_capture_type_<typename DETAIL::fmt::type>::type,
 										stub_t
 			>::type f_;
 

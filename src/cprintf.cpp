@@ -32,7 +32,7 @@ THE SOFTWARE.
 /*
 	wide character string debug log
 */
-CPF_API const cpf::type::str cpf::intern::dbg_log_fmt_str =
+CPF_API const cpf::type::str_t cpf::intern::dbg_log_fmt_str =
 LR"debug_str($cdbg
 $g@file:$c	$g*%s$c
 $g@time:$c	$g*%s$c-$g*%s$c 
@@ -49,7 +49,7 @@ $g@line:$c	$g*%d$c
 std::mutex cpf::intern::user_thread_mutex;
 
 //cprintf("Characters:\t%c %%\n", 65);
-cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
+cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str_t & obj)
 {
 	cpf::type::size n = 0u;
 	std::uint32_t pos = 0u;
@@ -86,8 +86,8 @@ cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str & obj)
 	return n;
 }
 
-cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
-												cpf::type::str& printed_string_,
+cpf::type::str_t cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
+												cpf::type::str_t& printed_string_,
 												cpf::type::size& ssp_,
 												const cpf::type::attribute_group attr)
 {
@@ -132,7 +132,7 @@ cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
 
 	if (offset == 0)
 	{
-		cpf::type::str specifier;
+		cpf::type::str_t specifier;
 		bool parsed_complete_f_spec = false;
 		for (const auto &xfst : cpf::intern::ext_fmtspec_terms)
 		{
@@ -180,11 +180,11 @@ cpf::type::str cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
 }
 
 void cpf::intern::write_post_arg_str(	cpf::type::stream ustream,
-										cpf::type::str& printed_string_,
+										cpf::type::str_t& printed_string_,
 										cpf::type::size& ssp_,
 										bool &more_args_on_iter,
-										cpf::type::meta::const_iterator &meta_iter,
-										const cpf::type::meta::const_iterator &end_point_comparator)
+										cpf::type::meta_fmt_t::const_iterator &meta_iter,
+										const cpf::type::meta_fmt_t::const_iterator &end_point_comparator)
 {
 	printed_string_ = printed_string_.substr(ssp_);
 	ssp_ = 0;
@@ -210,9 +210,9 @@ void cpf::intern::write_post_arg_str(	cpf::type::stream ustream,
 }
 
 void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
-									cpf::type::str& printed_string_,
+									cpf::type::str_t& printed_string_,
 									cpf::type::size& ssp_,
-									cpf::type::meta::const_iterator &meta_iter)
+									cpf::type::meta_fmt_t::const_iterator &meta_iter)
 {
 	cpf::intern::configure(ustream, meta_iter->second.first);
 
@@ -251,73 +251,73 @@ void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
 	can be instantiated with either
 */
 
-cpf::type::str cpf::intern::wconv(cpf::type::nstr &&src)
+cpf::type::str_t cpf::intern::wconv(cpf::type::nstr_t &&src)
 {
 #ifdef CPF_LINUX_BUILD
-	return cpf::type::str(); //skip
+	return cpf::type::str_t(); //skip
 #else
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	return converter.from_bytes(src);
 #endif
 }
 
-cpf::type::str cpf::intern::wconv(cpf::type::str &&src)
+cpf::type::str_t cpf::intern::wconv(cpf::type::str_t &&src)
 {
 	return std::move(src);
 }
 
 template<>
-void cpf::intern::write_arg<cpf::type::str>(cpf::type::stream ustream,
-											cpf::type::str const &format,
-											cpf::type::str&& arg)
+void cpf::intern::write_arg<cpf::type::str_t>(cpf::type::stream ustream,
+											cpf::type::str_t const &format,
+											cpf::type::str_t&& arg)
 {
 	cpf::intern::write_arg(ustream, format, std::forward<const wchar_t*>(arg.c_str()));
 }
 
 template<>
-void cpf::intern::write_arg<cpf::type::nstr>(cpf::type::stream ustream,
-												cpf::type::str const &format,
-												cpf::type::nstr&& arg)
+void cpf::intern::write_arg<cpf::type::nstr_t>(cpf::type::stream ustream,
+												cpf::type::str_t const &format,
+												cpf::type::nstr_t&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(std::forward<cpf::type::nstr>(arg))));
+	cpf::intern::write_arg<cpf::type::str_t>(ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(std::forward<cpf::type::nstr_t>(arg))));
 }
 
 template<>
 void cpf::intern::write_arg<char*>(cpf::type::stream ustream,
-									cpf::type::str const &format,
+									cpf::type::str_t const &format,
 									char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(std::forward<char*>(arg))));
+	cpf::intern::write_arg<cpf::type::str_t>(ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(std::forward<char*>(arg))));
 }
 
 template<>
 void cpf::intern::write_arg<const char*>(cpf::type::stream ustream,
-											cpf::type::str const &format,
+											cpf::type::str_t const &format,
 											const char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(	ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(std::forward<const char*>(arg))));
+	cpf::intern::write_arg<cpf::type::str_t>(	ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(std::forward<const char*>(arg))));
 }
 
 template<>
 void cpf::intern::write_arg<signed char*>(cpf::type::stream ustream,
-											cpf::type::str const &format,
+											cpf::type::str_t const &format,
 											signed char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(	ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(reinterpret_cast<char*>(arg))));
+	cpf::intern::write_arg<cpf::type::str_t>(	ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(reinterpret_cast<char*>(arg))));
 }
 
 template<>
 void cpf::intern::write_arg<const signed char*>(cpf::type::stream ustream,
-											cpf::type::str const &format,
+											cpf::type::str_t const &format,
 											const signed char*&& arg)
 {
-	cpf::intern::write_arg<cpf::type::str>(	ustream, format, std::forward<cpf::type::str>(cpf::intern::wconv(reinterpret_cast<const char*>(arg))));
+	cpf::intern::write_arg<cpf::type::str_t>(	ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(reinterpret_cast<const char*>(arg))));
 }
 
 CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
-											const cpf::type::meta::const_iterator &end_point_comparator,
-											cpf::type::meta::const_iterator &meta_iter,
-											const cpf::type::str printed_string=L"",
+											const cpf::type::meta_fmt_t::const_iterator &end_point_comparator,
+											cpf::type::meta_fmt_t::const_iterator &meta_iter,
+											const cpf::type::str_t printed_string=L"",
 											const cpf::type::size search_start_pos=0)
 {
 	while (meta_iter != end_point_comparator)
@@ -338,6 +338,6 @@ CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
     }
 
 	/*restore defaults*/
-	cpf::intern::configure(ustream, cpf::type::string_vector({ L"?" }));
+	cpf::intern::configure(ustream, cpf::type::str_vec_t({ L"?" }));
 }
 
