@@ -48,7 +48,7 @@ THE SOFTWARE.
 	cprintf("$r`red");
 */
 
-const std::initializer_list<cpf::type::str> cpf::intern::attr_esc_seqs = {
+const std::initializer_list<cpf::type::str_t> cpf::intern::attr_esc_seqs = {
 	L"`$", L"`r", L"`g", 
 	L"`b", L"`y", L"`m", 
 	L"`c", L"`w", L"`.", 
@@ -124,20 +124,20 @@ auto schar_ids =
 */
 typedef std::map<
 	wchar_t,
-	std::function<bool(cpf::type::str const &, cpf::type::size const &)>
+	std::function<bool(cpf::type::str_t const &, cpf::type::size const &)>
 > ppred_t;
 
-bool pred_isdigit(cpf::type::str const &s, cpf::type::size const &p)
+bool pred_isdigit(cpf::type::str_t const &s, cpf::type::size const &p)
 {
 	return isdigit(s[p]) ? true : false;
 }
 
-bool pred_scrn_clr(cpf::type::str const &s, cpf::type::size const &p)
+bool pred_scrn_clr(cpf::type::str_t const &s, cpf::type::size const &p)
 {
 	return s[p] == '!';
 }
 
-bool pred_colour(cpf::type::str const &s, cpf::type::size const &p)
+bool pred_colour(cpf::type::str_t const &s, cpf::type::size const &p)
 {
 	/*a colour char may only be preceded by another or any char contained in col_id_prefs...*/
 	return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
@@ -176,22 +176,22 @@ const ppred_t parsing_predicates = {
 	{ 'w', pred_colour },
 	{
 		'?',
-		[&](cpf::type::str const &s, cpf::type::size const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
+		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
 	},
 	{
 		'|',
-		[&](cpf::type::str const &s, cpf::type::size const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
+		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
 	},
 	{
 		'*', /*an asterisk can only be prefixed by colour identifiers*/
-		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
+		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			return std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end(); /*in r, g, b, ...*/;
 		}
 	},
 	{
 		'.',
-		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
+		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			//s[p] in r, g, b, ... or is digit or b f & etc
 			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
@@ -201,7 +201,7 @@ const ppred_t parsing_predicates = {
 	},
 	{
 		'#',
-		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
+		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
 					s[p] == '*';
@@ -209,7 +209,7 @@ const ppred_t parsing_predicates = {
 	},
 	{
 		'b',
-		[&](cpf::type::str const &s, cpf::type::size const &p)->bool
+		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			/*note: this covers the colour blue (...$b[*]...) as well as a token representing
 			a unix bitmap-colour token (...$34b...).
@@ -223,9 +223,9 @@ const ppred_t parsing_predicates = {
 	}
 };
 
-void purge_meta_esc_sequences(cpf::type::meta& meta)
+void purge_meta_esc_sequences(cpf::type::meta_fmt_t& meta)
 {
-	auto purge_str_esc_sequences = [&](cpf::type::str &src)
+	auto purge_str_esc_sequences = [&](cpf::type::str_t &src)
 	{
 		for (auto &es : cpf::intern::attr_esc_seqs)
 		{
@@ -233,7 +233,7 @@ void purge_meta_esc_sequences(cpf::type::meta& meta)
 
 			/* searches "src" for "es" and replaces it with "replacew" */
 			size_t pos = 0;
-			while ((pos = cpf::intern::search_for(es, src, pos)) != cpf::type::str::npos)
+			while ((pos = cpf::intern::search_for(es, src, pos)) != cpf::type::str_t::npos)
 			{
 				src.replace(pos, es.length(), replacew);
 				pos += replacew.length();
@@ -251,7 +251,7 @@ void purge_meta_esc_sequences(cpf::type::meta& meta)
 	parses "src_string" starting from "ssp" (search start position) and returns an offset via "offset_pos"
 	denoting the size of the substring that represents an attribute specifier.
 */
-void parse_attribute_specifier(cpf::type::str const& src_string, cpf::type::str::size_type &offset_val, cpf::type::str::size_type &ssp)
+void parse_attribute_specifier(cpf::type::str_t const& src_string, cpf::type::str_t::size_type &offset_val, cpf::type::str_t::size_type &ssp)
 {
 	cpf::type::size offset_counter = 0;
 	wchar_t c = src_string[ssp];//first character after occurrance of "$" 
@@ -269,7 +269,7 @@ void parse_attribute_specifier(cpf::type::str const& src_string, cpf::type::str:
 		if ((off4 < lst_i || off3 < lst_i) &&
 			!checked_if_is_txt_frmt_modifier) //if offset does not exceed searched string's last character index...
 		{
-			auto f = [&](cpf::type::str const &s)
+			auto f = [&](cpf::type::str_t const &s)
 			{
 				//faster by using backwards iteration (see initialisation of std_tokens)
 				if (std::find(cpf::intern::std_tokens.rbegin(), cpf::intern::std_tokens.rend(), s) != cpf::intern::std_tokens.rend())
@@ -343,19 +343,19 @@ void parse_attribute_specifier(cpf::type::str const& src_string, cpf::type::str:
 }
 
 /**/
-cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_, 
-										cpf::type::str::size_type search_start_pos_,
-										cpf::type::str::size_type &attrib_end_pos)
+cpf::type::str_t parse_fstr_for_attrib_specs(	cpf::type::str_t const &format_str_, 
+										cpf::type::str_t::size_type search_start_pos_,
+										cpf::type::str_t::size_type &attrib_end_pos)
 {
 	auto ssp = search_start_pos_;
 
 	/*offset from search start position i.e token occurance position in format string*/
-	cpf::type::str::size_type offset_pos = 0;
+	cpf::type::str_t::size_type offset_pos = 0;
 	
 	parse_attribute_specifier(format_str_, offset_pos, ssp);
 
 	/*the parsed attribute(s) string...*/
-	cpf::type::str attribute_string = format_str_.substr(ssp, offset_pos);
+	cpf::type::str_t attribute_string = format_str_.substr(ssp, offset_pos);
 
 	if (attribute_string.size() == 0)
 		throw CPF_TOKEN_ERR;// invalid '$' token encountered on parse
@@ -364,16 +364,16 @@ cpf::type::str parse_fstr_for_attrib_specs(	cpf::type::str const &format_str_,
 	return attribute_string;
 }
 
-cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_format)
+cpf::type::meta_fmt_t cpf::intern::process_format_string(const cpf::type::str_t &src_format)
 {
-	cpf::type::meta meta;
+	cpf::type::meta_fmt_t meta;
 
 	const cpf::type::size NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS)
 	{
 		cpf::type::size occurrences = 0;
-		cpf::type::str::size_type start = 0;
+		cpf::type::str_t::size_type start = 0;
 
-		while ((start = cpf::intern::search_for(L"$", src_format, start)) != cpf::type::str::npos)
+		while ((start = cpf::intern::search_for(L"$", src_format, start)) != cpf::type::str_t::npos)
 		{
 			++occurrences;
 			start++;
@@ -387,13 +387,13 @@ cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_for
 	{
 		if (first_iter && token_occurance_pos != 0)
 		{
-			cpf::type::string_vector default_attrib{ L"?" };
+			cpf::type::str_vec_t default_attrib{ L"?" };
 			meta.insert(std::make_pair(0u, std::make_pair(default_attrib, src_format.substr(0u, token_occurance_pos))));
 			first_iter = false;
 		}
 		
 		auto tokOccPos_1 = token_occurance_pos + 1;
-		cpf::type::str::size_type off = 0;
+		cpf::type::str_t::size_type off = 0;
 		auto attibs_str = parse_fstr_for_attrib_specs(src_format, token_occurance_pos + 1, off);
 		attrib_endpos_p1 = tokOccPos_1 + off;
 
@@ -401,8 +401,8 @@ cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_for
 
 		/*vector to hold attributes that are applied to the (sub) string proceeding
 		the token "$"'s occurance position.*/
-		cpf::type::string_vector subseq_str_attribs;
-		cpf::type::str current_attrib;
+		cpf::type::str_vec_t subseq_str_attribs;
+		cpf::type::str_t current_attrib;
 
 		for(auto c = std::begin(attibs_str); c != std::end(attibs_str); ++c)
 		{
@@ -431,7 +431,7 @@ cpf::type::meta cpf::intern::process_format_string(const cpf::type::str &src_for
 
 	if (meta.empty())
 	{
-		meta.insert(std::make_pair(0u, std::make_pair(cpf::type::string_vector({ L"?" }), src_format)));
+		meta.insert(std::make_pair(0u, std::make_pair(cpf::type::str_vec_t({ L"?" }), src_format)));
 	}
 
 	purge_meta_esc_sequences(meta);

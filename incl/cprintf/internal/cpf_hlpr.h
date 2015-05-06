@@ -120,21 +120,21 @@ namespace cpf
 			convert from narrow character string to wide character string
 			@returns wide version of src
 		*/
-		CPF_API cpf::type::str wconv(cpf::type::nstr &&src);
+		CPF_API cpf::type::str_t wconv(cpf::type::nstr_t &&src);
 
 		// pass through ...
-		CPF_API cpf::type::str wconv(cpf::type::str &&src);
+		CPF_API cpf::type::str_t wconv(cpf::type::str_t &&src);
 
 		/*
 			@return number of printf argument tokens "%" in a given string
 		*/
-		CPF_API cpf::type::size get_num_arg_specs(const cpf::type::str & str);
+		CPF_API cpf::type::size get_num_arg_specs(const cpf::type::str_t & str_t);
 
 		/*
 			print the substring preceding an argument specifier in a sub-format-string
 		*/
-		CPF_API cpf::type::str write_pre_arg_str(	cpf::type::stream ustream,
-													cpf::type::str& printed_string_,
+		CPF_API cpf::type::str_t write_pre_arg_str(	cpf::type::stream ustream,
+													cpf::type::str_t& printed_string_,
 													cpf::type::size& ssp_,
 													const cpf::type::attribute_group attr);
 
@@ -142,20 +142,20 @@ namespace cpf
 			print the substring proceding an argument specifier in a sub-format-string
 		*/
 		CPF_API void write_post_arg_str(cpf::type::stream ustream,
-										cpf::type::str& printed_string_,
+										cpf::type::str_t& printed_string_,
 										cpf::type::size& ssp_,
 										bool &more_args_on_iter,
-										cpf::type::meta::const_iterator &meta_iter,
-										const cpf::type::meta::const_iterator &end_point_comparator);
+										cpf::type::meta_fmt_t::const_iterator &meta_iter,
+										const cpf::type::meta_fmt_t::const_iterator &end_point_comparator);
 
 		/*
 			print non-argument specifying format string i.e where the implmentation
 			need not invoke printf with any avariadic arguments.
 		*/
 		CPF_API void write_non_arg_str(	cpf::type::stream ustream,
-										cpf::type::str& printed_string_,
+										cpf::type::str_t& printed_string_,
 										cpf::type::size& ssp_,
-										cpf::type::meta::const_iterator &meta_iter);
+										cpf::type::meta_fmt_t::const_iterator &meta_iter);
 
 		template<typename T>
 		void write_binary( cpf::type::stream ustream, 
@@ -166,19 +166,20 @@ namespace cpf
 		{
 			using namespace cpf::type;
 			typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t, T>::type ptype;
-			std::bitset<sizeof(T)* 8U> bits((ptype)(arg));
-			std::fwprintf(ustream, L"%s", bits.to_string<str::allocator_type::value_type>().c_str());
+			std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
+			std::fwprintf(ustream, L"%s", bits.to_string<str_t::value_type>().data());
 		}
 
-		// Enabled if "T" is a stl string type
+		// Enabled if "T" is an STL string type.
+		// this function is only instantiated but never executed
 		template<typename T>
 		void write_binary(	cpf::type::stream ustream,
-							typename std::enable_if<cpf::type::is_std_str_t<T>::value, T>::type&& arg)
+							typename std::enable_if<cpf::type::is_STL_string_type_<T>::value, T>::type&& arg)
 		{	}
 
 		template<typename T>
 		void write_arg(	cpf::type::stream ustream,
-						cpf::type::str const &format,
+						cpf::type::str_t const &format,
 						T&& arg)
 		{
 			if (format == L"%b")
@@ -191,33 +192,33 @@ namespace cpf
 			some tiny extra wizardry has to be done before printing the following types...
 		*/
 		template<>
-		void write_arg<cpf::type::str>(cpf::type::stream ustream,
-										cpf::type::str const &format,
-										cpf::type::str&& arg);
+		void write_arg<cpf::type::str_t>(cpf::type::stream ustream,
+										cpf::type::str_t const &format,
+										cpf::type::str_t&& arg);
 
 		template<>
-		void write_arg<cpf::type::nstr>(cpf::type::stream ustream,
-										cpf::type::str const &format,
-										cpf::type::nstr&& arg);
+		void write_arg<cpf::type::nstr_t>(cpf::type::stream ustream,
+										cpf::type::str_t const &format,
+										cpf::type::nstr_t&& arg);
 
 		template<>
 		void write_arg<char*>(cpf::type::stream ustream,
-								cpf::type::str const &format,
+								cpf::type::str_t const &format,
 								char*&& arg);
 
 		template<>
 		void write_arg<signed char*>(cpf::type::stream ustream,
-										cpf::type::str const &format,
+										cpf::type::str_t const &format,
 										signed char*&& arg);
 
 		template<>
 		void write_arg<const char*>(cpf::type::stream ustream,
-									cpf::type::str const &format,
+									cpf::type::str_t const &format,
 									const char*&& arg);
 
 		template<>
 		void write_arg<const signed char*>(cpf::type::stream ustream,
-											cpf::type::str const &format,
+											cpf::type::str_t const &format,
 											const signed char*&& arg);
 
 		/*
@@ -228,7 +229,7 @@ namespace cpf
 		CPF_API void update_ustream(cpf::type::stream ustream,
 									const cpf::type::c_meta_iterator &end_point_comparator,
 									cpf::type::c_meta_iterator &meta_iter,
-									const cpf::type::str printed_string,
+									const cpf::type::str_t printed_string,
 									const cpf::type::size search_start_pos);
 
 		/*
@@ -240,12 +241,12 @@ namespace cpf
 		void update_ustream(cpf::type::stream ustream,
 							const cpf::type::c_meta_iterator &end_point_comparator,
 							cpf::type::c_meta_iterator &meta_iter,
-							const cpf::type::str printed_string,
+							const cpf::type::str_t printed_string,
 							const cpf::type::size search_start_pos,
 							T0&& arg0,
 							Ts&&... args)
 		{
-			cpf::type::str printed_string_ = printed_string;
+			cpf::type::str_t printed_string_ = printed_string;
 
 			/*	
 				printed string argument-specifier ('%') count	
@@ -322,7 +323,7 @@ namespace cpf
 		cpf::type::rcode_t dispatch(T0 &&raw_format, Ts&&... args)
 		{
 			cpf::type::stream ustream = ((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr;
-			cpf::type::str format;
+			cpf::type::str_t format;
 			try	{
 				format = cpf::intern::wconv(std::forward<T0>(raw_format));
 			}

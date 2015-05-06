@@ -30,7 +30,7 @@ THE SOFTWARE.
 	using macros below is bad enough figuring out what is happening
 	in the code.
 */
-CPF_API const cpf::type::string_vector cpf::intern::std_tokens = {
+CPF_API const cpf::type::str_vec_t cpf::intern::std_tokens = {
 	/*
 		dim text colour no background
 	*/
@@ -155,7 +155,7 @@ CPF_API const cpf::type::string_vector cpf::intern::std_tokens = {
 { L"" L ## c L"*c*", ((val_f | CPF_fgi) | CPF_Cbi) },\
 { L"" L ## c L"*w*", ((val_f | CPF_fgi) | CPF_Wbi) }
 
-const std::map<const cpf::type::str, cpf::type::colour> cpf::intern::std_token_vals{
+const std::map<const cpf::type::str_t, cpf::type::colour> cpf::intern::std_token_vals{
 	/*
 		red
 	*/
@@ -242,7 +242,7 @@ const std::map<const cpf::type::str, cpf::type::colour> cpf::intern::std_token_v
 {	L"" #c "*c*",	L"\x1B[0;9"#i";106m" },\
 {	L"" #c "*w*",	L"\x1B[0;9"#i";107m" }
 
-extern const std::map<const cpf::type::str, cpf::type::colour> cpf::intern::std_token_vals{
+extern const std::map<const cpf::type::str_t, cpf::type::colour> cpf::intern::std_token_vals{
 
 	/*attributes specifiers*/
 	{	L"bld", 	L"\x1B[1m"},

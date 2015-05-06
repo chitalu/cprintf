@@ -34,7 +34,7 @@ namespace cpf
 		/*
 			text attribute token escape sequences..
 		*/
-		CPF_API const std::initializer_list<type::str> attr_esc_seqs;
+		CPF_API const std::initializer_list<type::str_t> attr_esc_seqs;
 
 		/*
 			standard format specifiers
@@ -92,7 +92,7 @@ namespace cpf
 			formatted with.
 			The second element of [value] is a substring of the source format string.
 			*/
-		CPF_API cpf::type::meta process_format_string(const type::str &format_string);
+		CPF_API cpf::type::meta_fmt_t process_format_string(const type::str_t &format_string);
 	}
 }
 

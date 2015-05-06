@@ -109,7 +109,7 @@ bool is_fstream(cpf::type::stream user_stream)
 }
 
 //i.e 32f or 200b
-bool is_bitmap_colour_token(const cpf::type::str& attrib)
+bool is_bitmap_colour_token(const cpf::type::str_t& attrib)
 {
 	for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
 	{
@@ -122,7 +122,7 @@ bool is_bitmap_colour_token(const cpf::type::str& attrib)
 	return false;
 }
 
-bool is_cursor_pos_attrib(const cpf::type::str& attrib)
+bool is_cursor_pos_attrib(const cpf::type::str_t& attrib)
 {
 	auto asize = attrib.size();
 	auto num_commas = std::count(attrib.begin(), attrib.end(), ',');
@@ -145,7 +145,7 @@ bool is_cursor_pos_attrib(const cpf::type::str& attrib)
 	return value;
 }
 
-cpf::type::colour get_token_value(const cpf::type::str& colour_key)
+cpf::type::colour get_token_value(const cpf::type::str_t& colour_key)
 {
 	auto terminal_value = cpf::intern::std_token_vals.find(colour_key);
 	if (terminal_value == cpf::intern::std_token_vals.end())
@@ -156,7 +156,7 @@ cpf::type::colour get_token_value(const cpf::type::str& colour_key)
 }
 
 #ifdef CPF_LINUX_BUILD
-cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_token)
+cpf::type::str_t get_terminal_bitmap_colour_value(const cpf::type::str_t& attrib_token)
 {
 	auto at_size = attrib_token.size();
 	wchar_t lst_char = attrib_token[at_size - 1];
@@ -167,7 +167,7 @@ cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_tok
 	if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 || (int_repr > 256 || int_repr < 0))
 		throw CPF_TOKEN_ERR;// invalid attribute token
 
-	cpf::type::str colour_str;
+	cpf::type::str_t colour_str;
 
 	if (lst_char == 'f')//foreground
 	{
@@ -188,7 +188,7 @@ cpf::type::str get_terminal_bitmap_colour_value(const cpf::type::str& attrib_tok
 
 
 
-void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& attrib_str)
+void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str_t& attrib_str)
 {
 	auto comma_pos = attrib_str.find(',');
 	auto horizontal_pos_str = attrib_str.substr(0, comma_pos);
@@ -214,7 +214,7 @@ void set_cursor_position(cpf::type::stream user_stream, const cpf::type::str& at
 }
 
 void clear_terminal(	cpf::type::stream user_stream,
-						const cpf::type::str& attrib)
+						const cpf::type::str_t& attrib)
 {
 #ifdef _WIN32
 	auto user_stream_ = user_stream == stdout ? stdout_handle : stderr_handle;
@@ -406,7 +406,7 @@ CPF_API void cpf::intern::configure(cpf::type::stream user_stream,
 				config_text_attribute(user_stream, colour_value, config_type);
 				
 #else
-				cpf::type::str control_sequence;
+				cpf::type::str_t control_sequence;
 				if(is_bmct)
 				{
 					control_sequence = get_terminal_bitmap_colour_value(tok);

@@ -29,7 +29,7 @@ namespace cpf
 {
 	namespace intern
 	{
-		CPF_API const cpf::type::str dbg_log_fmt_str;
+		CPF_API const cpf::type::str_t dbg_log_fmt_str;
 	}
 }
 
@@ -52,13 +52,13 @@ namespace cpf
 #endif
 
 #define CPF_DBG_LOG_STAMP\
-	const cpf::type::str pname__ = CPF_WIDEN_STRING_LITERAL(__FILE__);\
+	const cpf::type::str_t pname__ = CPF_WIDEN_STRING_LITERAL(__FILE__);\
 	typedef struct {\
 		bool operator()(char character) const{\
 			return CPF_SEP_COND;\
 		}\
 	}sep__;\
-	auto fname__ =  cpf::type::str(std::find_if(pname__.rbegin(), pname__.rend(),sep__()).base(), pname__.end());\
+	auto fname__ =  cpf::type::str_t(std::find_if(pname__.rbegin(), pname__.rend(),sep__()).base(), pname__.end());\
 	cprintf<CPF_STDE>(cpf::intern::dbg_log_fmt_str, fname__, __TIME__, __DATE__, __FUNCTION__, __LINE__);
 
 #define cprintf_dbg(f, ...) \

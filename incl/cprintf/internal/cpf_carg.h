@@ -71,7 +71,7 @@ namespace cpf
 						throw CPF_ARG_ERR; // expected an[integral] value"
 					break;
 				case 's':
-					if (!cpf::type::is_string_t<T>::value)
+					if (!cpf::type::is_permitted_string_type_<T>::value)
 						throw CPF_ARG_ERR; // expected a value of type[c - string, std::string or std::wstring]
 					break;
 				case 'p':
@@ -79,7 +79,7 @@ namespace cpf
 						throw CPF_ARG_ERR; // expected a[pointer] value
 					break;
 				case 'b':
-					if (cpf::type::is_std_str_t<T>::value)
+					if (cpf::type::is_STL_string_type_<T>::value)
 						throw CPF_ARG_ERR; // expected a scalar, i.e 
 					break;
 				default:
