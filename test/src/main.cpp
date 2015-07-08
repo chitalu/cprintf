@@ -87,10 +87,12 @@ int main(int argc, char **argv)
 	//auto r = cprintf("test hello %d\n", 8);
 	//cprintx(std::string("").c_str());
 	char c = 123; short s = 1234; int i = 123456;
-
+	cprintf_t("", std::make_tuple(0));
 	//null pointers not allowed
 	cprintf("TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", 
 			c, c, s, s, i, i, std::string().data(), std::string().data());
+
+	cprintf_dbg("foos the bars");
 
 	//cprintf("test hello 0\n", "8LL");
 	//cprintf("test hello 0\n", "8LL", 4, f);

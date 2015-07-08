@@ -193,6 +193,36 @@ namespace cpf
 			verify_args_<VARGs...> decl_stub_;
 		};
 
+		template<typename T>
+		struct resolve_Xint64_t_
+		{
+			typedef typename std::conditional<
+				std::is_signed<T>::value,
+				std::int64_t,
+				std::uint64_t
+			>::type type;
+		};
+
+		template<typename T>
+		struct xpromote_
+		{
+			verify_args_<T> decl_stub_;
+
+			typedef typename std::conditional<
+				std::is_integral<T>::value,
+					typename resolve_Xint64_t_<T>::type,
+					typename std::conditional<
+						std::is_floating_point<T>::value,
+						double,
+						typename std::conditional<
+							std::is_pointer<T>::value,
+							T,
+						cpf::type::stub_t // used to generate compilde time error
+					>::type
+				>::type
+			>::type type;
+		};
+
 		// API return type holds the return code signifying the status
 		// of a particular invocation. The return code can be a value 
 		// set to any of the possible values defined in cpf_base.h
