@@ -84,6 +84,47 @@ cprintf_ts(F(&f)[N], std::tuple<Fs...> args_tup) {
 }
 
 // X API
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+        inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
+x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
+{
+        using namespace cpf::intern;
+        using namespace cpf::type;
+
+        return std::move(cprintf<FLAGS>(str_t(L"%f"), arg0));
+}
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+        inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
+x_impl(typename std::enable_if<std::is_signed<T>::value, T>::type &&arg0)
+{
+        using namespace cpf::intern;
+        using namespace cpf::type;
+
+        return std::move(cprintf<FLAGS>(str_t(L"%lld"), arg0));
+}
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+        inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
+x_impl(typename std::enable_if<std::is_unsigned<T>::value, T>::type &&arg0)
+{
+        using namespace cpf::intern;
+        using namespace cpf::type;
+
+        return std::move(cprintf<FLAGS>(str_t(L"%llu"), arg0));
+}
+
+template<std::size_t FLAGS = CPF_STDO, typename T>
+        inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
+x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0)
+{
+        using namespace cpf::intern;
+        using namespace cpf::type;
+
+        return std::move(cprintf<FLAGS>(str_t(L"%p"), arg0));
+}
+
 template <std::size_t FLAGS = CPF_STDO, typename X>
 inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<
     FLAGS, cpf::type::str_t, typename cpf::type::xpromote_<X>::type>>>

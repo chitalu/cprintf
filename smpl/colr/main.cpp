@@ -135,7 +135,7 @@ int main(void)
 	int count = 0;
 	for (auto i : cpf::intern::std_tokens)
 	{
-		auto s = cpf::type::str(i);
+		auto s = cpf::type::str_t(i);
 
 		cprintf((L"$" + s + L"%s" + L"$?\t").c_str(), i);
 

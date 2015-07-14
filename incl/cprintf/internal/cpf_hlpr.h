@@ -167,7 +167,10 @@ namespace cpf
 			using namespace cpf::type;
 			typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t, T>::type ptype;
 			std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
+// gcc being a little bit iffy ...
+#ifndef CPF_LINUX_BUILD
 			std::fwprintf(ustream, L"%s", bits.to_string<str_t::value_type>().data());
+#endif
 		}
 
 		// Enabled if "T" is an STL string type.
@@ -371,33 +374,6 @@ namespace cpf
 			return rcode;
 		}
 
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%f"), arg0));
-		}
-
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_signed<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%lld"), arg0));
-		}
-
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_unsigned<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%llu"), arg0));
-		}
-
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%p"), arg0));
-		}
 	}
 }
 
