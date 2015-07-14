@@ -34,9 +34,9 @@ THE SOFTWARE.
 */
 CPF_API const cpf::type::str_t cpf::intern::dbg_log_fmt_str =
 LR"debug_str($cdbg
-$g@file:$c	$g*%s$c
-$g@time:$c	$g*%s$c-$g*%s$c 
-$g@func:$c	$g*%s$c
+$g@file:$c	$g*%S$c
+$g@time:$c	$g*%S$c-$g*%S$c 
+$g@func:$c	$g*%S$c
 $g@line:$c	$g*%d$c
 
 >> log: $?)debug_str";
@@ -271,7 +271,7 @@ void cpf::intern::write_arg<cpf::type::str_t>(cpf::type::stream ustream,
 											cpf::type::str_t const &format,
 											cpf::type::str_t&& arg)
 {
-	cpf::intern::write_arg(ustream, format, std::forward<const wchar_t*>(arg.c_str()));
+	cpf::intern::write_arg(ustream, L"%S", std::forward<const wchar_t*>(arg.c_str()));
 }
 
 template<>
