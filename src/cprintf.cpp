@@ -265,12 +265,20 @@ cpf::type::str_t cpf::intern::wconv(cpf::type::str_t &&src)
 {
 	return std::move(src);
 }
-
+#include <locale>
 template<>
 void cpf::intern::write_arg<cpf::type::str_t>(cpf::type::stream ustream,
 											cpf::type::str_t const &format,
 											cpf::type::str_t&& arg)
 {
+        /*cpf:type::str_t f;
+        for(int i(0); i<format.size(); ++i)
+        {
+             f.append( {((bool)std::iswalpha(format[i])) ? std::towupper(format[i]) : format[i] });
+        }*/
+
+        // temporary solution, PLEASE FIX THIS!
+        // THE FORMAT SPECIFIER SHOULD NOT BE A HARDCODED LATERAL HERE!
 	cpf::intern::write_arg(ustream, L"%S", std::forward<const wchar_t*>(arg.c_str()));
 }
 
