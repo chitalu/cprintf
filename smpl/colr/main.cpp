@@ -73,14 +73,14 @@ int main(void) {
   // raw string literals can also be used
         auto s = R"rsl(raw $ystring lateral$? %s
 )rsl";
-	cprintf(s, "foo");
-        cprintf(L"as argument: %s", s);
+	cprintf(s, L"foo");
+        cprintf(L"as argument: %S", s);
 
         // wide character
-        auto ws = LR"rsl(raw $ystring lateral$? %s
+        auto ws = LR"rsl(raw $ystring lateral$? %S
 )rsl";
 	cprintf(ws, L"foo");
-        cprintf(L"as argument: %s", ws);
+        cprintf(L"as argument: %S", ws);
 
         // printing types std::string and std::wstring in colour.
         // again, same as before
@@ -90,7 +90,7 @@ int main(void) {
 
         std::wstring std_wstr = L"yey! $g*Go me!! %d\n";
         cprintf(std_wstr, std_wstr.size());
-        cprintf(L"as argument: %s", std_wstr);
+        cprintf(L"as argument: %S", std_wstr);
 
 /*
         linux only text-format attribute tokens:
@@ -140,7 +140,7 @@ int main(void) {
   for (auto i : cpf::intern::std_tokens) {
     auto s = cpf::type::str_t(i);
 
-    cprintf((L"$" + s + L"%s" + L"$?\t").c_str(), i);
+    cprintf((L"$" + s + L"%S" + L"$?\t").c_str(), i);
 
     if ((++count % 8) == 0)
       printf("\n");

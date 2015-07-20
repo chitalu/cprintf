@@ -70,7 +70,7 @@ namespace cpf
 					if (!std::is_integral<T>::value)
 						throw CPF_ARG_ERR; // expected an[integral] value"
 					break;
-				case 's':
+                                case 's': case 'S':
 					if (!cpf::type::is_permitted_string_type_<T>::value)
 						throw CPF_ARG_ERR; // expected a value of type[c - string, std::string or std::wstring]
 					break;

@@ -64,7 +64,7 @@ const std::initializer_list<wchar_t> cpf::intern::std_fmt_specs = {
 	'o', 's', 'u', 
 	'x', 'X', 'a', 
 	'A', 'p', 'n',
-	'b'
+	'b', 'S'
 };
 
 /*
@@ -78,7 +78,8 @@ Characters typically found at the end of a more complex FS
 const std::initializer_list<wchar_t> cpf::intern::ext_fmtspec_terms = {
 	'd', 'f', 's', 
 	'e', 'o', 'x', 
-	'X', 'i', 'u'
+	'X', 'i', 'u',
+        'S'
 };
 
 /*
