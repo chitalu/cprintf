@@ -173,7 +173,7 @@ namespace intern {
 			std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
 // gcc being a little bit iffy ...
 #ifndef CPF_LINUX_BUILD
-			std::fwprintf(ustream, L"%s", bits.to_string<str_t::value_type>().data());
+			std::fwprintf(ustream, L"%S", bits.to_string<str_t::value_type>().data());
 #endif
 		}
 
