@@ -10,11 +10,11 @@
 #include <mutex>
 
 #ifdef CPF_WINDOWS_BUILD
-/*
-	Note:	GCC does not yet support multi-byte conversion functionality from the following
-	header, as a result narrow-string variants of cprintf's API will do nothing until
-	this is resolved.
-*/
+//Note:	GCC does not yet support multi-byte conversion functionality from the following
+//header, as a result narrow-string variants of cprintf's API will do nothing until
+//this is resolved.
+
+
 #include <codecvt> //wstring_convert
 #endif
 #include <cstdint>
@@ -23,15 +23,19 @@
 #include <cprintf/internal/cpf_carg.h>
 #include <cprintf/internal/cpf_tconf.h>
 
-#define CPF_MARK_CRITICAL_SECTION_ if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.lock();}
+#define CPF_MARK_CRITICAL_SECTION_                                             \
+  if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {                                    \
+    cpf::intern::user_thread_mutex.lock();                                     \
+  }
 
-#define CPF_UNMARK_CRITICAL_SECTION_ if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.unlock();}
+#define CPF_UNMARK_CRITICAL_SECTION_                                           \
+  if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {                                    \
+    cpf::intern::user_thread_mutex.unlock();                                   \
+  }
 
-namespace cpf
-{
-	namespace intern
-	{
-		/*
+namespace cpf {
+namespace intern {
+                /*
 			on specifiation of CPF_ATOMIC as a template parameter flag to the API, this mutex is used 
 			to insure atomicity upon invocation since the API is not re-entrant.  
 		*/
