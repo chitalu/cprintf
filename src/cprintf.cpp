@@ -33,6 +33,15 @@ THE SOFTWARE.
 	wide character string debug log
 */
 CPF_API const cpf::type::str_t cpf::intern::dbg_log_fmt_str =
+#if !CPF_WINDOWS_BUILD
+LR"debug_str($cdbg
+$g@file:$c	$g*%S$c
+$g@time:$c	$g*%S$c-$g*%S$c 
+$g@func:$c	$g*%S$c
+$g@line:$c	$g*%d$c
+
+>> log: $?)debug_str";
+#else // then use small 's' for string args on windows
 LR"debug_str($cdbg
 $g@file:$c	$g*%s$c
 $g@time:$c	$g*%s$c-$g*%s$c 
@@ -40,6 +49,7 @@ $g@func:$c	$g*%s$c
 $g@line:$c	$g*%d$c
 
 >> log: $?)debug_str";
+#endif// !CPF_LINUX_BUILD
 #endif //CPF_DBG_CONFIG
 
 /*
@@ -86,7 +96,7 @@ cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str_t & obj)
 	return n;
 }
 
-cpf::type::str_t cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
+cpf::type::str_t cpf::intern::write_pre_arg_str(	cpf::type::stream_t ustream,
 												cpf::type::str_t& printed_string_,
 												cpf::type::size& ssp_,
 												const cpf::type::attribute_group attr)
@@ -179,7 +189,7 @@ cpf::type::str_t cpf::intern::write_pre_arg_str(	cpf::type::stream ustream,
 	return fstr;
 }
 
-void cpf::intern::write_post_arg_str(	cpf::type::stream ustream,
+void cpf::intern::write_post_arg_str(	cpf::type::stream_t ustream,
 										cpf::type::str_t& printed_string_,
 										cpf::type::size& ssp_,
 										bool &more_args_on_iter,
@@ -209,7 +219,7 @@ void cpf::intern::write_post_arg_str(	cpf::type::stream ustream,
 	}
 }
 
-void cpf::intern::write_non_arg_str(cpf::type::stream ustream,
+void cpf::intern::write_non_arg_str(cpf::type::stream_t ustream,
 									cpf::type::str_t& printed_string_,
 									cpf::type::size& ssp_,
 									cpf::type::meta_fmt_t::const_iterator &meta_iter)
@@ -266,78 +276,114 @@ cpf::type::str_t cpf::intern::wconv(cpf::type::str_t &&src)
 	return std::move(src);
 }
 
-template<>
-void cpf::intern::write_arg<cpf::type::str_t>(cpf::type::stream ustream,
-											cpf::type::str_t const &format,
-											cpf::type::str_t&& arg)
+// printing strings with lower case 's' as format specifier leads
+// to undefined behaviour when using wide character strings .
+cpf::type::str_t cpf::intern::resolve_str_frmt_spec(const cpf::type::str_t& fs)
 {
-	cpf::intern::write_arg(ustream, format, std::forward<const wchar_t*>(arg.c_str()));
+	using namespace cpf::type;
+
+	str_t f = fs;
+	// seems like msvc does not conform to wide character
+	// format specifier rules
+#if !CPF_WINDOWS_BUILD 
+	if (fs.find('s') != str_t::npos)
+	{
+		f.clear();
+		for (std::wint_t i(0); i < fs.size(); ++i) {
+			f.append({ std::iswalpha(fs[i]) ? (wchar_t)std::towupper(fs[i])
+				: fs[i] });
+		}
+	}
+#endif
+	return f;
 }
 
-template<>
-void cpf::intern::write_arg<cpf::type::nstr_t>(cpf::type::stream ustream,
-												cpf::type::str_t const &format,
-												cpf::type::nstr_t&& arg)
-{
-	cpf::intern::write_arg<cpf::type::str_t>(ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(std::forward<cpf::type::nstr_t>(arg))));
+template <>
+void cpf::intern::write_arg<cpf::type::str_t>(cpf::type::stream_t ustream,
+                                              cpf::type::str_t const &format,
+                                              cpf::type::str_t &&arg) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+  write_arg(ustream, format, std::forward<const wchar_t *>(arg.c_str()));
 }
 
-template<>
-void cpf::intern::write_arg<char*>(cpf::type::stream ustream,
-									cpf::type::str_t const &format,
-									char*&& arg)
-{
-	cpf::intern::write_arg<cpf::type::str_t>(ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(std::forward<char*>(arg))));
+template <>
+void cpf::intern::write_arg<cpf::type::nstr_t>(cpf::type::stream_t ustream,
+                                               cpf::type::str_t const &format,
+                                               cpf::type::nstr_t &&arg) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+  write_arg<cpf::type::str_t>(ustream, format,
+                              std::forward<cpf::type::str_t>(cpf::intern::wconv(
+                                  std::forward<cpf::type::nstr_t>(arg))));
 }
 
-template<>
-void cpf::intern::write_arg<const char*>(cpf::type::stream ustream,
-											cpf::type::str_t const &format,
-											const char*&& arg)
-{
-	cpf::intern::write_arg<cpf::type::str_t>(	ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(std::forward<const char*>(arg))));
+template <>
+void cpf::intern::write_arg<char *>(cpf::type::stream_t ustream,
+                                    cpf::type::str_t const &format,
+                                    char *&&arg) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+  write_arg<cpf::type::str_t>(
+      ustream, format, std::forward<cpf::type::str_t>(
+                           cpf::intern::wconv(std::forward<char *>(arg))));
 }
 
-template<>
-void cpf::intern::write_arg<signed char*>(cpf::type::stream ustream,
-											cpf::type::str_t const &format,
-											signed char*&& arg)
-{
-	cpf::intern::write_arg<cpf::type::str_t>(	ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(reinterpret_cast<char*>(arg))));
+template <>
+void cpf::intern::write_arg<const char *>(cpf::type::stream_t ustream,
+                                          cpf::type::str_t const &format,
+                                          const char *&&arg) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+  write_arg<cpf::type::str_t>(ustream, format,
+                              std::forward<cpf::type::str_t>(cpf::intern::wconv(
+                                  std::forward<const char *>(arg))));
 }
 
-template<>
-void cpf::intern::write_arg<const signed char*>(cpf::type::stream ustream,
-											cpf::type::str_t const &format,
-											const signed char*&& arg)
-{
-	cpf::intern::write_arg<cpf::type::str_t>(	ustream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(reinterpret_cast<const char*>(arg))));
+template <>
+void cpf::intern::write_arg<signed char *>(cpf::type::stream_t ustream,
+                                           cpf::type::str_t const &format,
+                                           signed char *&&arg) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+  write_arg<cpf::type::str_t>(
+      ustream, format, std::forward<cpf::type::str_t>(
+                           cpf::intern::wconv(reinterpret_cast<char *>(arg))));
 }
 
-CPF_API void cpf::intern::update_ustream(	cpf::type::stream ustream,
-											const cpf::type::meta_fmt_t::const_iterator &end_point_comparator,
-											cpf::type::meta_fmt_t::const_iterator &meta_iter,
-											const cpf::type::str_t printed_string=L"",
-											const cpf::type::size search_start_pos=0)
-{
-	while (meta_iter != end_point_comparator)
-    {
-		cpf::intern::configure(ustream, meta_iter->second.first);
+template <>
+void cpf::intern::write_arg<const signed char *>(cpf::type::stream_t ustream,
+                                                 cpf::type::str_t const &format,
+                                                 const signed char *&&arg) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+  write_arg<cpf::type::str_t>(ustream, format,
+                              std::forward<cpf::type::str_t>(cpf::intern::wconv(
+                                  reinterpret_cast<const char *>(arg))));
+}
+
+CPF_API void cpf::intern::update_ustream(
+    cpf::type::stream_t ustream,
+    const cpf::type::meta_fmt_t::const_iterator &end_point_comparator,
+    cpf::type::meta_fmt_t::const_iterator &meta_iter,
+    const cpf::type::str_t printed_string = L"",
+    const cpf::type::size search_start_pos = 0) {
+  while (meta_iter != end_point_comparator) {
+    cpf::intern::configure(ustream, meta_iter->second.first);
 
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
-		fwprintf(ustream, meta_iter->second.second.c_str());
+    fwprintf(ustream, meta_iter->second.second.c_str());
 
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
-		std::advance(meta_iter, 1);
-    }
+    std::advance(meta_iter, 1);
+  }
 
-	/*restore defaults*/
-	cpf::intern::configure(ustream, cpf::type::str_vec_t({ L"?" }));
+  /*restore defaults*/
+  cpf::intern::configure(ustream, cpf::type::str_vec_t({L"?"}));
 }
-

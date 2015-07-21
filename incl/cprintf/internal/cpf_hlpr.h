@@ -6,15 +6,17 @@
 #include <algorithm>
 #include <type_traits>
 #include <bitset>
+#include <cwctype> //iswalpha
+#include <clocale>
 
 #include <mutex>
 
 #ifdef CPF_WINDOWS_BUILD
-/*
-	Note:	GCC does not yet support multi-byte conversion functionality from the following
-	header, as a result narrow-string variants of cprintf's API will do nothing until
-	this is resolved.
-*/
+//Note:	GCC does not yet support multi-byte conversion functionality from the following
+//header, as a result narrow-string variants of cprintf's API will do nothing until
+//this is resolved.
+
+
 #include <codecvt> //wstring_convert
 #endif
 #include <cstdint>
@@ -23,15 +25,19 @@
 #include <cprintf/internal/cpf_carg.h>
 #include <cprintf/internal/cpf_tconf.h>
 
-#define CPF_MARK_CRITICAL_SECTION_ if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.lock();}
+#define CPF_MARK_CRITICAL_SECTION_                                             \
+  if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {                                    \
+    cpf::intern::user_thread_mutex.lock();                                     \
+  }
 
-#define CPF_UNMARK_CRITICAL_SECTION_ if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {cpf::intern::user_thread_mutex.unlock();}
+#define CPF_UNMARK_CRITICAL_SECTION_                                           \
+  if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {                                    \
+    cpf::intern::user_thread_mutex.unlock();                                   \
+  }
 
-namespace cpf
-{
-	namespace intern
-	{
-		/*
+namespace cpf {
+namespace intern {
+                /*
 			on specifiation of CPF_ATOMIC as a template parameter flag to the API, this mutex is used 
 			to insure atomicity upon invocation since the API is not re-entrant.  
 		*/
@@ -133,7 +139,7 @@ namespace cpf
 		/*
 			print the substring preceding an argument specifier in a sub-format-string
 		*/
-		CPF_API cpf::type::str_t write_pre_arg_str(	cpf::type::stream ustream,
+		CPF_API cpf::type::str_t write_pre_arg_str(	cpf::type::stream_t ustream,
 													cpf::type::str_t& printed_string_,
 													cpf::type::size& ssp_,
 													const cpf::type::attribute_group attr);
@@ -141,7 +147,7 @@ namespace cpf
 		/*
 			print the substring proceding an argument specifier in a sub-format-string
 		*/
-		CPF_API void write_post_arg_str(cpf::type::stream ustream,
+		CPF_API void write_post_arg_str(cpf::type::stream_t ustream,
 										cpf::type::str_t& printed_string_,
 										cpf::type::size& ssp_,
 										bool &more_args_on_iter,
@@ -152,13 +158,15 @@ namespace cpf
 			print non-argument specifying format string i.e where the implmentation
 			need not invoke printf with any avariadic arguments.
 		*/
-		CPF_API void write_non_arg_str(	cpf::type::stream ustream,
+		CPF_API void write_non_arg_str(	cpf::type::stream_t ustream,
 										cpf::type::str_t& printed_string_,
 										cpf::type::size& ssp_,
 										cpf::type::meta_fmt_t::const_iterator &meta_iter);
 
+		CPF_API cpf::type::str_t resolve_str_frmt_spec(const cpf::type::str_t& fs);
+
 		template<typename T>
-		void write_binary( cpf::type::stream ustream, 
+		void write_binary( cpf::type::stream_t ustream, 
 								typename std::enable_if<std::is_arithmetic<T>::value ||
 														std::is_pointer<T>::value,
 														T
@@ -167,66 +175,76 @@ namespace cpf
 			using namespace cpf::type;
 			typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t, T>::type ptype;
 			std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
-			std::fwprintf(ustream, L"%s", bits.to_string<str_t::value_type>().data());
+			// gcc being a little bit iffy ...
+#ifndef CPF_LINUX_BUILD
+			std::fwprintf(ustream, resolve_str_frmt_spec(L"%s").c_str(), bits.to_string<str_t::value_type>().data());
+#endif
 		}
 
 		// Enabled if "T" is an STL string type.
 		// this function is only instantiated but never executed
 		template<typename T>
-		void write_binary(	cpf::type::stream ustream,
+		void write_binary(	cpf::type::stream_t ustream,
 							typename std::enable_if<cpf::type::is_STL_string_type_<T>::value, T>::type&& arg)
 		{	}
 
 		template<typename T>
-		void write_arg(	cpf::type::stream ustream,
+		void write_arg(	cpf::type::stream_t ustream,
 						cpf::type::str_t const &format,
 						T&& arg)
 		{
+			using namespace cpf::intern;
+			using namespace cpf::type;
+
 			if (format == L"%b")
 				write_binary<T>(ustream, std::forward<T>(arg));
-			else
-				std::fwprintf(ustream, format.c_str(), arg);
+			else{
+				str_t f = resolve_str_frmt_spec(format);
+				// write argument
+				std::fwprintf(ustream, f.c_str(), arg);
+			}
 		}
 
-		/*
-			some tiny extra wizardry has to be done before printing the following types...
-		*/
+		// extra wizardry has to be performed before printing the 
+		// following types...
 		template<>
-		void write_arg<cpf::type::str_t>(cpf::type::stream ustream,
+		void write_arg<cpf::type::str_t>(cpf::type::stream_t ustream,
 										cpf::type::str_t const &format,
 										cpf::type::str_t&& arg);
 
 		template<>
-		void write_arg<cpf::type::nstr_t>(cpf::type::stream ustream,
+		void write_arg<cpf::type::nstr_t>(cpf::type::stream_t ustream,
 										cpf::type::str_t const &format,
 										cpf::type::nstr_t&& arg);
 
 		template<>
-		void write_arg<char*>(cpf::type::stream ustream,
+		void write_arg<char*>(cpf::type::stream_t ustream,
 								cpf::type::str_t const &format,
 								char*&& arg);
 
 		template<>
-		void write_arg<signed char*>(cpf::type::stream ustream,
+		void write_arg<signed char*>(cpf::type::stream_t ustream,
 										cpf::type::str_t const &format,
 										signed char*&& arg);
 
 		template<>
-		void write_arg<const char*>(cpf::type::stream ustream,
+		void write_arg<const char*>(cpf::type::stream_t ustream,
 									cpf::type::str_t const &format,
 									const char*&& arg);
 
 		template<>
-		void write_arg<const signed char*>(cpf::type::stream ustream,
+		void write_arg<const signed char*>(cpf::type::stream_t ustream,
 											cpf::type::str_t const &format,
 											const signed char*&& arg);
 
+		//TODO: add specialisation for "unsigned char" const and non const 
+		
 		/*
 			recursion-terminating function (counterpart to "update_ustream" with variadic arguments).
 			This is the function executated when the API is called with only a format
 			string and no arguments.
 		*/
-		CPF_API void update_ustream(cpf::type::stream ustream,
+		CPF_API void update_ustream(cpf::type::stream_t ustream,
 									const cpf::type::c_meta_iterator &end_point_comparator,
 									cpf::type::c_meta_iterator &meta_iter,
 									const cpf::type::str_t printed_string,
@@ -238,7 +256,7 @@ namespace cpf
 			using cfprintf_t and cprintf_t guarrantees the execution of this function.
 		*/
 		template<typename T0, typename ...Ts>
-		void update_ustream(cpf::type::stream ustream,
+		void update_ustream(cpf::type::stream_t ustream,
 							const cpf::type::c_meta_iterator &end_point_comparator,
 							cpf::type::c_meta_iterator &meta_iter,
 							const cpf::type::str_t printed_string,
@@ -322,7 +340,7 @@ namespace cpf
 		template<std::size_t FLAGS, typename T0, typename... Ts>
 		cpf::type::rcode_t dispatch(T0 &&raw_format, Ts&&... args)
 		{
-			cpf::type::stream ustream = ((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr;
+			cpf::type::stream_t ustream = ((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr;
 			cpf::type::str_t format;
 			try	{
 				format = cpf::intern::wconv(std::forward<T0>(raw_format));
@@ -371,33 +389,6 @@ namespace cpf
 			return rcode;
 		}
 
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_floating_point<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%f"), arg0));
-		}
-
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_signed<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%lld"), arg0));
-		}
-
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_unsigned<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%llu"), arg0));
-		}
-
-		template<std::size_t FLAGS = CPF_STDO, typename T>
-		inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, cpf::type::str_t, T>>>
-			x_impl(typename std::enable_if<std::is_pointer<T>::value, T>::type &&arg0)
-		{
-			return std::move(cprintf<FLAGS>(cpf::type::str_t(L"%p"), arg0));
-		}
 	}
 }
 

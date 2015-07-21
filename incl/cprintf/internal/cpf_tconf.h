@@ -32,7 +32,7 @@ namespace cpf
 {
 	namespace intern
 	{
-		CPF_API void save_stream_state(cpf::type::stream ustream);
+		CPF_API void save_stream_state(cpf::type::stream_t ustream);
 
 		/*
 			boolean finished_cpf_exec is to indicate whether this is the last call to
@@ -42,7 +42,7 @@ namespace cpf
 			has been previous called (in the current call to cprintf) else it returns
 			immidiately. This behaviour can be overridden via force_restore.
 		*/
-		CPF_API void restore_stream_state(	cpf::type::stream ustream,
+		CPF_API void restore_stream_state(	cpf::type::stream_t ustream,
 											bool finished_cpf_exec = false);
 
 		/*
@@ -51,7 +51,7 @@ namespace cpf
 			@ustream 	- output stream
 			@attr - text attribute vector
 		*/
-		CPF_API void configure(	cpf::type::stream ustream,
+		CPF_API void configure(	cpf::type::stream_t ustream,
 								const cpf::type::attribute_group& attr);
 	}
 }

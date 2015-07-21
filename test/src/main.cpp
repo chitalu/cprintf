@@ -82,10 +82,10 @@ TEST(Colour, red)
 int main(int argc, char **argv)
 {
 	//ru << "foo";
-	//auto r = cprintf("test hello %d\n", 8);
+	auto r = cprintf("test hello %d %s\n", 8, "ljgvlvlv");
 	//cprintx(std::string("").c_str());
 	char c = 123; short s = 1234; int i = 123456;
-	cprintf_t("", std::make_tuple(0));
+	//cprintf_t("", std::make_tuple(0));
 	//null pointers not allowed
 	cprintf("TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", 
 			c, c, s, s, i, i, std::string().data(), std::string().data());

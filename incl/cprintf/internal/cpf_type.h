@@ -72,7 +72,7 @@ namespace cpf
 		template<typename ...Ts>
 		using arg_pack_t = std::tuple<Ts...>;
 
-		typedef FILE* stream;
+		typedef FILE* stream_t;
 
 		typedef int rcode_t;
 
