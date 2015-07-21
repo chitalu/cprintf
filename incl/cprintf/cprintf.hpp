@@ -32,9 +32,6 @@ cprintf(F f, Fs... args) {
   using namespace cpf::type;
   using namespace cpf::intern;
 
-  // TODO:
-  // typedef typename std::result_of<decltype(cprintf<FLAGS, F, Fs...>(f,
-  // args...))>::type rtype;
   typedef std::unique_ptr<status_t<verify_<FLAGS, F, Fs...>>> ret_t;
 
   ret_t r(new typename ret_t::element_type);
@@ -61,7 +58,7 @@ cprintf_t(F f, std::tuple<Fs...> args_tup) {
 // string-literal API
 template <std::size_t FLAGS = CPF_STDO, typename F, unsigned N, typename... Fs>
 inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, F, Fs...>>>
-    cprintf_s(F(&f)[N], Fs... args) {
+cprintf_s(F(&f)[N], Fs... args) {
   using namespace cpf::intern;
   using namespace cpf::type;
 
@@ -73,14 +70,14 @@ inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, F, Fs...>>>
 
 template <std::size_t FLAGS = CPF_STDO, typename F, unsigned N, typename... Fs>
 inline std::unique_ptr<cpf::type::status_t<cpf::type::verify_<FLAGS, F, Fs...>>>
-cprintf_ts(F(&f)[N], std::tuple<Fs...> args_tup) {
+cprintf_ts(F(&f)[N], std::tuple<Fs...> arg) {
   using namespace cpf::intern;
   using namespace cpf::type;
 
   static_assert(
       N >= 2,
       "CPRINTF COMPILATION ERROR: expected string-literal of size >= 1");
-  return cprintf_t<FLAGS>(f, std::forward<std::tuple<Fs...>>(args_tup));
+  return cprintf_t<FLAGS>(f, std::forward<std::tuple<Fs...>>(arg));
 }
 
 // X API
