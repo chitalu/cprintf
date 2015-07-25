@@ -1,27 +1,3 @@
-/*
-
-Copyright (C) 2014 Floyd Mulenga Chitalu jnr
-
-Permission is hereby granted, free of charge, to obtain a copy
-of this software, to deal in the Software without restriction, including
-without limitation the rights to [use], [copy], [modify], [merge], [publish],
-[distribute], [sublicense], and/or [sell] copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM(S), DAMAGE(S) OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
 #include <cprintf/internal/cpf_cdef.h>
 #include <assert.h>
 
@@ -107,22 +83,14 @@ CPF_API const cpf::type::str_vec_t cpf::intern::std_tokens = {
 #endif /*#ifndef _WIN32*/
 };
 
-/*
-        The macro "REG_COLOUR_VALUES" is used to reduce code repetition.
-        Though this does hinder readability a little.
-
-        To understand what this macro expands to please make note of the fact
-   that
-        "cpf::intern::std_token_vals" is a std::map. The [key] is a string
-   lateral for tokens i.e "r" or "bw*"
-        The [value] represents an OS-specific value used to configure the system
-   terminal
-        i.e on windows this would be a value like "FOREGROUND_GREEN" and on
-   linux it would
-        be some arbtrary escape sequence corresponding to the [key] token.
-
-        macro expansion is slightly different for Unix and Windows
-*/
+// The macro "REG_COLOUR_VALUES" is used to reduce code repetition. Though this
+// does hinder readability a little. To understand what this macro expands to
+// please make note of the fact that "cpf::intern::std_token_vals" is a
+// std::map. The [key] is a string lateral for tokens i.e "r" or "bw*" The
+// [value] represents an OS-specific value used to configure the system terminal
+// i.e on windows this would be a value like "FOREGROUND_GREEN" and on linux it
+// would be some arbtrary escape sequence corresponding to the [key] token.
+// macro expansion is slightly different for Unix and Windows
 
 #ifdef _WIN32
 
@@ -155,6 +123,7 @@ CPF_API const cpf::type::str_vec_t cpf::intern::std_tokens = {
       { L"" L##c L"*b*", ((val_f | CPF_fgi) | CPF_Bbi) },                      \
       { L"" L##c L"*g*", ((val_f | CPF_fgi) | CPF_Gbi) },                      \
       { L"" L##c L"*y*", ((val_f | CPF_fgi) | CPF_Ybi) },                      \
+      { L"" L##c L"*m*", ((val_f | CPF_fgi) | CPF_Mbi) },                      \
       { L"" L##c L"*m*", ((val_f | CPF_fgi) | CPF_Mbi) },                      \
       { L"" L##c L"*c*", ((val_f | CPF_fgi) | CPF_Cbi) }, {                    \
     L"" L##c L"*w*", ((val_f | CPF_fgi) | CPF_Wbi)                             \

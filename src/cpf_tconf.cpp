@@ -1,27 +1,3 @@
-/*
-
-Copyright (C) 2014 Floyd Mulenga Chitalu jnr
-
-Permission is hereby granted, free of charge, to obtain a copy
-of this software, to deal in the Software without restriction, including
-without limitation the rights to [use], [copy], [modify], [merge], [publish],
-[distribute], [sublicense], and/or [sell] copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM(S), DAMAGE(S) OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
 #include <wchar.h> //wcstol
 #include <cprintf/internal/cpf_tconf.h>
 
@@ -206,19 +182,13 @@ void clear_terminal(cpf::type::stream_t user_stream,
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(user_stream_, &csbi);
 
-  /*
-          Sets the character attributes for a specified number of character
-     cells,
-          beginning at the specified coordinates in a screen buffer.
-  */
+  // Sets the character attributes for a specified number of character cells,
+  // beginning at the specified coordinates in a screen buffer.
   FillConsoleOutputAttribute(user_stream_, saved_terminal_colour,
                              csbi.dwSize.X * csbi.dwSize.Y, coord, &count);
 
-  /*
-          Writes a character to the console screen buffer a specified number of
-     times,
-          beginning at the specified coordinates.
-  */
+  // Writes a character to the console screen buffer a specified number of
+  // times, beginning at the specified coordinates.
   FillConsoleOutputCharacter(user_stream_, ' ', csbi.dwSize.X * csbi.dwSize.Y,
                              coord, &count);
 
@@ -266,10 +236,8 @@ void config_text_attribute(cpf::type::stream_t user_stream,
                            std::uint8_t col_config_type = 255) {
 #ifdef _WIN32
 
-  /*
-          interesting:
-          http://comp.os.ms-windows.programmer.win32.narkive.com/1bOxy0qZ/extended-attributes-all-broken-console-api
-  */
+  // interesting:
+  // http://comp.os.ms-windows.programmer.win32.narkive.com/1bOxy0qZ/extended-attributes-all-broken-console-api
   auto output_stream_handle =
       user_stream == stdout ? stdout_handle : stderr_handle;
 
@@ -278,27 +246,25 @@ void config_text_attribute(cpf::type::stream_t user_stream,
   GetConsoleScreenBufferInfoEx(output_stream_handle, &cbie); // get info
 
   switch (col_config_type) {
-  case CONFIG_FG:
-    /*
-            we must first cancel out all foreground text attributes
-            then set foreground attribute to user-specified colour.
-    */
+  case CONFIG_FG: {
+    // we must first cancel out all foreground text attributes then set
+    // foreground attribute to user-specified colour.
     cbie.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE |
                           FOREGROUND_INTENSITY);
     cbie.wAttributes |= (user_colour);
 
     SetConsoleTextAttribute(output_stream_handle, cbie.wAttributes);
-    break;
-  case CONFIG_BG:
+  } break;
+  case CONFIG_BG: {
     cbie.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE |
                           BACKGROUND_INTENSITY);
     cbie.wAttributes |= (user_colour);
     SetConsoleTextAttribute(output_stream_handle, cbie.wAttributes);
-    break;
-  case CONFIG_FGBG:
+  } break;
+  case CONFIG_FGBG: {
     cbie.wAttributes = user_colour;
     SetConsoleTextAttribute(output_stream_handle, user_colour);
-    break;
+  } break;
   }
 #else
 
