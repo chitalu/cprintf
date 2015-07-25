@@ -145,11 +145,7 @@ void write_binary(cpf::type::stream_t ustream,
   typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t,
                                     T>::type ptype;
   std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
-// gcc being a little bit iffy ...
-#ifndef CPF_LINUX_BUILD
-  std::fwprintf(ustream, resolve_str_frmt_spec(L"%s").c_str(),
-                bits.to_string<str_t::value_type>().data());
-#endif
+  std::fprintf(ustream, "%s", bits.to_string().c_str());
 }
 
 // Enabled if "T" is an STL string type.
