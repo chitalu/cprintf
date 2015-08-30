@@ -7,9 +7,7 @@ import types
 import collections
 import fnmatch
 
-import binding as API
-
-import __future__ 
+import binding
 
 _module_abs_path = os.path.abspath(__file__)
 _module_real_path = os.path.realpath(_module_abs_path)
@@ -131,7 +129,7 @@ def cprintf(*VA_ARGS):
 
         _init_once()
         
-        status = API.invoke(_lib, *forwarded_args)
+        status = binding.invoke(_lib, *forwarded_args)
     
     _validate_status(status)
 
