@@ -31,15 +31,15 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 #
 #   project
 #
-PROJECT (cprintf)
+PROJECT (cprintf++)
 
 MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
 
-SET (cprintf_MAJOR 1)
-SET (cprintf_MINOR 0)
+SET (cprintf_MAJOR 0)
+SET (cprintf_MINOR 1)
 SET (cprintf_PATCH 0)
 
-SET (cprintf_VERSION "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
+# SET (cprintf_VERSION "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
 
 #
 #   default is to build as static library (.lib / .a)
@@ -65,7 +65,7 @@ OPTION (CPF_CLANG_BUILD "build with clang compiler" OFF )
 #
 #   TODO
 #
-OPTION (CPF_BUILD_PY "build python bindings project" OFF)
+OPTION (CPF_BUILD_C_API "build c api for python bindings project" OFF)
 
 IF (CPF_BUILD_AS_SHARED_LIB)
     SET (CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT)
@@ -213,8 +213,8 @@ IF(CPF_BUILD_TESTS)
 
 ENDIF(CPF_BUILD_TESTS)
 
-IF(CPF_BUILD_PY)
-        ADD_SUBDIRECTORY(py)
-ENDIF(CPF_BUILD_PY)
+IF(CPF_BUILD_C_API)
+        ADD_SUBDIRECTORY(python)
+ENDIF(CPF_BUILD_C_API)
 
 MESSAGE(STATUS "${PROJECT_NAME} setup done!")

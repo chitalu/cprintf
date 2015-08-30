@@ -7,7 +7,7 @@ import types
 import collections
 import fnmatch
 
-import binding
+import cpf_binding as binding
 
 _module_abs_path = os.path.abspath(__file__)
 _module_real_path = os.path.realpath(_module_abs_path)
@@ -22,17 +22,11 @@ _FORMAT = 1
 _MIN_ARGS_COUNT = 1
 _MAX_ARGS_COUNT = 6
 
-# TODO: in the future this script should expect the shared lib file
-# to be in the same directory as itself by default. 
-# If other scripts decide to include this then it should be possible
-# to override the value of "lib_path" to point elsewhere
-
 # path to the shared library with exported cprintf symbols 
 # client scripts may change this variable to indicate a different directory 
 # The default search path is within the script's directory
-lib_path = os.path.join(_module_dir_name, "../build/py/libpycpf.so")
-
-cpf_base_path = os.path.join(_module_dir_name, "../incl/cprintf/internal/cpf_base.h")
+lib_path = os.path.join(_module_dir_name, "libcprintf.so")
+cpf_base_path = os.path.join(_module_dir_name, "../../incl/cprintf/internal/cpf_base.h")
 
 _lib_status_codes = None
 
@@ -86,7 +80,7 @@ def cprintf(*VA_ARGS):
    
     arg_cnt = len(VA_ARGS)
     if not (arg_cnt >= _MIN_ARGS_COUNT and arg_cnt <= _MAX_ARGS_COUNT):
-        raise ValueError("CPF-RT-ERR: Invalid argument count: {0}".format(len(VA_ARGS)))
+        raise ValueError("CPF-RT-ERR: Invalid argument count: {0}".format(arg_cnt))
  
     is_str = lambda e: isinstance(e, types.StringType) or isinstance(e, types.UnicodeType) 
     arg0 = VA_ARGS[0]
@@ -125,32 +119,11 @@ def cprintf(*VA_ARGS):
         if stream is None:
             forwarded_args = (_CPF_STDO, ) + VA_ARGS
         else:
-            forwarded_args = (stream, ) + VA_ARGS[1:]
+            forwarded_args = (stream, ) + VA_ARGS[1: ]
 
         _init_once()
         
         status = binding.invoke(_lib, *forwarded_args)
     
     _validate_status(status)
-
-if __name__ == '__main__':
-    # NOTE: The following emulates the behaviour of the standard python 
-    # "print()" function. Nothing new
-    cprintf(75)
-    cprintf(5.9)
-    cprintf(["this is NOT a format string %d\n", 73, "foo"], 0.2)
-    cprintf({1 : "foo", 2.4 : 2, "bar" : 75})
-    cprintf({1 : "foo", 2.4 : 2, "bar" : 75}, "cprintf")
-
-    # NOTE: This is the "cprintf" i.e. std::printf or std::fprintf syntax way 
-    # of printing data.
-    cprintf("this IS a format string")
-    cprintf("$y*hello world!\n")
-    cprintf("print pi: %f\n", 3.14)
-    cprintf(sys.stderr, "write to $r*stderr$?`!\n")
-    cprintf(sys.stdout, "$m*formatted$? arg: %d!\n", 101)
-    my_tup = (107, 3.142)
-    cprintf("$m*formatted$? args: $g*%d$? %f!\n", my_tup)
-    my_list = ["cprintf", 99, 2.5]
-    cprintf(sys.stdout, "$w*formatted$? args: $c%s %d %f!\n", my_list)
-    
+   
