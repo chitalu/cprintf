@@ -3,8 +3,9 @@ import os
 import ctypes
 import types
 import collections
+import fnmatch
 
-import bind_impl as API
+import binding as API
 
 _module_abs_path = os.path.abspath(__file__)
 _module_real_path = os.path.realpath(_module_abs_path)
@@ -29,15 +30,55 @@ _MAX_ARGS_COUNT = 6
 # The default search path is within the script's directory
 lib_path = os.path.join(_module_dir_name, "../build/py/libpycpf.so")
 
+cpf_base_path = os.path.join(_module_dir_name, "../incl/cprintf/internal/cpf_base.h")
+
+_lib_status_codes = None
+
+def _scan_status_codes():
+    global _lib_status_codes
+
+    global _lib
+    global lib_path
+    _lib_status_codes = dict()
+    with open(cpf_base_path, "r") as cpf_base_file:
+        lines = cpf_base_file.readlines()
+        for line in lines:
+            if fnmatch.fnmatch(line, "*CPF_*_ERR*"):
+                spos = line.rfind(' ') + 1
+                radix = 16
+                code = int(line[spos : ], radix)
+                idx = lines.index(line)
+                diag_msg = lines[idx - 1]
+
+                _lib_status_codes[code] = diag_msg[2:].strip()
+
 # handle to the shared library
 _lib = None
+
+def _init_once():
+    global _lib
+    global lib_path
+
+    if _lib is not None and _lib_status_codes is not None:
+        return
+    
+    if (_lib is None):
+        _lib = ctypes.CDLL(lib_path)
+
+    if _lib_status_codes is None:
+        _scan_status_codes()
+
+def _validate_status(status):
+    assert( status in _lib_status_codes)
+    
+    if status != 0:
+        raise RuntimeError("CPF-RT-ERR: ", _lib_status_codes[status])
 
 def cprintf(*VA_ARGS):
     """
     TODO: add doc string 
     """
     global _lib
-    global lib_path
 
     status = None
    
@@ -48,7 +89,6 @@ def cprintf(*VA_ARGS):
     is_str = lambda e: isinstance(e, types.StringType) or isinstance(e, types.UnicodeType)
     
     arg0 = VA_ARGS[0]
-    print type(arg0)
     if not (isinstance(arg0, file) and ((arg0 is sys.stdout) or (arg0 is sys.stderr))) and \
         not is_str(arg0):
         raise ValueError("CPF-RT-ERR: First argument is of an invalid type:", type(arg0).__name__ )
@@ -83,28 +123,24 @@ def cprintf(*VA_ARGS):
         else:
             forwarded_args = (stream, ) + VA_ARGS[1:]
 
-        if (_lib is None):
-            _lib = ctypes.CDLL(lib_path)
-
-        print forwarded_args
+        _init_once()
+        
         status = API.invoke(_lib, *forwarded_args)
-
-    return status
+    
+    _validate_status(status)
 
 if __name__ == '__main__':
-    status0 = cprintf("$y*hello world!\n")
-    print("status0: ", status0)
-    
-    status1 = cprintf(sys.stderr, "write to $r*stderr$?`!\n")
-    print("status1: ", status1)
-    
-    status2 = cprintf(sys.stdout, "$m*formatted$? arg: %d!\n", 101)
-    print("status2: ", status2)
+    cprintf("$y*hello world!\n")
 
+    cprintf("print pi: %f\n", 3.14)
+    
+    cprintf(sys.stderr, "write to $r*stderr$?`!\n")
+    
+    cprintf(sys.stdout, "$m*formatted$? arg: %d!\n", 101)
+    
     my_tup = (107, 3.142)
-    status3 = cprintf("$m*formatted$? args: $g*%d$? %f!\n", my_tup)
-    print("status3: ", status3)
-   
+    cprintf("$m*formatted$? args: $g*%d$? %f!\n", my_tup)
+    
     my_list = ["cprintf", 99, 2.5]
-    status4 = cprintf(sys.stdout, "$w*formatted$? args: $c%s %d %f!\n", my_list)
-    print("status4: ", status4)
+    cprintf(sys.stdout, "$w*formatted$? args: $c%s %d %f!\n", my_list)
+    

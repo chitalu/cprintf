@@ -40,8 +40,9 @@ def invoke(lib_hndl, *args):
     promoted_form = _promote_args(*args)
     # deduce API name to call based on argument types
     API_name = _infer_API_name(promoted_form)
-    print API_name
-    assert(hasattr(lib_hndl, API_name))
+    if not hasattr(lib_hndl, API_name):
+        raise ValueError("CPF-RT-ERR: Unsupported argument-type combination")
+
     # get specific API handle
     lib_func = getattr(lib_hndl, API_name) 
     return lib_func(*promoted_form)
