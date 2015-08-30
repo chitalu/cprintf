@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 import os
 import ctypes
@@ -6,6 +8,8 @@ import collections
 import fnmatch
 
 import binding as API
+
+import __future__ 
 
 _module_abs_path = os.path.abspath(__file__)
 _module_real_path = os.path.realpath(_module_abs_path)
@@ -72,7 +76,7 @@ def _validate_status(status):
     assert( status in _lib_status_codes)
     
     if status != 0:
-        raise RuntimeError("CPF-RT-ERR: ", _lib_status_codes[status])
+        raise RuntimeError("CPF-RT-ERR: {0}".format(_lib_status_codes[status]))
 
 def cprintf(*VA_ARGS):
     """
@@ -84,15 +88,17 @@ def cprintf(*VA_ARGS):
    
     arg_cnt = len(VA_ARGS)
     if not (arg_cnt >= _MIN_ARGS_COUNT and arg_cnt <= _MAX_ARGS_COUNT):
-        raise ValueError("CPF-RT-ERR: Invalid argument count: ", len(VA_ARGS))
+        raise ValueError("CPF-RT-ERR: Invalid argument count: {0}".format(len(VA_ARGS)))
  
-    is_str = lambda e: isinstance(e, types.StringType) or isinstance(e, types.UnicodeType)
-    
+    is_str = lambda e: isinstance(e, types.StringType) or isinstance(e, types.UnicodeType) 
     arg0 = VA_ARGS[0]
+
+    # emulate standard "print" function
     if not (isinstance(arg0, file) and ((arg0 is sys.stdout) or (arg0 is sys.stderr))) and \
         not is_str(arg0):
-        raise ValueError("CPF-RT-ERR: First argument is of an invalid type:", type(arg0).__name__ )
-   
+        print(*VA_ARGS)
+        return
+           
     stream = None
 
     # the first argument after the format string
@@ -109,7 +115,7 @@ def cprintf(*VA_ARGS):
     
     if not (fmtspec_arg is None) and is_iterable(fmtspec_arg) and is_list_or_tup(fmtspec_arg):
         if any([is_iterable(x) for x in fmtspec_arg]):
-            raise ValueError("CPF-RT-ERR: Invalid expandable argument", fmtspec_arg)
+            raise ValueError("CPF-RT-ERR: Invalid expandable argument: {0}".format(fmtspec_arg))
         a_ = None
         if not (stream is None):
             a_ = (VA_ARGS[_STREAM], VA_ARGS[_FORMAT]) + tuple(fmtspec_arg)
@@ -130,17 +136,23 @@ def cprintf(*VA_ARGS):
     _validate_status(status)
 
 if __name__ == '__main__':
-    cprintf("$y*hello world!\n")
+    # NOTE: The following emulates the behaviour of the standard python 
+    # "print()" function. Nothing new
+    cprintf(75)
+    cprintf(5.9)
+    cprintf(["this is NOT a format string %d\n", 73, "foo"], 0.2)
+    cprintf({1 : "foo", 2.4 : 2, "bar" : 75})
+    cprintf({1 : "foo", 2.4 : 2, "bar" : 75}, "cprintf")
 
+    # NOTE: This is the "cprintf" i.e. std::printf or std::fprintf syntax way 
+    # of printing data.
+    cprintf("this IS a format string")
+    cprintf("$y*hello world!\n")
     cprintf("print pi: %f\n", 3.14)
-    
     cprintf(sys.stderr, "write to $r*stderr$?`!\n")
-    
     cprintf(sys.stdout, "$m*formatted$? arg: %d!\n", 101)
-    
     my_tup = (107, 3.142)
     cprintf("$m*formatted$? args: $g*%d$? %f!\n", my_tup)
-    
     my_list = ["cprintf", 99, 2.5]
     cprintf(sys.stdout, "$w*formatted$? args: $c%s %d %f!\n", my_list)
     
