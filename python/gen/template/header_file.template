@@ -1,0 +1,16 @@
+#pragma once
+#ifndef __CPF_GEN_H__
+#define __CPF_GEN_H__
+
+#include <cprintf/cprintf.hpp>
+
+// THIS FILE IS GENERATED!
+// $timestamp
+
+extern "C" {
+
+$protocals
+};
+
+#endif // __CPF_GEN_H__
+

@@ -1,0 +1,9 @@
+$signature{
+    if (_0 == CPF_STDO) {
+        return (cprintf<(CPF_ATOMIC | CPF_STDO)>($invoke_with))->c;
+    } else if (_0 == CPF_STDE) {
+        //return (cprintf<(CPF_ATOMIC | CPF_STDE)>($invoke_with))->c;
+    }
+    return 0xDEADBEEF;
+}
+
