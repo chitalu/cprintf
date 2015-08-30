@@ -6,7 +6,7 @@
 // TEST(BadToken, using_bitmap_fg_tok_on_windows)
 //{
 //	ASSERT_THROW(	cwprintf(L"cpf test :: $64f xterm bitmap colour is an
-//error\n"),
+// error\n"),
 //					cpf::type::except);
 //	printf("\n");
 //}
@@ -14,7 +14,7 @@
 // TEST(BadToken, using_bitmap_bg_tok_on_windows)
 //{
 //	ASSERT_THROW(	cwprintf(L"cpf test :: $64b xterm bitmap colour is an
-//error\n"),
+// error\n"),
 //					cpf::type::except);
 //	printf("\n");
 //}
@@ -22,7 +22,7 @@
 // TEST(BadToken, using_bitmap_fgbg_tok_on_windows)
 //{
 //	ASSERT_THROW(	cwprintf(L"cpf test :: $128f.16b xterm bitmap colour
-//is an error\n"),
+// is an error\n"),
 //					cpf::type::except);
 //	printf("\n");
 //}
@@ -30,7 +30,7 @@
 // TEST(BadToken, using_bitmap_ampersand_fgbg_tok_on_windows)
 //{
 //	ASSERT_THROW(	cwprintf(L"cpf test :: $64& xterm bitmap colour is an
-//error\n"),
+// error\n"),
 //					cpf::type::except);
 //	printf("\n");
 //}
@@ -76,14 +76,14 @@ int main(int argc, char **argv) {
   char c = 123;
   short s = 1234;
   int i = 123456;
-  const char* ptr = std::string("sss").data();
+  const char *ptr = std::string("sss").data();
   // cprintf_t("", std::make_tuple(0));
   // null pointers not allowed
-  cprintf(L"TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", c, c, s, s, i, i,
-          ptr, ptr);
+  cprintf(L"TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", c, c, s, s, i,
+          i, ptr, ptr);
 
   cprintf_dbg(L"foos $y*the bars\n");
-
+ 
   // cprintf("test hello 0\n", "8LL");
   // cprintf("test hello 0\n", "8LL", 4, f);
   /*cprintf(L"test hello 1\n");
