@@ -59,7 +59,7 @@ def _init_once():
         return
     
     if (_lib is None):
-        _lib = ctypes.CDLL(lib_path)
+        _lib = ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
 
     if _lib_status_codes is None:
         _scan_status_codes()
