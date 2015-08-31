@@ -27,7 +27,7 @@ def main():
 
     # NOTE: This is the "cprintf" i.e. std::printf or std::fprintf syntax way 
     # of printing data.
-    cprintf("this IS a format string")
+    cprintf("this IS a format string\n")
     cprintf("$y*hello world!\n")
     cprintf("print pi: %f\n", 3.14)
     cprintf(sys.stderr, "write to $r*stderr$?`!\n")

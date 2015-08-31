@@ -72,7 +72,12 @@ def _validate_status(status):
 
 def cprintf(*VA_ARGS):
     """
-    TODO: add doc string 
+    TODO: add complete doc-string
+
+    If targeting the underlying cprintf shared library instead of the emulated 
+    standard python print function, then only integers, longs, floats, byte 
+    strings and unicode strings can be used as parameters. All other types are
+    not allowed.
     """
     global _lib
 
@@ -126,4 +131,9 @@ def cprintf(*VA_ARGS):
         status = binding.invoke(_lib, *forwarded_args)
     
     _validate_status(status)
-   
+
+if __name__ == '__main__':
+    pass
+    # TODO
+    # import doctest
+    # doctest.testmod()
