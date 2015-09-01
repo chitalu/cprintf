@@ -64,8 +64,9 @@ def _init_once():
     if _lib_status_codes is None:
         _scan_status_codes()
 
-def _validate_status(status):
-    assert( status in _lib_status_codes)
+def _validate(status):
+    if ( status not in _lib_status_codes):
+        raise RuntimeError("CPF-RT-ERR: Unknown {0}".format(status))
     
     if status != 0:
         raise RuntimeError("CPF-RT-ERR: {0}".format(_lib_status_codes[status]))
@@ -125,12 +126,9 @@ def cprintf(*VA_ARGS):
             forwarded_args = (_CPF_STDO, ) + VA_ARGS
         else:
             forwarded_args = (stream, ) + VA_ARGS[1: ]
-
         _init_once()
-        
         status = binding.invoke(_lib, *forwarded_args)
-    
-    _validate_status(status)
+        _validate(status)
 
 if __name__ == '__main__':
     pass

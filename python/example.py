@@ -17,6 +17,8 @@ cprintf.lib_path = os.path.join(_module_dir_name, "../build/python/libcprintf.so
 from cprintf import cprintf
 
 def main():
+    from sys import stdout, stderr
+
     # NOTE: The following emulates the behaviour of the standard python 
     # "print()" function. Nothing new
     cprintf(75)
@@ -27,15 +29,16 @@ def main():
 
     # NOTE: This is the "cprintf" i.e. std::printf or std::fprintf syntax way 
     # of printing data.
-    cprintf("this IS a format string\n")
-    cprintf("$y*hello world!\n")
-    cprintf("print pi: %f\n", 3.14)
-    cprintf(sys.stderr, "write to $r*stderr$?`!\n")
-    cprintf(sys.stdout, "$m*formatted$? arg: %d!\n", 101)
+    cprintf(stderr, u"this IS a format string\n") 
+    cprintf(stderr, u"bitmap colour: $102fFOOBAR$250fBAR!!\n")
+    cprintf(stdout, u"$y*hello world!\n")
+    cprintf(u"print pi: %f\n", 3.14)
+    cprintf(stderr, u"write to $r*stderr$?`!\n")
+    cprintf(stderr, u"$m*`formatted$? arg: %d!\n", 101)
     my_tup = (107, 3.142)
-    cprintf("$m*formatted$? args: $g*%d$? %f!\n", my_tup)
-    my_list = ["cprintf", 99, 2.5]
-    cprintf(sys.stdout, "$w*formatted$? args: $c%s %d %f!\n", my_list)
+    cprintf(stderr, u"$m*`formatted$? args: $g*%d$? %f!\n", my_tup)
+    my_list = [u"cprintf", 99, 2.5]
+    cprintf(stderr, u"$w*`formatted$? args: $c%s %d %f!\n", my_list)
     
 if __name__ == '__main__':
     main()
