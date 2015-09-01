@@ -41,9 +41,12 @@ def invoke(lib_hndl, *args):
     # deduce API name to call based on argument types
     API_name = _infer_API_name(promoted_form)
     if not hasattr(lib_hndl, API_name):
-        raise ValueError("CPF-RT-ERR: Unsupported argument-type combination")
+        type_combo = "--> " + ", ".join([type(a).__name__ for a in args])
+        raise ValueError("CPF-RT-ERR: Unsupported Type combination:\n{0}".format(type_combo))
 
     # get specific API handle
-    lib_func = getattr(lib_hndl, API_name) 
+    lib_func = getattr(lib_hndl, API_name)
+    lib_func.restype = ctypes.c_int
+    lib_func.argtypes = [type(arg) for arg in promoted_form]
     return lib_func(*promoted_form)
 
