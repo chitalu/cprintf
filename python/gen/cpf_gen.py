@@ -40,7 +40,10 @@ def _gen_and_pipe_fdata():
     permitted_types = ("int", "long", "float", "const char*", "const wchar_t*")
     ptype_combinations = list()
     for n in range(1, len(permitted_types) + 1):
-        ptype_combinations.extend(list(itertools.combinations_with_replacement(permitted_types, n)))
+        combs = itertools.combinations_with_replacement(permitted_types, n)
+        perms = itertools.permutations(permitted_types, n)
+        x = set(list(combs) + list(perms))
+        ptype_combinations.extend(list(x))
 
     format_str_types = ("const char*", "const wchar_t*")
     stream_type = ("int", )
@@ -72,6 +75,11 @@ def _gen_and_pipe_fdata():
         argtypes = (Ts[STREAM_TYPE], ) + (Ts[FORMAT_TYPE], )
         if(len(Ts) > 2):
             argtypes = argtypes + Ts[FORMATTED_ARGS_TYPES]
+            # if the format string is wide then any formatted args must be of the
+            # same type/ encoding and vice-versa
+            if( (Ts[FORMAT_TYPE] == "const char*" and "const wchar_t*" in Ts[FORMATTED_ARGS_TYPES])) or \
+                (Ts[FORMAT_TYPE] == "const wchar_t*" and "const char*" in Ts[FORMATTED_ARGS_TYPES]):
+                continue
         
         #API parameter list
         arglist = ["{0} _{1}".format(v, str(k)) for k, v in enumerate(argtypes)]
