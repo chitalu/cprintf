@@ -11,15 +11,15 @@ void flag_specification(void) {
       %d $y*ADD $w*m*SOME$?.c*COLOUR!$?)bs";
       auto f = [&](int p) {
         for (int i(0); i < 5; ++i)
-          cprintf<CPF_STDE | CPF_ATOMIC>(big_string, p, i);
+          cprintf<CPF_STDE>(big_string, p, i);
       };
 
-  std::thread threads[10];
+  std::thread threads[20];
 
-  for (int i(0); i < 10; ++i)
+  for (int i(0); i < 20; ++i)
     threads[i] = std::thread(f, i);
 
-  for (int i(0); i < 10; ++i)
+  for (int i(0); i < 20; ++i)
     threads[i].join();
 }
 

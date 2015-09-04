@@ -29,12 +29,7 @@ $g@line:$c	$g*%d$c
 
 #endif // CPF_DBG_CONFIG
 
-/*
-        atomicity mutex variable used for synchronising client-multithreaded
-   invocations of
-        API
-*/
-std::mutex cpf::intern::user_thread_mutex;
+std::mutex cpf::intern::mtx_;
 
 // cprintf("Characters:\t%c %%\n", 65);
 cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str_t &obj) {
