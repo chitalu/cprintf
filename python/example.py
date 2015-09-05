@@ -12,7 +12,7 @@ import cprintf
 # notify cprintf module that you want to use this lib
 # by default the script expects to find the libcprintf.so/cprintf.dll
 # file in the same directory as itself
-cprintf.lib_path = os.path.join(_module_dir_name, "../build/python/libcprintf.so")
+cprintf.lib_path = os.path.join(_module_dir_name, "../build/libcprintf.so")
 
 from cprintf import cprintf
 

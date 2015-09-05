@@ -27,7 +27,7 @@ def _load_template(filename):
 def _gen_and_pipe_fdata():
     global output_dir 
     
-    filename_we = "cprintf_c_api.{0}"
+    filename_we = "_cprintf.{0}"
     header_file_basename = filename_we.format("h")
     source_file_basename = filename_we.format("cpp")
     header_file_path = os.path.join(output_dir, header_file_basename)
