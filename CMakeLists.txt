@@ -86,6 +86,10 @@ IF(WIN32)
 ELSEIF(UNIX)
 
     IF(CPF_BUILD_AS_SHARED_LIB)
+        SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS}")
+    ENDIF()
+
+    IF(CPF_BUILD_AS_SHARED_LIB)
         SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -fPIC")
     ENDIF()
 
@@ -98,7 +102,7 @@ ELSEIF(UNIX)
     #
     # "-pthread" is necessary for gtest to build
     #
-    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror -pthread")    
+    SET (CMAKE_CXX_FLAGS                "-std=c++1y -Werror -pthread")    
     SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
     SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
