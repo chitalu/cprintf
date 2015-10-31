@@ -33,6 +33,8 @@ def basic_samples():
     cprintf(u"print pi: %f\n", 3.14)
     cprintf(stderr, u"write to $r*stderr$?`!\n")
     cprintf(stderr, u"$m*`formatted$? arg: %d!\n", 101)
+    binary = 0xB01101001
+    cprintf(stderr, u"print binary: %b\n", binary)
     my_tup = (107, 3.142)
     cprintf(stderr, u"$m*`formatted$? args: $g*%d$? %f!\n", my_tup)
     my_list = [u"cprintf", 99, 2.5]
@@ -64,30 +66,45 @@ def display_tokens():
             elif ct == ifgibg:
                 for t_ in tokens:
                     l.append(t+"*"+t_+"*")
+
+    cprintf(stderr, "\nCROSS-PLATFORM COLOURS\n")
     for token in l:
         frmt = "$" + token + " " + str(l.index(token)) + "$?\t"
         cprintf(stderr, unicode(frmt, "utf-8")) 
-        if (l.index(token) % 16)+1 == 1:    
-            print("")
-    print("")
+        if (l.index(token) % 16) == 1:    
+            cprintf(stderr, u"\n")
+    cprintf(stderr, u"\n")
 
+    cprintf(stderr, u"\n---LINUX-SPECIFIC COLOURS---\n")
+
+    cprintf(stderr, u"\nBITMAP FOREGROUND\n")
     for i in range(0, 256):
         frmt =  "$" + str(i) + "f " + str(i) + "$?\t"
         cprintf(stderr, unicode(frmt, "utf-8"))
         if (i % 16)+1 == 1:
-            print("")
-    print("")
+            cprintf(stderr, u"\n")
+    cprintf(stderr, u"\n")
 
+
+    cprintf(stderr, u"\nBITMAP BACKGROUND\n")
     for i in range(0, 256):
         frmt =  "$" + str(i) + "b " + str(i) + "$?\t"
         cprintf(stderr, unicode(frmt, "utf-8"))
         if (i % 16)+1 == 1:
-            print("")
-    print("")
+            cprintf(stderr, u"\n")
+    cprintf(stderr, u"\n")
+
+    cprintf(stderr, u"\nBITMAP FOREGROUND & BACKGROUND\n")
+    for i in range(0, 256):
+        frmt =  "$" + str(i) + "& " + str(i) + "$?\t"
+        cprintf(stderr, unicode(frmt, "utf-8"))
+        if (i % 16)+1 == 1:
+            cprintf(stderr, u"\n")
+    cprintf(stderr, u"\n")
 
 def main():
     basic_samples()
-    display_tokens()
+    #display_tokens()
 
 if __name__ == '__main__':
     main()
