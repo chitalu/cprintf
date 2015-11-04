@@ -72,7 +72,7 @@ set (CPF_FLAGS    "")
 
 if (NOT ${CPF_SHARED} AND ${CPF_BUILD_C_API})
    message(STATUS "NOTE: building library as shared for C-API.")
-   set(CPF_SHARED OFF CACHE BOOL "build as shared library")
+   set(CPF_SHARED ON CACHE BOOL "build as shared library")
 endif()
 
 #
