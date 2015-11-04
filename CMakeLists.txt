@@ -188,7 +188,8 @@ if(CPF_SAMPLES)
         add_executable( ${sample_proj_name} "${samples_dir}/${sample_dir}/main.cpp" )
         target_link_libraries( ${sample_proj_name} ${PROJECT_NAME} )
         set_target_properties(  ${sample_proj_name} PROPERTIES
-                                COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}") 
+                                COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
+                                INCLUDE_DIRECTORIES "${cprintf_incl_dir}") 
         if(CPF_SHARED)
             add_custom_command( TARGET ${sample_proj_name} PRE_BUILD
                                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
