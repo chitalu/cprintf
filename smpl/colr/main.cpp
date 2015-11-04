@@ -19,20 +19,20 @@ int main(void) {
   //"`m", "`c", "`w", "`.",
   //"`*", "``", "`?" "`!",
   //"`~", "`|", "`f", "`l"
-
+ 
   // last two characters are printed with bright red foreground colour
   // and a dim red background
-  cprintf(L"bar $r*red\n");
+  cprintf("bar $r*red\n");
 
   // last two characters are printed with bright red foreground alone
   // with the background colour being whatever console settings are.
   // in effect, the background colour remains unmodified
-  cprintf(L"bar $r*`red\n");
+  cprintf("bar $r*`red\n");
 
   //"ed" printed with bright red applied to both foreground and background.
   // no escaping needed after the last asterisk (*) because "e" in not a
   // recognised "secondary" token defining character value.
-  cprintf(L"bar $r*r*ed\n");
+  cprintf("bar $r*r*ed\n");
 
   // another example of foreground and background colour setting
   // notice that we dont need to escape "Red" like $r*w*`Red? well this is
@@ -45,17 +45,17 @@ int main(void) {
   // token. Example: cprintf("bar $r*w*red on white\n"); would confuse the
   // parser
   // but cprintf("bar $r*w*`red on white\n"); would give desired results.
-  cprintf(L"bar $r*w*Red on white\n");
+  cprintf("bar $r*w*Red on white\n");
 
   // simply dim red background
-  cprintf(L"bar $r#ed\n");
+  cprintf("bar $r#ed\n");
 
   // simply bright red background
-  cprintf(L"bar $r*#ed\n");
+  cprintf("bar $r*#ed\n");
 
   // secondary character "#" is escaped, meaning it is printed as normal
   // using bright red as foreground along with all character [after] token.
-  cprintf(L"bar $r*`#ed\n");
+  cprintf("bar $r*`#ed\n");
 
   // dot notation
   // remember cprintf token configurations function like a state machine (for
@@ -63,34 +63,34 @@ int main(void) {
   // tokens),
   // the last colour set below (blue) takes effect eleminating the red that was
   // set prior
-  cprintf(L"quux$r.b blue\n");
+  cprintf("quux$r.b blue\n");
 
   // same as above but with brightness involved
-  cprintf(L"quux$b*.r red\n");
-  cprintf(L"quux$b*.r* red\n");
-  cprintf(L"quux$r.b* blue\n");
+  cprintf("quux$b*.r red\n");
+  cprintf("quux$b*.r* red\n");
+  cprintf("quux$r.b* blue\n");
 
   // raw string literals can also be used
         auto s = R"rsl(raw $ystring lateral$? %s
 )rsl";
-	cprintf(s, L"foo");
-        cprintf(L"as argument: %S", s);
+	cprintf(s, "foo");
+        cprintf("as argument: %S", s);
 
         // wide character
-        auto ws = LR"rsl(raw $ystring lateral$? %S
+        auto ws = R"rsl(raw $ystring lateral$? %S
 )rsl";
-	cprintf(ws, L"foo");
-        cprintf(L"as argument: %S", ws);
+	cprintf(ws, "foo");
+        cprintf("as argument: %S", ws);
 
         // printing types std::string and std::wstring in colour.
         // again, same as before
         std::string std_str = "yey! $g*Go me!! %d\n";
         cprintf(std_str, std_str.size());
-        cprintf(L"as argument: %s", std_str);
+        cprintf("as argument: %s", std_str);
 
-        std::wstring std_wstr = L"yey! $g*Go me!! %d\n";
+        std::string std_wstr = "yey! $g*Go me!! %d\n";
         cprintf(std_wstr, std_wstr.size());
-        cprintf(L"as argument: %S", std_wstr);
+        cprintf("as argument: %S", std_wstr);
 
 /*
         linux only text-format attribute tokens:
@@ -103,13 +103,13 @@ int main(void) {
   // in this case "bld" prints the text in blue because $b
   // is obviously recognised as a token for dim blue foreground
   // on linux this printf following text in bold
-  cprintf(L"note that $bld this text is blue\n");
+  cprintf("note that $bld this text is blue\n");
 #else
   // the following are bitmap colour tokens available on XTERM
   // as can be imagine there are alot more options for decorating
   // text on linux than windows
-  cprintf(L"quux $128f xterm bitmap colour\n");
-  cprintf(L"quux $24b xterm bitmap colour\n");
+  cprintf("quux $128f xterm bitmap colour\n");
+  cprintf("quux $24b xterm bitmap colour\n");
 
   // in this respect the dot notation does not affect internal
   // console state, as such bitmap-colour foreground and background
@@ -118,20 +118,20 @@ int main(void) {
   // dot notation means you could also add other tokens like this:
   // cprintf("quux $m.64b.bld.8,16 xterm\n");
   // setting colour, text format and cursor position at the same time!
-  cprintf(L"quux $128f.94b xterm bitmap colour\n");
+  cprintf("quux $128f.94b xterm bitmap colour\n");
 
   // applies bitmap colour to both foreground and background
-  cprintf(L"quux $64& xterm bitmap colour\n");
+  cprintf("quux $64& xterm bitmap colour\n");
 
-  cprintf(L"note that $bld this text is bold\n"); // unlike on windows :P
+  cprintf("note that $bld this text is bold\n"); // unlike on windows :P
 
   // notice the difference with the call directly above, to print "ld" in
   // blue, 'l' must be escape to prevent ambiguity in which text-format
   // tokens take precedence over colour
-  cprintf(L"note that $b`ld this text is blue\n");
+  cprintf("note that $b`ld this text is blue\n");
 
   // reverting text format token effects mid format string
-  cprintf(L"drive forward and $rvs reverse $?rvsand the back to normal\n");
+  cprintf("drive forward and $rvs reverse $?rvsand the back to normal\n");
 #endif
   // finally, here we simply display all available cross platform colours
   // have a look at the colourful console output! Better than the dullness you

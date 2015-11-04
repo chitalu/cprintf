@@ -12,14 +12,9 @@ cprintf(F f, Fs... args) {
   using namespace cpf::intern;
 
   typedef std::unique_ptr<status_t<verify_<FLAGS, F, Fs...> > > ret_t;
-
   ret_t r(new typename ret_t::element_type);
   r->f = f;
-
-  CPF_MARK_CRITICAL_SECTION_;
-  { r->c = dispatch<FLAGS>(std::forward<F>(f), std::forward<Fs>(args)...); }
-  CPF_UNMARK_CRITICAL_SECTION_;
-
+  r->c = dispatch<FLAGS>(std::forward<F>(f), std::forward<Fs>(args)...);
   return std::move(r);
 }
 

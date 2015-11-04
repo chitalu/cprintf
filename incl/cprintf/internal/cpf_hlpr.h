@@ -13,12 +13,8 @@
 
 #ifdef CPF_WINDOWS_BUILD
 // Note:	GCC does not yet support multi-byte conversion functionality
-// from
-// the following
-// header, as a result narrow-string variants of cprintf's API will do nothing
-// until
-// this is resolved.
-
+// from the following header. As a result, narrow-character strings
+// will not be supported until this is resolved.
 #include <codecvt> //wstring_convert
 #endif
 #include <cstdint>
@@ -27,26 +23,12 @@
 #include <cprintf/internal/cpf_carg.h>
 #include <cprintf/internal/cpf_tconf.h>
 
-// TODO: remove this crap and use a lock guard or unique_lock to do this
-#define CPF_MARK_CRITICAL_SECTION_                                             \
-  if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {                                    \
-    cpf::intern::user_thread_mutex.lock();                                     \
-  }
-
-#define CPF_UNMARK_CRITICAL_SECTION_                                           \
-  if ((FLAGS & CPF_ATOMIC) == CPF_ATOMIC) {                                    \
-    cpf::intern::user_thread_mutex.unlock();                                   \
-  }
-
 namespace cpf {
 namespace intern {
 
 using namespace cpf::type;
 
-// on specifiation of CPF_ATOMIC as a template parameter flag to the API, this
-// mutex is used to insure atomicity upon invocation since the API is not
-// re-entrant.
-CPF_API std::mutex user_thread_mutex;
+CPF_API std::mutex mtx_;
 
 template <std::size_t...> struct indices {};
 
@@ -145,7 +127,8 @@ void write_binary(cpf::type::stream_t ustream,
   typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t,
                                     T>::type ptype;
   std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
-  std::fprintf(ustream, "%s", bits.to_string().c_str());
+  std::string binary_str = bits.to_string();
+  std::fprintf(ustream, "%s", binary_str.c_str());
 }
 
 // Enabled if "T" is an STL string type.
@@ -274,48 +257,41 @@ void update_ustream(cpf::type::stream_t ustream,
 }
 
 template <std::size_t FLAGS, typename T0, typename... Ts>
-cpf::type::rcode_t dispatch(T0 &&raw_format, Ts &&... args) {
-  cpf::type::stream_t ustream =
-      ((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr;
-  cpf::type::str_t format;
+cpf::type::rcode_t dispatch(T0 &&f, Ts &&... args) {
+  using namespace cpf::intern;
+  using namespace cpf::type;
+
+  rcode_t r(CPF_NO_ERR);
+  stream_t s = ((FLAGS & CPF_STDO) == CPF_STDO) ? stdout : stderr;
+  str_t f_;
+
   try {
-    format = cpf::intern::wconv(std::forward<T0>(raw_format));
+    f_ = wconv(std::forward<T0>(f));
   }
   catch (...) {
-    // runtime string conversion error
-    return cpf::type::rcode_t(CPF_NWCONV_ERR);
+    return rcode_t(CPF_NWCONV_ERR);
   }
 
-  cpf::type::rcode_t rcode(CPF_NO_ERR);
-
-  // note: the try catch block is necessary to restore stream state should
-  // unexpected behaviour occur at runtime. Typical cases are errors in user
-  // code.
-  try {
+  std::lock_guard<std::mutex> lock_(mtx_);
+  {
+    try {
 #if CPF_DBG_CONFIG
-    cpf::intern::fmtspec_to_argtype_check(
-        std::forward<const wchar_t *>(format.c_str()),
-        std::forward<Ts>(args)...);
+      fmtspec_to_argtype_check(std::forward<const wchar_t *>(f_.c_str()),
+                               std::forward<Ts>(args)...);
 #endif
-    cpf::intern::save_stream_state(ustream);
-
-    auto meta_f = cpf::intern::process_format_string(format);
-    auto mf_begin = meta_f.cbegin();
-    // end-point comparator...
-    auto mf_endpoint_cmp = meta_f.cend();
-
-    // make actual call to do printing and system terminal configurations
-    cpf::intern::update_ustream(ustream, mf_endpoint_cmp, mf_begin,
-                                mf_begin->second.second, 0u,
-                                std::forward<Ts>(args)...);
-  }
-  catch (decltype(rcode) & c) {
-    rcode = c; // runtime error!
+      save_stream_state(s);
+      auto meta = process_format_string(f_);
+      auto b = meta.cbegin();
+      auto e = meta.cend();
+      update_ustream(s, e, b, b->second.second, 0U, std::forward<Ts>(args)...);
+    }
+    catch (rcode_t &r_) {
+      r = r_; // runtime error!
+    }
+    restore_stream_state(s, true);
   }
 
-  cpf::intern::restore_stream_state(ustream, true);
-
-  return rcode;
+  return r;
 }
 }
 }

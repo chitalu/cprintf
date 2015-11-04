@@ -29,12 +29,7 @@ $g@line:$c	$g*%d$c
 
 #endif // CPF_DBG_CONFIG
 
-/*
-        atomicity mutex variable used for synchronising client-multithreaded
-   invocations of
-        API
-*/
-std::mutex cpf::intern::user_thread_mutex;
+std::mutex cpf::intern::mtx_;
 
 // cprintf("Characters:\t%c %%\n", 65);
 cpf::type::size cpf::intern::get_num_arg_specs(const cpf::type::str_t &obj) {
@@ -214,14 +209,34 @@ void cpf::intern::write_non_arg_str(
         perhaps it could even be possible to add a printf function variant that
         can be instantiated with either
 */
+#include <clocale>
+#include <cwchar>
+cpf::type::str_t cpf::intern::wconv(cpf::type::nstr_t &&mbstr) {
+  /*
+   The mbstate_t is a trivial non-array type that can represent any of the
+conversion states that can occur in an implementation-defined set of supported
+multibyte character encoding rules. Zero-initialized value of mbstate_t
+represents the initial conversion state, although other values of mbstate_t may
+exist that also represent the initial conversion state.
 
-cpf::type::str_t cpf::intern::wconv(cpf::type::nstr_t &&src) {
-#ifdef CPF_LINUX_BUILD
-  return cpf::type::str_t(); // skip
-#else
-  std::wstring_convert<std::codecvt_utf8<wchar_t> > converter;
-  return converter.from_bytes(src);
-#endif
+Possible implementation of mbstate_t is a struct type holding an array
+representing the incomplete multibyte character, an integer counter indicating
+the number of bytes in the array that have been processed, and a representation
+of the current shift state. type mbstate_t is a trivial non-array type that can
+represent any of the conversion states that can occur in an
+implementation-defined set of supported multibyte character encoding rules.
+Zero-initialized value of mbstate_t represents the initial conversion state,
+although other values of mbstate_t may exist that also represent the initial
+conversion state.
+ */
+  std::mbstate_t state = std::mbstate_t();
+  const char* _mbstr= &mbstr[0];
+  // Converts a null-terminated multibyte character sequence, which begins in
+  // the conversion state
+  std::int32_t len = 1 + std::mbsrtowcs(NULL, &_mbstr, 0, &state);
+  cpf::type::str_t wstr(len, 0);
+  std::mbsrtowcs(&wstr[0], &_mbstr, wstr.size(), &state);
+  return wstr;
 }
 
 cpf::type::str_t cpf::intern::wconv(cpf::type::str_t &&src) {
