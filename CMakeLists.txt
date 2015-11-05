@@ -95,7 +95,7 @@ elseif(UNIX)
     #
     # "-pthread" is necessary for gtest to build
     #
-    set (CMAKE_CXX_FLAGS                "-std=c++11 -Werror -pthread")    
+    set (CMAKE_CXX_FLAGS                "-std=c++1y -Werror -pthread")    
     set (CMAKE_CXX_FLAGS_DEBUG          "-g")
     set (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     set (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
