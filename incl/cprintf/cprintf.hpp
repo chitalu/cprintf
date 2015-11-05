@@ -113,6 +113,6 @@ cprintx(X x) {
       std::forward<scalar_t>(static_cast<scalar_t>(x))));
 }
 
-#include <cprintf/internal/cpf_dbgh.h>
+#include <cprintf/internal/cpf_dbgh.inc>
 
 #endif /* __CPF_H__ */

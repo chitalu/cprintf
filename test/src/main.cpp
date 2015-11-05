@@ -5,7 +5,7 @@
 //
 // TEST(BadToken, using_bitmap_fg_tok_on_windows)
 //{
-//	ASSERT_THROW(	cwprintf(L"cpf test :: $64f xterm bitmap colour is an
+//	ASSERT_THROW(	cwprintf("$64f xterm bitmap colour is an
 // error\n"),
 //					cpf::type::except);
 //	printf("\n");
@@ -13,7 +13,7 @@
 //
 // TEST(BadToken, using_bitmap_bg_tok_on_windows)
 //{
-//	ASSERT_THROW(	cwprintf(L"cpf test :: $64b xterm bitmap colour is an
+//	ASSERT_THROW(	cwprintf("$64b xterm bitmap colour is an
 // error\n"),
 //					cpf::type::except);
 //	printf("\n");
@@ -21,7 +21,7 @@
 //
 // TEST(BadToken, using_bitmap_fgbg_tok_on_windows)
 //{
-//	ASSERT_THROW(	cwprintf(L"cpf test :: $128f.16b xterm bitmap colour
+//	ASSERT_THROW(	cwprintf("$128f.16b xterm bitmap colour
 // is an error\n"),
 //					cpf::type::except);
 //	printf("\n");
@@ -29,7 +29,7 @@
 //
 // TEST(BadToken, using_bitmap_ampersand_fgbg_tok_on_windows)
 //{
-//	ASSERT_THROW(	cwprintf(L"cpf test :: $64& xterm bitmap colour is an
+//	ASSERT_THROW(	cwprintf("$64& xterm bitmap colour is an
 // error\n"),
 //					cpf::type::except);
 //	printf("\n");
@@ -37,58 +37,48 @@
 //
 //#endif
 //
-TEST(Arg, std_string) {
-  std::wstring ws = L"c++";
+TEST(Args, std_string) {
+  std::string ws = "c++";
   EXPECT_EQ(ws.size(), 3u);
-  ASSERT_NO_THROW(cprintf(L"cpf test :: print std::wstring :: %s\n", ws));
+  ASSERT_NO_THROW(cprintf("std::string = %s\n", ws));
 }
 
-TEST(Arg, std_wstring) {
-  std::string s = "c++";
+TEST(Args, std_wstring) {
+  std::wstring s = L"c++";
   EXPECT_EQ(s.size(), 3u);
-  ASSERT_NO_THROW(cprintf(L"cpf test :: print std::string :: %s\n", s));
+  ASSERT_NO_THROW(cprintf("std::wstring = %S\n", s));
 }
 
-TEST(Arg, fmt_specifier_to_arg_count_mismatch) {
-  auto r = cprintf(L"cpf test :: %d\n", 1001, "test");
-  r;
+TEST(Args, fmt_specifier_to_arg_count_mismatch) {
+  auto r = cprintf("%d\n", 1001, "test");
 }
 
-TEST(Arg, fmt_specifier_to_arg_type_mismatch) {
-  cprintf(L"cpf test :: print std::wstring :: %d %s\n", 1001, L"test");
+TEST(Args, fmt_specifier_to_arg_type_mismatch) {
+   auto r = cprintf("print std::wstring :: %d %s\n", 1001, "test");
 }
 
-TEST(Format_String, print_foo_string) { cprintf(L"cpf test :: foo\n"); }
+TEST(FormatString, print_foo_string) {  auto r = cprintf("foo\n"); }
 
-TEST(Format_String, fmt_specifier_with_no_arg) {
-  cprintf(L"cpf test :: %d\n");
+TEST(FormatString, fmt_specifier_with_no_arg) {
+   auto r = cprintf("%d\n");
   ;
 }
 
-TEST(Token, foo) { cprintf(L"cpf test :: $y`red\n"); }
+TEST(Token, foo) { auto r = cprintf("$y`red\n"); }
 
-TEST(Colour, red) { cprintf(L"cpf test :: $r`red\n"); }
+TEST(BinaryFormatSpecifier, type_int32)
+{
+  std::int32_t value = 0b1111000011110000;
+   auto r = cprintf("value = %b\n", value);
+}
 
-int main(int argc, char **argv) {
-  // ru << "foo";
-  auto r = cprintf(L"test hello %d %s\n", 8, L"ljgvlvlv");
-  // cprintx(std::string("").c_str());
-  char c = 123;
-  short s = 1234;
-  int i = 123456;
-  const char *ptr = std::string("sss").data();
-  // cprintf_t("", std::make_tuple(0));
-  // null pointers not allowed
-  cprintf(L"TEST BINARY\n%d = %b\n%d = %b\n%d = %b\n%p = %b\n", c, c, s, s, i,
-          i, ptr, ptr);
+TEST(BinaryFormatSpecifier, type_uint32)
+{
+  std::uint32_t value = 0b1111000011110000;
+   auto r = cprintf("value = %b\n", value);
+}
 
-  cprintf_dbg(L"foos $y*the bars\n");
- 
-  // cprintf("test hello 0\n", "8LL");
-  // cprintf("test hello 0\n", "8LL", 4, f);
-  /*cprintf(L"test hello 1\n");
-  cprintf("debug-print test hello 0\n");
-  cprintf_dbg("debug-print test hello 1\n");*/
+int main(int argc, char **argv) { 
   ::testing::InitGoogleTest(&argc, argv);
   int ret = RUN_ALL_TESTS();
   std::getchar();

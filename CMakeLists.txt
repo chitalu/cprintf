@@ -120,7 +120,7 @@ add_library(${target_name_cpp}
             ${incl_dir}/internal/cpf_base.h
             ${incl_dir}/internal/cpf_carg.h
             ${incl_dir}/internal/cpf_cdef.h
-            ${incl_dir}/internal/cpf_dbgh.h
+            ${incl_dir}/internal/cpf_dbgh.inc
             ${incl_dir}/internal/cpf_hlpr.h
             ${incl_dir}/internal/cpf_scan.h
             ${incl_dir}/internal/cpf_srch.h
