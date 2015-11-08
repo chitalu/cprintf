@@ -202,6 +202,33 @@ void cpf::intern::write_non_arg_str(
   }
 }
 
+// 
+void cpf::intern::shift_chars(std::string &v, std::int32_t base, std::int32_t upto,
+                    std::int32_t amount) {
+  while (amount-- >= 1) {
+    for (std::int32_t i(upto); i >= base; --i) {
+      v[i] = v[i - 1];
+    }
+  }
+}
+
+// partition the bitfield in into sections of for bits to aid in readability
+void cpf::intern::partition_bitfield(std::string &str_repr) {
+  std::vector<char> bvec;
+  std::uint32_t c(0U);
+
+  for (auto &bit : str_repr) {
+    if ((c % 4) == 0 && c > 0)
+      bvec.push_back('.');
+    bvec.push_back(bit);
+    ++c;
+  }
+  bvec.push_back('\0');
+  str_repr = bvec.data();
+}
+
+
+
 /*
         in the case of possible future issues, it may be desirable to use
         std::codecvt_utf8_utf16<wchar_t> instead of std::codecvt_utf8<wchar_t>

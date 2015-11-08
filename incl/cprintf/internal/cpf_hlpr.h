@@ -118,6 +118,60 @@ write_non_arg_str(cpf::type::stream_t ustream,
 
 CPF_API cpf::type::str_t resolve_str_frmt_spec(const cpf::type::str_t &fs);
 
+// partition the bitfield in into sections of for bits to aid in readability
+void partition_bitfield(std::string &str_repr);
+
+template <typename T>
+std::string organise_bits(
+    typename std::enable_if<!std::is_arithmetic<T>::value, T>::type x) {
+  x;
+  return std::string();
+}
+
+template <typename T>
+std::string organise_bits(typename std::enable_if<
+    std::is_unsigned<T>::value || std::is_same<std::uintptr_t, T>::value,
+    T>::type &val) {
+
+  std::bitset<sizeof(T) * 8U> bits(val);
+
+  auto str_repr = bits.to_string();
+  partition_bitfield(str_repr);
+  return str_repr;
+}
+
+void shift_chars(std::string &v, std::int32_t base, std::int32_t upto,
+                 std::int32_t amount);
+
+template <typename T>
+std::string
+organise_bits(typename std::enable_if<std::is_signed<T>::value, T>::type &val) {
+  std::string o;
+
+  std::bitset<sizeof(T) * 8U> bits(val);
+
+  auto str_repr = bits.to_string();
+  partition_bitfield(str_repr);
+
+  o.resize(str_repr.length() + 3);
+  memcpy(&o[0], str_repr.data(), str_repr.size());
+
+  shift_chars(o, 0, str_repr.length(), 1);
+  o[0] = '[';
+
+  shift_chars(o, 2, str_repr.length() + 1, 1);
+  o[2] = ']';
+  o[o.length() -1] = '\0';
+
+  return o;
+}
+
+template <typename T>
+std::string organise_bits(
+    typename std::enable_if<std::is_floating_point<T>::value, T>::type val) {
+  printf("ITS A FLOAT!!\n");
+}
+
 template <typename T>
 void write_binary(cpf::type::stream_t ustream,
                   typename std::enable_if<std::is_arithmetic<T>::value ||
@@ -125,10 +179,26 @@ void write_binary(cpf::type::stream_t ustream,
                                           T>::type &&arg) {
   using namespace cpf::type;
   typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t,
-                                    T>::type ptype;
-  std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
-  std::string binary_str = bits.to_string();
-  std::fprintf(ustream, "%s", binary_str.c_str());
+                                    T>::type T_;
+
+  T_ arg_ = (T_)arg;
+  std::string bit_str = organise_bits<T_>(arg_);
+
+  // std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
+  // std::string bstr = bits.to_string();
+  // std::vector<char> bvec;
+  // std::uint32_t c(0U);
+  //
+  // for (auto &bit : bstr) {
+  //   if (!(c % 4) && c) {
+  //     bvec.push_back('.');
+  //   }
+  //   bvec.push_back(bit);
+  //   ++c;
+  // }
+  // bvec.push_back('\0');
+  // bstr = bvec.data();
+  std::fprintf(ustream, "%s", bit_str.c_str());
 }
 
 // Enabled if "T" is an STL string type.

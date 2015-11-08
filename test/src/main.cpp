@@ -68,13 +68,13 @@ TEST(Token, foo) { auto r = cprintf("$y`red\n"); }
 
 TEST(BinaryFormatSpecifier, type_int32)
 {
-  std::int32_t value = 0b1111000011110000;
+  int value = 0b1111000011110000;
    auto r = cprintf("value = %b\n", value);
 }
 
 TEST(BinaryFormatSpecifier, type_uint32)
 {
-  std::uint32_t value = 0b1111000011110000;
+  unsigned int value = 0b1111000011110000;
    auto r = cprintf("value = %b\n", value);
 }
 
