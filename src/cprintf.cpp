@@ -11,18 +11,18 @@
 CPF_API const cpf::type::str_t cpf::intern::dbg_log_fmt_str =
 #if !CPF_WINDOWS_BUILD
 LR"debug_str($cdbg
-$g@file:$c	$g*%S$c
-$g@time:$c	$g*%S$c-$g*%S$c 
-$g@func:$c	$g*%S$c
-$g@line:$c	$g*%d$c
+$g@file:$c	$G%S$c
+$g@time:$c	$G%S$c-$G%S$c 
+$g@func:$c	$G%S$c
+$g@line:$c	$G%d$c
 
 >> log: $?)debug_str";
 #else // then use small 's' for string args on windows
 LR"debug_str($cdbg
-$g@file:$c	$g*%s$c
-$g@time:$c	$g*%s$c-$g*%s$c 
-$g@func:$c	$g*%s$c
-$g@line:$c	$g*%d$c
+$g@file:$c	$G%s$c
+$g@time:$c	$G%s$c-$G%s$c 
+$g@func:$c	$G%s$c
+$g@line:$c	$G%d$c
 
 >> log: $?)debug_str";
 #endif// !CPF_LINUX_BUILD

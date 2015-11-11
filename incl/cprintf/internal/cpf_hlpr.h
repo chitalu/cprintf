@@ -8,6 +8,7 @@
 #include <bitset>
 #include <cwctype> //iswalpha
 #include <clocale>
+#include <cstring>
 
 #include <mutex>
 
@@ -59,9 +60,9 @@ using make_seq_indices_T = typename make_seq_indices<Begin, End>::type;
 // It is useful to consider how to pass a set of function arguments to a
 // function or functor.The code to do this is:
 
-//**constexpr
 template <typename Op, typename... Args>
-inline auto apply(Op &&op, Args &&... args)
+inline constexpr
+auto apply(Op &&op, Args &&... args)
     -> decltype(std::forward<Op>(op)(std::forward<Args>(args)...)) {
   return std::forward<Op>(op)(std::forward<Args>(args)...);
 }
@@ -140,12 +141,12 @@ std::string organise_bits(typename std::enable_if<
   return str_repr;
 }
 
-void shift_chars(std::string &v, std::int32_t base, std::int32_t upto,
+void shift_chars(std::string &o, std::int32_t base, std::int32_t upto,
                  std::int32_t amount);
 
 template <typename T>
 std::string
-organise_bits(typename std::enable_if<std::is_signed<T>::value, T>::type &val) {
+organise_bits(typename std::enable_if<std::is_signed<T>::value and std::is_integral<T>::value, T>::type val) {
   std::string o;
 
   std::bitset<sizeof(T) * 8U> bits(val);
@@ -169,7 +170,7 @@ organise_bits(typename std::enable_if<std::is_signed<T>::value, T>::type &val) {
 template <typename T>
 std::string organise_bits(
     typename std::enable_if<std::is_floating_point<T>::value, T>::type val) {
-  printf("ITS A FLOAT!!\n");
+  printf("TODO!!!!!!!!!!!!!\n"); // will be different for float and double.
 }
 
 template <typename T>
@@ -180,24 +181,8 @@ void write_binary(cpf::type::stream_t ustream,
   using namespace cpf::type;
   typedef typename std::conditional<std::is_pointer<T>::value, std::uintptr_t,
                                     T>::type T_;
-
   T_ arg_ = (T_)arg;
-  std::string bit_str = organise_bits<T_>(arg_);
-
-  // std::bitset<sizeof(T) * 8U> bits((ptype)(arg));
-  // std::string bstr = bits.to_string();
-  // std::vector<char> bvec;
-  // std::uint32_t c(0U);
-  //
-  // for (auto &bit : bstr) {
-  //   if (!(c % 4) && c) {
-  //     bvec.push_back('.');
-  //   }
-  //   bvec.push_back(bit);
-  //   ++c;
-  // }
-  // bvec.push_back('\0');
-  // bstr = bvec.data();
+  std::string bit_str = organise_bits<T_>(arg_); 
   std::fprintf(ustream, "%s", bit_str.c_str());
 }
 

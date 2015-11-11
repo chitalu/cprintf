@@ -320,9 +320,9 @@ cpf::intern::configure(cpf::type::stream_t user_stream,
         /*configuration type is needed to determine which bitwise
         operations to do on setting colour values in function
         config_text_attribute*/
-        if (tok.size() == 1 || (tok.size() == 2 && tok[1] == '*')) {
+        if (tok.size() == 1 /*|| (tok.size() == 2 && tok[1] == '*')*/) { // TODO: remove commented out code
           config_type = CONFIG_FG;
-        } else if (tok.size() >= 2 && tok.size() <= 4 &&
+        } else if (tok.size() == 2 /*&& tok.size() <= 4*/ &&
                    tok[tok.size() - 1] != '#') {
           config_type = CONFIG_FGBG;
         } else if (tok[tok.size() - 1] == '#') {

@@ -93,6 +93,14 @@
 #define CPF_FLAG_MASK_ (CPF_STDO | CPF_STDE | CPF_ATOMIC | CPF_CAPTURE)
 
 /*
+ *  Bitfield printing moidfiers
+ * */
+
+#define CPF_BIT_PRINT_PARTITION ('.') // --> 1010.0101.0111.1100
+#define CPF_BIT_PRINT_REGION_L ('[') // --> [0]011.1101.1111.0001
+#define CPF_BIT_PRINT_REGION_R (']') // ---^
+
+/*
         error codes.
 */
 

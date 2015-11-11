@@ -22,17 +22,17 @@ int main(void) {
  
   // last two characters are printed with bright red foreground colour
   // and a dim red background
-  cprintf("bar $r*red\n");
+  cprintf("bar $Rred\n");
 
   // last two characters are printed with bright red foreground alone
   // with the background colour being whatever console settings are.
   // in effect, the background colour remains unmodified
-  cprintf("bar $r*`red\n");
+  cprintf("bar $R`red\n");
 
   //"ed" printed with bright red applied to both foreground and background.
   // no escaping needed after the last asterisk (*) because "e" in not a
   // recognised "secondary" token defining character value.
-  cprintf("bar $r*r*ed\n");
+  cprintf("bar $RRed\n");
 
   // another example of foreground and background colour setting
   // notice that we dont need to escape "Red" like $r*w*`Red? well this is
@@ -45,17 +45,17 @@ int main(void) {
   // token. Example: cprintf("bar $r*w*red on white\n"); would confuse the
   // parser
   // but cprintf("bar $r*w*`red on white\n"); would give desired results.
-  cprintf("bar $r*w*Red on white\n");
+  cprintf("bar $RW`Red on white\n");
 
   // simply dim red background
   cprintf("bar $r#ed\n");
 
   // simply bright red background
-  cprintf("bar $r*#ed\n");
+  cprintf("bar $R#ed\n");
 
   // secondary character "#" is escaped, meaning it is printed as normal
   // using bright red as foreground along with all character [after] token.
-  cprintf("bar $r*`#ed\n");
+  cprintf("bar $R`#ed\n");
 
   // dot notation
   // remember cprintf token configurations function like a state machine (for
@@ -66,9 +66,9 @@ int main(void) {
   cprintf("quux$r.b blue\n");
 
   // same as above but with brightness involved
-  cprintf("quux$b*.r red\n");
-  cprintf("quux$b*.r* red\n");
-  cprintf("quux$r.b* blue\n");
+  cprintf("quux$B.r red\n");
+  cprintf("quux$B.B red\n");
+  cprintf("quux$r.B blue\n");
 
   // raw string literals can also be used
         auto s = R"rsl(raw $ystring lateral$? %s
@@ -84,11 +84,11 @@ int main(void) {
 
         // printing types std::string and std::wstring in colour.
         // again, same as before
-        std::string std_str = "yey! $g*Go me!! %d\n";
+        std::string std_str = "yey! $G`Go me!! %d\n";
         cprintf(std_str, std_str.size());
         cprintf("as argument: %s", std_str);
 
-        std::string std_wstr = "yey! $g*Go me!! %d\n";
+        std::string std_wstr = "yey! $G`Go me!! %d\n";
         cprintf(std_wstr, std_wstr.size());
         cprintf("as argument: %S", std_wstr);
 
@@ -142,10 +142,12 @@ int main(void) {
 
     cprintf((L"$" + s + L"%S" + L"$?\t").c_str(), i);
 
-    if ((++count % 8) == 0)
-      printf("\n");
+    if ((++count % 8) == 0){
+      fprintf(stderr, "\n");
+      fflush(stdout);
+    }
   }
 
-  printf("\n\n");
+  fprintf(stderr, "\n\n");
   return 0;
 }

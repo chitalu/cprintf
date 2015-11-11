@@ -27,10 +27,12 @@
 const std::initializer_list<cpf::type::str_t> cpf::intern::attr_esc_seqs = {
 	L"`$", L"`r", L"`g", 
 	L"`b", L"`y", L"`m", 
-	L"`c", L"`w", L"`.", 
-	L"`*", L"``", L"`?",
-	L"`!", L"`~", L"`|",
-	L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
+	L"`c", L"`w", L"`R", 
+  L"`G", L"`B", L"`Y", 
+  L"`M", L"`C", L"`W",
+  L"`.", L"``", L"`?",	
+  L"`!", L"`~", L"`|",	
+  L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
 };
 
 const std::initializer_list<wchar_t> cpf::intern::std_fmt_specs = {
@@ -80,20 +82,22 @@ const std::initializer_list<wchar_t> cpf::intern::escape_characters = {
 auto col_ids = { 
 	'r', 'g', 'b', 
 	'y', 'm', 'c', 
-	'w' 
+	'w', 'R', 'G', 
+  'B', 'Y', 'M', 
+  'C', 'W' 
 };
 
 /*characters that may precede colour identifiers (r, g, b...)
 and '#' in the case of '*'..*/
-auto col_id_prefs = { '.', '*' };
+auto col_id_prefs = { '.' };
 
 /*specialised character identifiers*/
 auto schar_ids = 
 { 
 	'!', '~', 'f', 
 	'b', '&', '#', 
-	'*', '.', '?',
-	'|', '^'
+	'.', '?',	'|', 
+  '^'
 };
 
 /*
@@ -146,11 +150,18 @@ const ppred_t parsing_predicates = {
 	{ '&', pred_isdigit },
 	{ 'r', pred_colour },
 	{ 'g', pred_colour },
-	/*blue shall use a different predicate*/
+	/*dim blue shall use a different predicate, see below*/
 	{ 'y', pred_colour },
 	{ 'm', pred_colour },
 	{ 'c', pred_colour },
 	{ 'w', pred_colour },
+  { 'R', pred_colour },
+	{ 'G', pred_colour },
+	{ 'B', pred_colour },
+	{ 'Y', pred_colour },
+	{ 'M', pred_colour },
+	{ 'C', pred_colour },
+	{ 'W', pred_colour },
 	{
 		'?',
 		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
@@ -159,13 +170,13 @@ const ppred_t parsing_predicates = {
 		'|',
 		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
 	},
-	{
-		'*', /*an asterisk can only be prefixed by colour identifiers*/
-		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
-		{
-			return std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end(); /*in r, g, b, ...*/;
-		}
-	},
+	// {
+	// 	'*', #<{(|an asterisk can only be prefixed by colour identifiers|)}>#
+	// 	[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
+	// 	{
+	// 		return std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end(); #<{(|in r, g, b, ...|)}>#;
+	// 	}
+	// },
 	{
 		'.',
 		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
@@ -180,8 +191,7 @@ const ppred_t parsing_predicates = {
 		'#',
 		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
-			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
-					s[p] == '*';
+			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end());
 		}
 	},
 	{
