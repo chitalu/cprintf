@@ -164,11 +164,11 @@ const ppred_t parsing_predicates = {
 	{ 'W', pred_colour },
 	{
 		'?',
-		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
+		[](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '?' || s[p] == '.'; }
 	},
 	{
 		'|',
-		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
+		[](cpf::type::str_t const &s, cpf::type::size const &p)->bool{ return s[p] == '|' || s[p] == '.'; }
 	},
 	// {
 	// 	'*', #<{(|an asterisk can only be prefixed by colour identifiers|)}>#
@@ -179,7 +179,7 @@ const ppred_t parsing_predicates = {
 	// },
 	{
 		'.',
-		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
+		[](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			//s[p] in r, g, b, ... or is digit or b f & etc
 			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
@@ -189,14 +189,14 @@ const ppred_t parsing_predicates = {
 	},
 	{
 		'#',
-		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
+		[](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			return	(std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end());
 		}
 	},
 	{
 		'b',
-		[&](cpf::type::str_t const &s, cpf::type::size const &p)->bool
+		[](cpf::type::str_t const &s, cpf::type::size const &p)->bool
 		{
 			/*note: this covers the colour blue (...$b[*]...) as well as a token representing
 			a unix bitmap-colour token (...$34b...).
