@@ -86,6 +86,10 @@ elseif(UNIX)
         SET (CPF_FLAGS "${CPF_FLAGS} -fPIC")
     endif()
 
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set (CPF_FLAGS "${CPF_FLAGS} -stdlib=libstdc++")
+    endif()
+
     set (CMAKE_C_FLAGS                "-Werror -std=c99")
     set (CMAKE_C_FLAGS_DEBUG          "-g")
     set (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
@@ -95,7 +99,7 @@ elseif(UNIX)
     #
     # "-pthread" is necessary for gtest to build
     #
-    set (CMAKE_CXX_FLAGS                "-std=c++1y -Werror -pthread")    
+    set (CMAKE_CXX_FLAGS                "-std=c++11 -Werror -pthread")    
     set (CMAKE_CXX_FLAGS_DEBUG          "-g")
     set (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     set (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
