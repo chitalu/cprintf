@@ -102,7 +102,7 @@ elseif(UNIX)
     set (CMAKE_CXX_FLAGS                "-std=c++11 -Werror -pthread")    
     set (CMAKE_CXX_FLAGS_DEBUG          "-g")
     set (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    set (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    set (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
     set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g") 
 endif()
 
