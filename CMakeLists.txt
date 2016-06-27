@@ -93,7 +93,7 @@ elseif(UNIX)
     set (CMAKE_C_FLAGS                "-Werror -std=c99")
     set (CMAKE_C_FLAGS_DEBUG          "-g")
     set (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    set (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    set (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG")
     set (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
 
     #
