@@ -101,18 +101,6 @@ template <typename T>
 struct get_STL_string_type_
     : std::conditional<is_wstype_<T>::value, str_t, nstr_t> {};
 
-template <std::size_t FLAGS_> struct verify_flags_ {
-  typedef std::integral_constant<std::size_t, FLAGS_> get;
-
-  static_assert((((FLAGS_ & CPF_STDO) == CPF_STDO) &&
-                 ((FLAGS_ & CPF_STDE) != CPF_STDE)) ||
-                    (((FLAGS_ & CPF_STDO) != CPF_STDO) &&
-                     ((FLAGS_ & CPF_STDE) == CPF_STDE)),
-                "CPRINTF COMPILATION ERROR: invalid stream specification");
-
-  static_assert((FLAGS_ ^ CPF_FLAG_MASK_) <= CPF_FLAG_MASK_,
-                "CPRINTF COMPILATION ERROR: invalid API flags detected");
-};
 
 template <typename T = str_t> struct verify_format_ {
   typedef T type;
@@ -137,17 +125,6 @@ template <typename T = int, typename... Ts> struct verify_args_ {
 
   static_assert(current::value && Next::current::value,
                 "CPRINTF COMPILATION ERROR: argument type not allowed");
-};
-
-// pass-through type used to check at compile when the users
-// specified arguments of the correct types to the API
-template <std::size_t FLAGS, typename FMT = cpf::type::str_t, typename... VARGs>
-struct verify_ {
-  typedef verify_flags_<FLAGS> flags;
-  // "FMT" represents the format string type as given by user upon
-  // invoking API routine
-  typedef verify_format_<FMT> fmt;
-  verify_args_<VARGs...> decl_stub_;
 };
 
 template <typename T> struct resolve_Xint64_t_ {
