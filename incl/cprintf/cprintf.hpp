@@ -2,26 +2,24 @@
 
 #include <cprintf/internal/cpf_hlpr.h>
 
-template <typename F, typename... Fs>
-int cprintf_(FILE* stream, F f, Fs... args)
+template <typename FormatType, typename... ArgumentTypes>
+int cprintf_(FILE* stream, FormatType format, ArgumentTypes... arguments)
 {
 	using namespace cpf::type;
 	using namespace cpf::intern;
 
-	static_assert(is_permitted_string_type_<F>::value,
+	static_assert(is_permitted_string_type_<FormatType>::value,
 	              "Error: Invalid format string type.");
-	verify_args_<Fs...> verify_args;
+	verify_args_<ArgumentTypes...> verify_args;
 
-	int err_code = 0;
+	std::lock_guard<std::mutex> lock(cpf::intern::user_thread_mutex);
 
-	CPF_MARK_CRITICAL_SECTION_;
-	{
-		err_code = dispatch(stream, std::forward<F>(f), std::forward<Fs>(args)...);
-	}
-	CPF_UNMARK_CRITICAL_SECTION_;
+	int error_code = dispatch(stream, std::forward<FormatType>(format),
+	                          std::forward<ArgumentTypes>(arguments)...);
 
-	return err_code;
+	return error_code;
 }
+
 
 #include <cprintf/internal/cpf_dbgh.h>
 
