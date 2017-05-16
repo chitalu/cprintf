@@ -3,12 +3,13 @@
 
 #include "cprintf/internal/cpf_type.h"
 
-namespace cpf {
-namespace intern {
+namespace _cprintf_
+{
+
 /*
         text attribute token escape sequences..
 */
-CPF_API const std::initializer_list<type::str_t> attr_esc_seqs;
+CPF_API const std::initializer_list<unicode_string_t> attr_esc_seqs;
 
 /*
         standard format specifiers
@@ -67,9 +68,9 @@ CPF_API const std::initializer_list<wchar_t> escape_characters;
         The second element of [value] is a substring of the source format
    string.
         */
-CPF_API cpf::type::meta_fmt_t
-process_format_string(const type::str_t &format_string);
+CPF_API _cprintf_::format_string_layout_t
+process_format_string(const unicode_string_t &format_string);
 }
-}
+
 
 #endif

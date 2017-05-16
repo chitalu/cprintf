@@ -4,10 +4,9 @@
 #include "cprintf/internal/cpf_type.h"
 #include <cassert>
 
-namespace cpf
+namespace _cprintf_
 {
-namespace intern
-{
+
 /*
         format specifier-to-argument correspondence check
         i.e "%d" must correspond to an integral, "%p" to a pointer etc.
@@ -15,17 +14,17 @@ namespace intern
         verifies that the format string contains arguments which
         match the given % sequence(s) in the correct order.
         note that this is only able to test those format specifiers
-        found in "cpf::intern::std_fmt_specs".
+        found in "_cprintf_::std_fmt_specs".
 
         We perform runtime checks on the validity of arguments when compared to
         their corresonding format specifiers.
 
         This is only done in client debug builds.
 */
-CPF_API void fmtspec_to_argtype_check(cpf::type::cstr format);
+CPF_API void format_specifier_correspondence_check(unicode_character_string_ptr_t format);
 
 template <class T = int, typename... Ts>
-void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
+void format_specifier_correspondence_check(unicode_character_string_ptr_t format, T&& farg, Ts&&... args)
 {
 	for (; *format; ++format)
 	{
@@ -63,7 +62,7 @@ void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 		case 's':
 		case 'S':
 		{
-			if (!cpf::type::is_permitted_string_type_<T>::value)
+			if (!_cprintf_::is_valid_string_type_<T>::value)
 			{
 				throw CPF_ARG_ERR; // expected a value of type[c - string, std::string
 				                   // or std::wstring]
@@ -83,12 +82,10 @@ void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
 			break;
 	}
 
-	return fmtspec_to_argtype_check(++format, std::forward<Ts>(args)...);
+	return format_specifier_correspondence_check(++format, std::forward<Ts>(args)...);
 }
 
-throw CPF_ARG_ERR; // invalid argument count
 }
-}
-}
+
 
 #endif /*#ifndef __CPF_VERIFY_H__*/

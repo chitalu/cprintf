@@ -25,35 +25,40 @@ THE SOFTWARE.
 #include <cprintf/internal/cpf_srch.h>
 #include <cprintf/internal/cpf_type.h>
 
-cpf::type::size cpf::intern::search_for(const cpf::type::str_t& _what,
-										const cpf::type::str_t& _where,
-										const cpf::type::size _offset,
-										const char& _esc_char)
+namespace _cprintf_
 {
-	bool found = false;
-	auto _Off = _offset;
-	cpf::type::size position = 0;
 
-	while((position = _where.find(_what, _Off)) != _where.npos)
+	std::int32_t _cprintf_::search_for(const _cprintf_::unicode_string_t& _what,
+		const _cprintf_::unicode_string_t& _where,
+		const std::int32_t _offset,
+		const char& _esc_char)
 	{
-		if(position == 0)
+		bool found = false;
+		auto _Off = _offset;
+		std::int32_t position = 0;
+
+		while ((position = _where.find(_what, _Off)) != _where.npos)
 		{
-			return position;
-		}
-		else //position > 0 
-		{
-			/*verify that position - 1 is not equal to an escape character*/
-			if(_where[position - 1] == _esc_char)
-			{
-				_Off = position + 1;
-				continue;
-			}
-			else
+			if (position == 0)
 			{
 				return position;
 			}
+			else //position > 0 
+			{
+				/*verify that position - 1 is not equal to an escape character*/
+				if (_where[position - 1] == _esc_char)
+				{
+					_Off = position + 1;
+					continue;
+				}
+				else
+				{
+					return position;
+				}
+			}
 		}
+
+		return position;
 	}
 
-	return position;
 }

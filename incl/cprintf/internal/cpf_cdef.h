@@ -63,21 +63,20 @@
 
 #endif /*	#ifdef _WIN32	*/
 
-namespace cpf
+namespace _cprintf_
 {
-namespace intern
-{
+
 /*
         the full standard/ cross platform set of colour tokens
         that may be used to modify text appearance
 */
-CPF_API const cpf::type::str_vec_t std_tokens;
+CPF_API const _cprintf_::unicode_string_vector_t std_tokens;
 
 /*
         tokens available on both windows and linux
 */
-CPF_API const cpf::type::token_value_map std_token_vals;
-}
+CPF_API const _cprintf_::token_value_storage_t std_token_vals;
+
 }
 
 #endif /*	#ifndef __CPF_COLOUR_DEFS_H__	*/

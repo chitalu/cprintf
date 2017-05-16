@@ -1,10 +1,14 @@
 #include <cprintf/internal/cpf_carg.h>
 
-CPF_API void cpf::intern::fmtspec_to_argtype_check(cpf::type::cstr format) {
-  for (; *format; ++format) {
-    if (*format != '%' || *++format == '%') {
-      continue;
-    }
-    throw CPF_ARG_ERR; // bad format specifier
-  }
+namespace _cprintf_
+{
+
+	CPF_API void _cprintf_::format_specifier_correspondence_check(_cprintf_::unicode_character_string_ptr_t format) {
+		for (; *format; ++format) {
+			if (*format != '%' || *++format == '%') {
+				continue;
+			}
+			throw CPF_ARG_ERR; // bad format specifier
+		}
+	}
 }
