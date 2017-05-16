@@ -27,6 +27,18 @@
 #include <cprintf/internal/cpf_scan.h>
 #include <cprintf/internal/cpf_tconf.h>
 
+#if CPF_DBG_CONFIG
+
+#include <cstdarg>
+
+#ifdef CPF_WINDOWS_BUILD
+#define CPF_FILE_PATH_SEPARATOR (character == '\\' || character == '/');
+#else
+#define CPF_FILE_PATH_SEPARATOR (character == '/');
+#endif
+
+#endif
+
 namespace cpf
 {
 namespace intern
@@ -34,6 +46,7 @@ namespace intern
 
 using namespace cpf::type;
 
+CPF_API const cpf::type::str_t dbg_log_fmt_str;
 CPF_API std::mutex user_thread_mutex;
 
 // convert from narrow character string to wide character string @returns wide
@@ -73,9 +86,9 @@ CPF_API void write_non_arg_str(
 CPF_API cpf::type::str_t resolve_str_frmt_spec(const cpf::type::str_t& fs);
 
 template <typename T>
-void write_arg(cpf::type::stream_t     file_stream,
-               cpf::type::str_t const& format,
-               T&&                     arg)
+void write_variadic_argument_to_stream(cpf::type::stream_t     file_stream,
+                                       cpf::type::str_t const& format,
+                                       T&&                     arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
@@ -87,34 +100,39 @@ void write_arg(cpf::type::stream_t     file_stream,
 // extra wizardry has to be performed before printing the
 // following types...
 template <>
-void write_arg<cpf::type::str_t>(cpf::type::stream_t     file_stream,
-                                 cpf::type::str_t const& format,
-                                 cpf::type::str_t&&      arg);
+void write_variadic_argument_to_stream<cpf::type::str_t>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  cpf::type::str_t&&      arg);
 
 template <>
-void write_arg<cpf::type::nstr_t>(cpf::type::stream_t     file_stream,
-                                  cpf::type::str_t const& format,
-                                  cpf::type::nstr_t&&     arg);
+void write_variadic_argument_to_stream<cpf::type::nstr_t>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  cpf::type::nstr_t&&     arg);
 
 template <>
-void write_arg<char*>(cpf::type::stream_t     file_stream,
-                      cpf::type::str_t const& format,
-                      char*&&                 arg);
+void write_variadic_argument_to_stream<char*>(cpf::type::stream_t file_stream,
+                                              cpf::type::str_t const& format,
+                                              char*&&                 arg);
 
 template <>
-void write_arg<signed char*>(cpf::type::stream_t     file_stream,
-                             cpf::type::str_t const& format,
-                             signed char*&&          arg);
+void write_variadic_argument_to_stream<signed char*>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  signed char*&&          arg);
 
 template <>
-void write_arg<const char*>(cpf::type::stream_t     file_stream,
-                            cpf::type::str_t const& format,
-                            const char*&&           arg);
+void write_variadic_argument_to_stream<const char*>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  const char*&&           arg);
 
 template <>
-void write_arg<const signed char*>(cpf::type::stream_t     file_stream,
-                                   cpf::type::str_t const& format,
-                                   const signed char*&&    arg);
+void write_variadic_argument_to_stream<const signed char*>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  const signed char*&&    arg);
 
 // TODO: add specialisation for "unsigned char" const and non const
 
@@ -163,8 +181,8 @@ void update_file_stream(cpf::type::stream_t               file_stream,
 
 		// write the current argument i.e. "arg0" as formatted according to
 		// "arg_format_spec" to the user stream
-		cpf::intern::write_arg(file_stream, arg_format_spec,
-		                       std::forward<T0>(arg0));
+		cpf::intern::write_variadic_argument_to_stream(file_stream, arg_format_spec,
+		                                               std::forward<T0>(arg0));
 
 		cpf::intern::write_post_arg_str(file_stream, printed_string_, ssp_,
 		                                more_args_on_iter, meta_iter,
@@ -200,7 +218,7 @@ void update_file_stream(cpf::type::stream_t               file_stream,
 }
 
 template <typename T0, typename... Ts>
-cpf::type::rcode_t dispatch(FILE* stream, T0&& raw_format, Ts&&... args)
+int dispatch(cpf::type::stream_t stream, T0&& raw_format, Ts&&... args)
 {
 	cpf::type::str_t format;
 	try
@@ -210,20 +228,18 @@ cpf::type::rcode_t dispatch(FILE* stream, T0&& raw_format, Ts&&... args)
 	catch (...)
 	{
 		// runtime string conversion error
-		return cpf::type::rcode_t(CPF_NWCONV_ERR);
+		return CPF_NWCONV_ERR;
 	}
 
-	cpf::type::rcode_t rcode(CPF_NO_ERR);
+	int error_code = CPF_NO_ERR;
 
-	// note: the try catch block is necessary to restore stream state should
-	// unexpected behaviour occur at runtime. Typical cases are errors in user
-	// code.
 	try
 	{
 #if CPF_DBG_CONFIG
 		cpf::intern::fmtspec_to_argtype_check(
 		  std::forward<const wchar_t*>(format.c_str()), std::forward<Ts>(args)...);
 #endif
+
 		cpf::intern::save_stream_state(stream);
 
 		auto meta_f   = cpf::intern::process_format_string(format);
@@ -236,14 +252,14 @@ cpf::type::rcode_t dispatch(FILE* stream, T0&& raw_format, Ts&&... args)
 		                                mf_begin->second.second, 0u,
 		                                std::forward<Ts>(args)...);
 	}
-	catch (decltype(rcode)& c)
+	catch (int thrown_error_code)
 	{
-		rcode = c; // runtime error!
+		error_code = thrown_error_code; // runtime error!
 	}
 
 	cpf::intern::restore_stream_state(stream, true);
 
-	return rcode;
+	return error_code;
 }
 }
 }

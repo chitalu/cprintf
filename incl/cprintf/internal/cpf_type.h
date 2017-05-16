@@ -52,52 +52,59 @@ struct stub_t
 };
 
 template <bool B>
-using get_btype_ = std::conditional<B, std::true_type, std::false_type>;
+using infer_boolean_type_ =
+  std::conditional<B, std::true_type, std::false_type>;
 
 template <typename T>
-struct is_nchar_ptr_
-  : get_btype_<std::is_same<char*, T>::value ||
-               std::is_same<unsigned char*, T>::value ||
-               std::is_same<signed char*, T>::value ||
-               std::is_same<const char*, T>::value ||
-               std::is_same<const signed char*, T>::value ||
-               std::is_same<const unsigned char*, T>::value>::type
+struct is_ascii_char_ptr_
+  : infer_boolean_type_<std::is_same<char*, T>::value ||
+                        std::is_same<unsigned char*, T>::value ||
+                        std::is_same<signed char*, T>::value ||
+                        std::is_same<const char*, T>::value ||
+                        std::is_same<const signed char*, T>::value ||
+                        std::is_same<const unsigned char*, T>::value>::type
 {
 };
 
 template <typename T>
-struct is_wchar_ptr_t : get_btype_<std::is_same<wchar_t*, T>::value ||
-                                   std::is_same<const wchar_t*, T>::value>::type
+struct is_unicode_char_ptr_t
+  : infer_boolean_type_<std::is_same<wchar_t*, T>::value ||
+                        std::is_same<const wchar_t*, T>::value>::type
 {
 };
 
 template <typename T>
 struct is_char_ptr_t
-  : get_btype_<is_nchar_ptr_<T>::value || is_wchar_ptr_t<T>::value>::type
+  : infer_boolean_type_<is_ascii_char_ptr_<T>::value ||
+                        is_unicode_char_ptr_t<T>::value>::type
 {
 };
 
 template <typename T>
-struct is_nstype_ : get_btype_<std::is_same<T, std::string>::value ||
-                               is_nchar_ptr_<T>::value>::type
+struct is_ascii_string_type
+  : infer_boolean_type_<std::is_same<T, std::string>::value ||
+                        is_ascii_char_ptr_<T>::value>::type
 {
 };
 
 template <typename T>
-struct is_wstype_ : get_btype_<std::is_same<T, std::wstring>::value ||
-                               is_wchar_ptr_t<T>::value>::type
+struct is_unicode_string_type
+  : infer_boolean_type_<std::is_same<T, std::wstring>::value ||
+                        is_unicode_char_ptr_t<T>::value>::type
 {
 };
 
 template <typename T = stub_t>
 struct is_permitted_string_type_
-  : get_btype_<is_wstype_<T>::value || is_nstype_<T>::value>::type
+  : infer_boolean_type_<is_unicode_string_type<T>::value ||
+                        is_ascii_string_type<T>::value>::type
 {
 };
 
 template <typename T = stub_t>
-struct is_STL_string_type_ : get_btype_<std::is_same<T, nstr_t>::value ||
-                                        std::is_same<T, str_t>::value>::type
+struct is_STL_string_type_
+  : infer_boolean_type_<std::is_same<T, nstr_t>::value ||
+                        std::is_same<T, str_t>::value>::type
 {
 };
 
@@ -109,16 +116,15 @@ struct verify_format_
 	              "cprintf error: invalid format type");
 };
 
-
 template <typename T = int, typename... Ts>
 struct verify_args_
 {
 	typedef T current_type;
 
-	typedef
-	  typename get_btype_<is_permitted_string_type_<current_type>::value ||
-	                      (std::is_arithmetic<current_type>::value ||
-	                       std::is_pointer<current_type>::value)>::type current;
+	typedef typename infer_boolean_type_<
+	  is_permitted_string_type_<current_type>::value ||
+	  (std::is_arithmetic<current_type>::value ||
+	   std::is_pointer<current_type>::value)>::type current;
 
 	typedef verify_args_<Ts...> Next;
 

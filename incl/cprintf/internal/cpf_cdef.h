@@ -63,8 +63,10 @@
 
 #endif /*	#ifdef _WIN32	*/
 
-namespace cpf {
-namespace intern {
+namespace cpf
+{
+namespace intern
+{
 /*
         the full standard/ cross platform set of colour tokens
         that may be used to modify text appearance

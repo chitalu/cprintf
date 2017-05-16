@@ -4,8 +4,10 @@
 #include "cprintf/internal/cpf_type.h"
 #include <cassert>
 
-namespace cpf {
-namespace intern {
+namespace cpf
+{
+namespace intern
+{
 /*
         format specifier-to-argument correspondence check
         i.e "%d" must correspond to an integral, "%p" to a pointer etc.
@@ -23,54 +25,68 @@ namespace intern {
 CPF_API void fmtspec_to_argtype_check(cpf::type::cstr format);
 
 template <class T = int, typename... Ts>
-void fmtspec_to_argtype_check(cpf::type::cstr format, T &&farg, Ts &&... args) {
-  for (; *format; ++format) {
-    if (*format != '%' || *++format == '%')
-      continue;
+void fmtspec_to_argtype_check(cpf::type::cstr format, T&& farg, Ts&&... args)
+{
+	for (; *format; ++format)
+	{
+		if (*format != '%' || *++format == '%')
+			continue;
 
-    wchar_t f = *format;
+		wchar_t f = *format;
 
-    switch (f) {
-    case 'f':
-    case 'e':
-    case 'g':
-      if (!std::is_floating_point<T>::value)
-        throw CPF_ARG_ERR; // expected a[floating point] value
-      break;
-    case 'd':
-    case 'i':
-    case 'o':
-    case 'u':
-    case 'c':
-    case 'x':
-    case 'l': // note that this is actually in "inter_fmt_specs"
-    case '#': // note that this is actually in "inter_fmt_specs"
-      if (!std::is_integral<T>::value)
-        throw CPF_ARG_ERR; // expected an[integral] value"
-      break;
-    case 's':
-    case 'S':
-      if (!cpf::type::is_permitted_string_type_<T>::value)
-        throw CPF_ARG_ERR; // expected a value of type[c - string, std::string
-                           // or std::wstring]
-      break;
-    case 'p':
-      if (!std::is_pointer<T>::value)
-        throw CPF_ARG_ERR; // expected a[pointer] value
-      break;
-    case 'b':
-      if (cpf::type::is_STL_string_type_<T>::value)
-        throw CPF_ARG_ERR; // expected a scalar, i.e
-      break;
-    default:
-      //	Note: does note cover all edge cases
-      break;
-    }
+		switch (f)
+		{
+			case 'f':
+			case 'e':
+			case 'g':
+			{
+				if (!std::is_floating_point<T>::value)
+				{
+					throw CPF_ARG_ERR; // expected a[floating point] value
+				}
+			}
+			break;
+			case 'd':
+			case 'i':
+			case 'o':
+			case 'u':
+			case 'c':
+			case 'x':
+			case 'l': // note that this is actually in "inter_fmt_specs"
+			case '#': // note that this is actually in "inter_fmt_specs"
+			{
+				if (!std::is_integral<T>::value)
+					throw CPF_ARG_ERR; // expected an[integral] value"
+			}
+		}
+		break;
+		case 's':
+		case 'S':
+		{
+			if (!cpf::type::is_permitted_string_type_<T>::value)
+			{
+				throw CPF_ARG_ERR; // expected a value of type[c - string, std::string
+				                   // or std::wstring]
+			}
+		}
+		break;
+		case 'p':
+		{
+			if (!std::is_pointer<T>::value)
+			{
+				throw CPF_ARG_ERR; // expected a[pointer] value
+			}
+		}
+		break;
+		default:
+			//	Note: we do not cover all edge cases
+			break;
+	}
 
-    return fmtspec_to_argtype_check(++format, std::forward<Ts>(args)...);
-  }
+	return fmtspec_to_argtype_check(++format, std::forward<Ts>(args)...);
+}
 
-  throw CPF_ARG_ERR; // invalid argument count
+throw CPF_ARG_ERR; // invalid argument count
 }
 }
 }

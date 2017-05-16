@@ -5,9 +5,6 @@
 #include <mutex>
 
 #if CPF_DBG_CONFIG
-/*
-  wide character string debug log
-*/
 CPF_API const cpf::type::str_t cpf::intern::dbg_log_fmt_str =
 #if !CPF_WINDOWS_BUILD
   LR"debug_str($cdbg
@@ -29,11 +26,6 @@ $g@line:$c	$g*%d$c
 
 #endif // CPF_DBG_CONFIG
 
-/*
-        atomicity mutex variable used for synchronising client-multithreaded
-   invocations of
-        API
-*/
 std::mutex cpf::intern::user_thread_mutex;
 
 // cprintf("Characters:\t%c %%\n", 65);
@@ -285,73 +277,78 @@ cpf::type::str_t cpf::intern::resolve_str_frmt_spec(const cpf::type::str_t& fs)
 }
 
 template <>
-void cpf::intern::write_arg<cpf::type::str_t>(cpf::type::stream_t file_stream,
-                                              cpf::type::str_t const& format,
-                                              cpf::type::str_t&&      arg)
+void cpf::intern::write_variadic_argument_to_stream<cpf::type::str_t>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  cpf::type::str_t&&      arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
-	write_arg(file_stream, format, std::forward<const wchar_t*>(arg.c_str()));
+	write_variadic_argument_to_stream(file_stream, format,
+	                                  std::forward<const wchar_t*>(arg.c_str()));
 }
 
 template <>
-void cpf::intern::write_arg<cpf::type::nstr_t>(cpf::type::stream_t file_stream,
-                                               cpf::type::str_t const& format,
-                                               cpf::type::nstr_t&&     arg)
+void cpf::intern::write_variadic_argument_to_stream<cpf::type::nstr_t>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  cpf::type::nstr_t&&     arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
-	write_arg<cpf::type::str_t>(file_stream, format,
-	                            std::forward<cpf::type::str_t>(cpf::intern::wconv(
-	                              std::forward<cpf::type::nstr_t>(arg))));
+	write_variadic_argument_to_stream<cpf::type::str_t>(
+	  file_stream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(
+	                         std::forward<cpf::type::nstr_t>(arg))));
 }
 
 template <>
-void cpf::intern::write_arg<char*>(cpf::type::stream_t     file_stream,
-                                   cpf::type::str_t const& format,
-                                   char*&&                 arg)
+void cpf::intern::write_variadic_argument_to_stream<char*>(
+  cpf::type::stream_t file_stream, cpf::type::str_t const& format, char*&& arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
-	write_arg<cpf::type::str_t>(file_stream, format,
-	                            std::forward<cpf::type::str_t>(
-	                              cpf::intern::wconv(std::forward<char*>(arg))));
+	write_variadic_argument_to_stream<cpf::type::str_t>(
+	  file_stream, format, std::forward<cpf::type::str_t>(
+	                         cpf::intern::wconv(std::forward<char*>(arg))));
 }
 
 template <>
-void cpf::intern::write_arg<const char*>(cpf::type::stream_t     file_stream,
-                                         cpf::type::str_t const& format,
-                                         const char*&&           arg)
+void cpf::intern::write_variadic_argument_to_stream<const char*>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  const char*&&           arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
-	write_arg<cpf::type::str_t>(
+	write_variadic_argument_to_stream<cpf::type::str_t>(
 	  file_stream, format, std::forward<cpf::type::str_t>(
 	                         cpf::intern::wconv(std::forward<const char*>(arg))));
 }
 
 template <>
-void cpf::intern::write_arg<signed char*>(cpf::type::stream_t     file_stream,
-                                          cpf::type::str_t const& format,
-                                          signed char*&&          arg)
+void cpf::intern::write_variadic_argument_to_stream<signed char*>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  signed char*&&          arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
-	write_arg<cpf::type::str_t>(
+	write_variadic_argument_to_stream<cpf::type::str_t>(
 	  file_stream, format, std::forward<cpf::type::str_t>(
 	                         cpf::intern::wconv(reinterpret_cast<char*>(arg))));
 }
 
 template <>
-void cpf::intern::write_arg<const signed char*>(cpf::type::stream_t file_stream,
-                                                cpf::type::str_t const& format,
-                                                const signed char*&&    arg)
+void cpf::intern::write_variadic_argument_to_stream<const signed char*>(
+  cpf::type::stream_t     file_stream,
+  cpf::type::str_t const& format,
+  const signed char*&&    arg)
 {
 	using namespace cpf::intern;
 	using namespace cpf::type;
-	write_arg<cpf::type::str_t>(file_stream, format,
-	                            std::forward<cpf::type::str_t>(cpf::intern::wconv(
-	                              reinterpret_cast<const char*>(arg))));
+	write_variadic_argument_to_stream<cpf::type::str_t>(
+	  file_stream, format, std::forward<cpf::type::str_t>(cpf::intern::wconv(
+	                         reinterpret_cast<const char*>(arg))));
 }
 
 CPF_API void cpf::intern::update_file_stream(
