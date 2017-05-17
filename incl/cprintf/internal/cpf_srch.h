@@ -7,8 +7,8 @@
 namespace _cprintf_
 {
 
-CPF_API std::int32_t search_for(const _cprintf_::unicode_string_t &_what,
-                                   const _cprintf_::unicode_string_t &_where,
+CPF_API std::int32_t search_for(const unicode_string_t &_what,
+                                   const unicode_string_t &_where,
                                    const std::int32_t _offset = 0,
                                    const char &_esc_char = CPF_ESC_CHAR);
 }

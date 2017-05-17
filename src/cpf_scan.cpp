@@ -27,12 +27,12 @@ namespace _cprintf_
 	  cprintf("$r`red");
 	*/
 
-	const std::initializer_list<_cprintf_::unicode_string_t> _cprintf_::attr_esc_seqs = {
+	const std::initializer_list<unicode_string_t> attr_esc_seqs = {
 		L"`$", L"`r", L"`g", L"`b", L"`y", L"`m", L"`c", L"`w", L"`.", L"`*",
 		L"``", L"`?", L"`!", L"`~", L"`|", L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
 	};
 
-	const std::initializer_list<wchar_t> _cprintf_::std_fmt_specs = {
+	const std::initializer_list<wchar_t> std_fmt_specs = {
 		'c', 'd', 'e', 'E', 'f', 'F', 'g', 'G', 'i', 'o',
 		's', 'u', 'x', 'X', 'a', 'A', 'p', 'n', 'b', 'S'
 	};
@@ -45,7 +45,7 @@ namespace _cprintf_
 	%.6i
 	%05.2f
 	*/
-	const std::initializer_list<wchar_t> _cprintf_::ext_fmtspec_terms = {
+	const std::initializer_list<wchar_t> ext_fmtspec_terms = {
 		'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u', 'S'
 	};
 
@@ -56,11 +56,11 @@ namespace _cprintf_
 	%.6i
 	%05.2f
 	*/
-	const std::initializer_list<wchar_t> _cprintf_::inter_fmt_specs = {
+	const std::initializer_list<wchar_t> inter_fmt_specs = {
 		'+', '-', '.', '*', '#', 'l'
 	};
 
-	const std::initializer_list<wchar_t> _cprintf_::escape_characters = {
+	const std::initializer_list<wchar_t> escape_characters = {
 		'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'
 	};
 
@@ -78,20 +78,20 @@ namespace _cprintf_
 	*/
 	typedef std::map<
 		wchar_t,
-		std::function<bool(_cprintf_::unicode_string_t const&, std::int32_t const&)> >
+		std::function<bool(unicode_string_t const&, std::int32_t const&)> >
 		ppred_t;
 
-	bool pred_isdigit(_cprintf_::unicode_string_t const& s, std::int32_t const& p)
+	bool pred_isdigit(unicode_string_t const& s, std::int32_t const& p)
 	{
 		return isdigit(s[p]) ? true : false;
 	}
 
-	bool pred_scrn_clr(_cprintf_::unicode_string_t const& s, std::int32_t const& p)
+	bool pred_scrn_clr(unicode_string_t const& s, std::int32_t const& p)
 	{
 		return s[p] == '!';
 	}
 
-	bool pred_colour(_cprintf_::unicode_string_t const& s, std::int32_t const& p)
+	bool pred_colour(unicode_string_t const& s, std::int32_t const& p)
 	{
 		/*a colour char may only be preceded by another or any char contained in
 		 * col_id_prefs...*/
@@ -133,21 +133,21 @@ namespace _cprintf_
 		{ 'c', pred_colour },
 		{ 'w', pred_colour },
 		{ '?',
-		  [](_cprintf_::unicode_string_t const& s, std::int32_t const& p) -> bool {
+		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 			return s[p] == '?' || s[p] == '.';
 			} },
 		{ '|',
-		  [](_cprintf_::unicode_string_t const& s, std::int32_t const& p) -> bool {
+		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 			return s[p] == '|' || s[p] == '.';
 			} },
 		{ '*', /*an asterisk can only be prefixed by colour identifiers*/
-		  [](_cprintf_::unicode_string_t const& s, std::int32_t const& p) -> bool {
+		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 			return std::find(col_ids.begin(), col_ids.end(), s[p]) !=
 				   col_ids.end(); /*in r, g, b, ...*/
 			;
 			} },
 		{ '.',
-		  [](_cprintf_::unicode_string_t const& s, std::int32_t const& p) -> bool {
+		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 				// s[p] in r, g, b, ... or is digit or b f & etc
 				return (std::find(col_ids.begin(), col_ids.end(), s[p]) !=
 						col_ids.end()) ||
@@ -155,13 +155,13 @@ namespace _cprintf_
 												   s[p]) != schar_ids.end());
 				} },
 			{ '#',
-			  [](_cprintf_::unicode_string_t const& s, std::int32_t const& p) -> bool {
+			  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 				return (std::find(col_ids.begin(), col_ids.end(), s[p]) !=
 						col_ids.end()) ||
 					   s[p] == '*';
 				} },
 			{ 'b',
-			  [](_cprintf_::unicode_string_t const& s, std::int32_t const& p) -> bool {
+			  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 					/*note: this covers the colour blue (...$b[*]...) as well as a token
 					representing
 					a unix bitmap-colour token (...$34b...).
@@ -177,17 +177,17 @@ namespace _cprintf_
 					} }
 	};
 
-	void purge_meta_esc_sequences(_cprintf_::format_string_layout_t& meta)
+	void purge_meta_esc_sequences(format_string_layout_t& meta)
 	{
-		auto purge_str_esc_sequences = [&](_cprintf_::unicode_string_t& src) {
-			for (auto& es : _cprintf_::attr_esc_seqs)
+		auto purge_str_esc_sequences = [&](unicode_string_t& src) {
+			for (auto& es : attr_esc_seqs)
 			{
 				auto replacew = es.substr(1);
 
 				/* searches "src" for "es" and replaces it with "replacew" */
 				size_t pos = 0;
-				while ((pos = _cprintf_::search_for(es, src, pos)) !=
-					_cprintf_::unicode_string_t::npos)
+				while ((pos = search_for(es, src, pos)) !=
+					unicode_string_t::npos)
 				{
 					src.replace(pos, es.length(), replacew);
 					pos += replacew.length();
@@ -206,9 +206,9 @@ namespace _cprintf_
 	  offset via "offset_pos"
 	  denoting the size of the substring that represents an attribute specifier.
 	*/
-	void parse_attribute_specifier(_cprintf_::unicode_string_t const&      src_string,
-		_cprintf_::unicode_string_t::size_type& offset_val,
-		_cprintf_::unicode_string_t::size_type& ssp)
+	void parse_attribute_specifier(unicode_string_t const&      src_string,
+		unicode_string_t::size_type& offset_val,
+		unicode_string_t::size_type& ssp)
 	{
 		std::int32_t offset_counter = 0;
 		wchar_t         c = src_string[ssp]; // first character after occurrance of "$"
@@ -228,12 +228,12 @@ namespace _cprintf_
 				!checked_if_is_txt_frmt_modifier) // if offset does not exceed searched
 												  // string's last character index...
 			{
-				auto f = [&](_cprintf_::unicode_string_t const& s) {
+				auto f = [&](unicode_string_t const& s) {
 					// faster by using backwards iteration (see initialisation of
 					// std_tokens)
-					if (std::find(_cprintf_::std_tokens.rbegin(),
-						_cprintf_::std_tokens.rend(),
-						s) != _cprintf_::std_tokens.rend())
+					if (std::find(std_tokens.rbegin(),
+						std_tokens.rend(),
+						s) != std_tokens.rend())
 					{
 						finished = true;
 						return true;
@@ -306,21 +306,21 @@ namespace _cprintf_
 	}
 
 	/**/
-	_cprintf_::unicode_string_t parse_fstr_for_attrib_specs(
-		_cprintf_::unicode_string_t const&      format_str_,
-		_cprintf_::unicode_string_t::size_type  search_start_pos_,
-		_cprintf_::unicode_string_t::size_type& attrib_end_pos)
+	unicode_string_t parse_fstr_for_attrib_specs(
+		unicode_string_t const&      format_str_,
+		unicode_string_t::size_type  search_start_pos_,
+		unicode_string_t::size_type& attrib_end_pos)
 	{
 		auto ssp = search_start_pos_;
 
 		/*offset from search start position i.e token occurance position in format
 		 * string*/
-		_cprintf_::unicode_string_t::size_type offset_pos = 0;
+		unicode_string_t::size_type offset_pos = 0;
 
 		parse_attribute_specifier(format_str_, offset_pos, ssp);
 
 		/*the parsed attribute(s) string...*/
-		_cprintf_::unicode_string_t attribute_string = format_str_.substr(ssp, offset_pos);
+		unicode_string_t attribute_string = format_str_.substr(ssp, offset_pos);
 
 		if (attribute_string.size() == 0)
 			throw CPF_TOKEN_ERR; // invalid '$' token encountered on parse
@@ -329,17 +329,17 @@ namespace _cprintf_
 		return attribute_string;
 	}
 
-	_cprintf_::format_string_layout_t _cprintf_::process_format_string(
-		const _cprintf_::unicode_string_t& src_format)
+	format_string_layout_t parse_format_string(
+		const unicode_string_t& src_format)
 	{
-		_cprintf_::format_string_layout_t meta;
+		format_string_layout_t meta;
 
 		const std::int32_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS) {
 			std::int32_t             occurrences = 0;
-			_cprintf_::unicode_string_t::size_type start = 0;
+			unicode_string_t::size_type start = 0;
 
-			while ((start = _cprintf_::search_for(L"$", src_format, start)) !=
-				_cprintf_::unicode_string_t::npos)
+			while ((start = search_for(L"$", src_format, start)) !=
+				unicode_string_t::npos)
 			{
 				++occurrences;
 				start++;
@@ -347,14 +347,15 @@ namespace _cprintf_
 			return occurrences;
 		}();
 
-		std::int32_t token_occurance_pos = 0, attrib_endpos_p1 = 0;
+		std::int32_t token_occurance_pos = 0; 
+		std::int32_t attrib_endpos_p1 = 0;
 		bool            first_iter = true;
-		while ((token_occurance_pos = _cprintf_::search_for(
+		while ((token_occurance_pos = search_for(
 			L"$", src_format, attrib_endpos_p1)) != src_format.npos)
 		{
 			if (first_iter && token_occurance_pos != 0)
 			{
-				_cprintf_::unicode_string_vector_t default_attrib{ L"?" };
+				unicode_string_vector_t default_attrib{ L"?" };
 				meta.insert(std::make_pair(
 					0u, std::make_pair(default_attrib,
 						src_format.substr(0u, token_occurance_pos))));
@@ -362,18 +363,18 @@ namespace _cprintf_
 			}
 
 			auto                        tokOccPos_1 = token_occurance_pos + 1;
-			_cprintf_::unicode_string_t::size_type off = 0;
+			unicode_string_t::size_type off = 0;
 			auto                        attibs_str =
 				parse_fstr_for_attrib_specs(src_format, token_occurance_pos + 1, off);
 			attrib_endpos_p1 = tokOccPos_1 + off;
 
 			auto next_prefix_pos =
-				_cprintf_::search_for(L"$", src_format, attrib_endpos_p1);
+				search_for(L"$", src_format, attrib_endpos_p1);
 
 			/*vector to hold attributes that are applied to the (sub) string proceeding
 			the token "$"'s occurance position.*/
-			_cprintf_::unicode_string_vector_t subseq_str_attribs;
-			_cprintf_::unicode_string_t     current_attrib;
+			unicode_string_vector_t subseq_str_attribs;
+			unicode_string_t     current_attrib;
 
 			for (auto c = std::begin(attibs_str); c != std::end(attibs_str); ++c)
 			{
@@ -401,7 +402,7 @@ namespace _cprintf_
 		if (meta.empty())
 		{
 			meta.insert(std::make_pair(
-				0u, std::make_pair(_cprintf_::unicode_string_vector_t({ L"?" }), src_format)));
+				0u, std::make_pair(unicode_string_vector_t({ L"?" }), src_format)));
 		}
 
 		purge_meta_esc_sequences(meta);

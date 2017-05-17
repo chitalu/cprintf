@@ -28,8 +28,8 @@ THE SOFTWARE.
 namespace _cprintf_
 {
 
-	std::int32_t _cprintf_::search_for(const _cprintf_::unicode_string_t& _what,
-		const _cprintf_::unicode_string_t& _where,
+	std::int32_t search_for(const unicode_string_t& _what,
+		const unicode_string_t& _where,
 		const std::int32_t _offset,
 		const char& _esc_char)
 	{

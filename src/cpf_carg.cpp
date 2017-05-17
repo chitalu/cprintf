@@ -3,7 +3,7 @@
 namespace _cprintf_
 {
 
-	CPF_API void _cprintf_::format_specifier_correspondence_check(_cprintf_::unicode_character_string_ptr_t format) {
+	CPF_API void format_specifier_correspondence_check(unicode_character_string_ptr_t format) {
 		for (; *format; ++format) {
 			if (*format != '%' || *++format == '%') {
 				continue;

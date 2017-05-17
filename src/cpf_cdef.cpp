@@ -9,7 +9,7 @@ namespace _cprintf_
 			using macros below is bad enough figuring out what is happening
 			in the code.
 	*/
-	CPF_API const _cprintf_::unicode_string_vector_t _cprintf_::std_tokens = {
+	CPF_API const unicode_string_vector_t std_tokens = {
 		/*
 				dim text colour no background
 		*/
@@ -88,7 +88,7 @@ namespace _cprintf_
 
 	// The macro "REG_COLOUR_VALUES" is used to reduce code repetition. Though this
 	// does hinder readability a little. To understand what this macro expands to
-	// please make note of the fact that "_cprintf_::std_token_vals" is a
+	// please make note of the fact that "std_token_vals" is a
 	// std::map. The [key] is a string lateral for tokens i.e "r" or "bw*" The
 	// [value] represents an OS-specific value used to configure the system terminal
 	// i.e on windows this would be a value like "FOREGROUND_GREEN" and on linux it
@@ -132,8 +132,8 @@ namespace _cprintf_
     L"" L##c L"*w*", ((val_f | CPF_fgi) | CPF_Wbi)                             \
   }
 
-	const std::map<const _cprintf_::unicode_string_t, _cprintf_::system_color_repr_t>
-		_cprintf_::std_token_vals{
+	const std::map<const unicode_string_t, system_color_repr_t>
+		std_token_vals{
 		/*
 				red
 		*/
@@ -217,8 +217,8 @@ namespace _cprintf_
     L"" #c "*w*", L"\x1B[0;9" #i ";107m"                                       \
   }
 
-	extern const std::map<const _cprintf_::unicode_string_t, _cprintf_::system_color_repr_t>
-		_cprintf_::std_token_vals{
+	extern const std::map<const unicode_string_t, system_color_repr_t>
+		std_token_vals{
 
 		/*attributes specifiers*/
 		{ L"bld", L"\x1B[1m" },

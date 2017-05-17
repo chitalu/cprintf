@@ -7,21 +7,21 @@
 namespace _cprintf_
 {
 
-CPF_API void save_stream_state(_cprintf_::file_stream_t ustream);
+CPF_API void save_stream_state(file_stream_t ustream);
 
 // boolean finished_cpf_exec is to indicate whether this is the last call to
 // before cprintf finishes execution to return by default this function executes
 // only if save_stream_state has been previous called (in the current call to
 // cprintf) else it returns immidiately. This behaviour can be overridden via
 // force_restore.
-CPF_API void restore_stream_state(_cprintf_::file_stream_t ustream,
+CPF_API void restore_stream_state(file_stream_t ustream,
                                   bool finished_cpf_exec = false);
 
 // configure system terminal settings
 //        @ustream 	- output stream
 //        @attr - text attribute vector
-CPF_API void configure(_cprintf_::file_stream_t ustream,
-                       const _cprintf_::attribute_group_t &attr);
+CPF_API void configure(file_stream_t ustream,
+                       const attribute_group_t &attr);
 
 }
 

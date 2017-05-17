@@ -10,7 +10,7 @@ namespace _cprintf_
 
 #if CPF_DBG_CONFIG
 
-	CPF_API const _cprintf_::unicode_string_t _cprintf_::debugging_log_format_string =
+	CPF_API const unicode_string_t debugging_log_format_string =
 #ifndef CPF_WINDOWS_BUILD
 		LR"debug_str($cdbg
 $g@file:$c	$g*%S$c
@@ -31,14 +31,14 @@ $g@line:$c	$g*%d$c
 
 #endif // CPF_DBG_CONFIG
 
-	std::mutex _cprintf_::mtx_;
+	std::mutex mtx_;
 
 	// cprintf("Characters:\t%c %%\n", 65);
-	std::int32_t _cprintf_::get_num_arg_specs(const _cprintf_::unicode_string_t& obj)
+	std::int32_t get_num_format_specifiers_in_string(const unicode_string_t& obj)
 	{
 		std::int32_t n = 0u;
 		std::uint32_t   pos = 0u;
-		while ((pos = _cprintf_::search_for(L"%", obj, pos, '%')) < obj.size())
+		while ((pos = search_for(L"%", obj, pos, '%')) < obj.size())
 		{
 			if (pos == obj.size() - 1)
 			{
@@ -72,15 +72,15 @@ $g@line:$c	$g*%d$c
 		return n;
 	}
 
-	_cprintf_::unicode_string_t _cprintf_::write_substring_before_format_specifier(
-		_cprintf_::file_stream_t              file_stream,
-		_cprintf_::unicode_string_t&                printed_string_,
+	unicode_string_t write_substring_before_format_specifier(
+		file_stream_t              file_stream,
+		unicode_string_t&                printed_string_,
 		std::int32_t&                 ssp_,
-		const _cprintf_::attribute_group_t attr)
+		const attribute_group_t attr)
 	{
-		_cprintf_::configure(file_stream, attr);
+		configure(file_stream, attr);
 
-		ssp_ = _cprintf_::search_for(L"%", printed_string_, ssp_, '%');
+		ssp_ = search_for(L"%", printed_string_, ssp_, '%');
 		if (ssp_ != 0)
 		{
 #ifdef CPF_LINUX_BUILD
@@ -108,7 +108,7 @@ $g@line:$c	$g*%d$c
 		/* format specifiers beging with % and end with a space*/
 		auto            space_pos = printed_string_.find(' ', ssp_);
 		std::int32_t offset = 0;
-		for (const auto& bfs : _cprintf_::std_fmt_specs)
+		for (const auto& bfs : std_fmt_specs)
 		{
 			if (printed_string_[ssp_ + 1] == bfs)
 			{
@@ -119,9 +119,9 @@ $g@line:$c	$g*%d$c
 
 		if (offset == 0)
 		{
-			_cprintf_::unicode_string_t specifier;
+			unicode_string_t specifier;
 			bool             parsed_complete_f_spec = false;
-			for (const auto& xfst : _cprintf_::ext_fmtspec_terms)
+			for (const auto& xfst : ext_fmtspec_terms)
 			{
 				auto ps = printed_string_.substr(ssp_ + 1);
 
@@ -130,12 +130,12 @@ $g@line:$c	$g*%d$c
 				{
 					auto crnt_char = ps[i];
 					if (isalnum(crnt_char) ||
-						is_in(crnt_char, _cprintf_::inter_fmt_specs) || crnt_char == xfst)
+						is_in(crnt_char, inter_fmt_specs) || crnt_char == xfst)
 					{
 						specifier.append({ crnt_char });
 
 						if (crnt_char == xfst ||
-							is_in(crnt_char, _cprintf_::ext_fmtspec_terms))
+							is_in(crnt_char, ext_fmtspec_terms))
 						{
 							parsed_complete_f_spec = true;
 							break;
@@ -148,7 +148,7 @@ $g@line:$c	$g*%d$c
 
 					// last iteration
 					if (i == (_max - 1) &&
-						!is_in(crnt_char, _cprintf_::ext_fmtspec_terms))
+						!is_in(crnt_char, ext_fmtspec_terms))
 					{
 						throw CPF_FSPEC_ERR; // invalid format specifier
 					}
@@ -169,18 +169,18 @@ $g@line:$c	$g*%d$c
 		return fstr;
 	}
 
-	void _cprintf_::write_substring_after_format_specifier(
-		_cprintf_::file_stream_t                          file_stream,
-		_cprintf_::unicode_string_t&                            printed_string_,
+	void write_substring_after_format_specifier(
+		file_stream_t                          file_stream,
+		unicode_string_t&                            printed_string_,
 		std::int32_t&                             ssp_,
 		bool&                                        more_args_on_iter,
-		_cprintf_::format_string_layout_t::const_iterator&       meta_iter,
-		const _cprintf_::format_string_layout_t::const_iterator& end_point_comparator)
+		format_string_layout_t::const_iterator&       format_string_layout_iterator,
+		const format_string_layout_t::const_iterator& end_point_comparator)
 	{
 		printed_string_ = printed_string_.substr(ssp_);
 		ssp_ = 0;
 
-		more_args_on_iter = _cprintf_::get_num_arg_specs(printed_string_) > 0;
+		more_args_on_iter = get_num_format_specifiers_in_string(printed_string_) > 0;
 		if (!more_args_on_iter)
 		{
 			if (!printed_string_.empty())
@@ -196,17 +196,17 @@ $g@line:$c	$g*%d$c
 #endif
 				printed_string_.clear();
 			}
-			std::advance(meta_iter, 1);
+			std::advance(format_string_layout_iterator, 1);
 		}
 	}
 
-	void _cprintf_::write_substring_without_format_specifier(
-		_cprintf_::file_stream_t                    file_stream,
-		_cprintf_::unicode_string_t&                      printed_string_,
+	void write_substring_without_format_specifier(
+		file_stream_t                    file_stream,
+		unicode_string_t&                      printed_string_,
 		std::int32_t&                       ssp_,
-		_cprintf_::format_string_layout_t::const_iterator& meta_iter)
+		format_string_layout_t::const_iterator& format_string_layout_iterator)
 	{
-		_cprintf_::configure(file_stream, meta_iter->second.first);
+		configure(file_stream, format_string_layout_iterator->second.first);
 
 		ssp_ = 0;
 
@@ -218,52 +218,60 @@ $g@line:$c	$g*%d$c
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
-		std::advance(meta_iter, 1);
+		std::advance(format_string_layout_iterator, 1);
 
-		while (_cprintf_::get_num_arg_specs(meta_iter->second.second) == 0)
+		while (get_num_format_specifiers_in_string(format_string_layout_iterator->second.second) == 0)
 		{
-			_cprintf_::configure(file_stream, meta_iter->second.first);
+			configure(file_stream, format_string_layout_iterator->second.first);
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
-			fwprintf(file_stream, meta_iter->second.second.c_str());
+			fwprintf(file_stream, format_string_layout_iterator->second.second.c_str());
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
-			std::advance(meta_iter, 1);
+			std::advance(format_string_layout_iterator, 1);
 		}
 	}
 
-	/*
-			in the case of possible future issues, it may be desirable to use
-			std::codecvt_utf8_utf16<wchar_t> instead of std::codecvt_utf8<wchar_t>
-
-			perhaps it could even be possible to add a printf function variant that
-			can be instantiated with either
-	*/
-
-	_cprintf_::unicode_string_t _cprintf_::wconv(_cprintf_::ascii_string_t&& src)
+	unicode_string_t ascii_to_unicode_string_conversion(ascii_string_t&& mbstr)
 	{
-#ifdef CPF_LINUX_BUILD
-		return _cprintf_::unicode_string_t(); // skip
-#else
-		std::wstring_convert<std::codecvt_utf8<wchar_t> > converter;
-		return converter.from_bytes(src);
-#endif
+		/*
+		The mbstate_t is a trivial non-array type that can represent any of the
+		conversion states that can occur in an implementation-defined set of supported
+		multibyte character encoding rules. Zero-initialized value of mbstate_t
+		represents the initial conversion state, although other values of mbstate_t may
+		exist that also represent the initial conversion state.
+		Possible implementation of mbstate_t is a struct type holding an array
+		representing the incomplete multibyte character, an integer counter indicating
+		the number of bytes in the array that have been processed, and a representation
+		of the current shift state. type mbstate_t is a trivial non-array type that can
+		represent any of the conversion states that can occur in an
+		implementation-defined set of supported multibyte character encoding rules.
+		Zero-initialized value of mbstate_t represents the initial conversion state,
+		although other values of mbstate_t may exist that also represent the initial
+		conversion state.
+		*/
+		std::mbstate_t state = std::mbstate_t();
+		const char* _mbstr = &mbstr[0];
+		// Converts a null-terminated multibyte character sequence, which begins in
+		// the conversion state
+		std::int32_t len = 1 + std::mbsrtowcs(NULL, &_mbstr, 0, &state);
+		unicode_string_t wstr(len, 0);
+		std::mbsrtowcs(&wstr[0], &_mbstr, wstr.size(), &state);
+		return wstr;
 	}
 
-	_cprintf_::unicode_string_t _cprintf_::wconv(_cprintf_::unicode_string_t&& src)
+	unicode_string_t ascii_to_unicode_string_conversion(unicode_string_t&& src)
 	{
 		return std::move(src);
 	}
 
 	// printing strings with lower case 's' as format specifier leads
 	// to undefined behaviour when using wide character strings .
-	_cprintf_::unicode_string_t _cprintf_::resolve_str_frmt_spec(const _cprintf_::unicode_string_t& fs)
+	unicode_string_t resolve_string_type_format_specifier(const unicode_string_t& fs)
 	{
-		using namespace _cprintf_;
-
 		unicode_string_t f = fs;
 		// seems like msvc does not conform to wide character
 		// format specifier rules
@@ -282,100 +290,94 @@ $g@line:$c	$g*%d$c
 	}
 
 	template <>
-	void _cprintf_::write_variadic_argument_to_file_stream<_cprintf_::unicode_string_t>(
-		_cprintf_::file_stream_t     file_stream,
-		_cprintf_::unicode_string_t const& format,
-		_cprintf_::unicode_string_t&&      arg)
+	void write_variadic_argument_to_file_stream<unicode_string_t>(
+		file_stream_t     file_stream,
+		unicode_string_t const& format,
+		unicode_string_t&&      arg)
 	{
-		using namespace _cprintf_;
 		write_variadic_argument_to_file_stream(file_stream, format,
 			std::forward<const wchar_t*>(arg.c_str()));
 	}
 
 	template <>
-	void _cprintf_::write_variadic_argument_to_file_stream<_cprintf_::ascii_string_t>(
-		_cprintf_::file_stream_t     file_stream,
-		_cprintf_::unicode_string_t const& format,
-		_cprintf_::ascii_string_t&&     arg)
+	void write_variadic_argument_to_file_stream<ascii_string_t>(
+		file_stream_t     file_stream,
+		unicode_string_t const& format,
+		ascii_string_t&&     arg)
 	{
-		using namespace _cprintf_;
-		write_variadic_argument_to_file_stream<_cprintf_::unicode_string_t>(
-			file_stream, format, std::forward<_cprintf_::unicode_string_t>(_cprintf_::wconv(
-				std::forward<_cprintf_::ascii_string_t>(arg))));
+		write_variadic_argument_to_file_stream<unicode_string_t>(
+			file_stream, format, std::forward<unicode_string_t>(ascii_to_unicode_string_conversion(
+				std::forward<ascii_string_t>(arg))));
 	}
 
 	template <>
-	void _cprintf_::write_variadic_argument_to_file_stream<char*>(
-		_cprintf_::file_stream_t file_stream, _cprintf_::unicode_string_t const& format, char*&& arg)
+	void write_variadic_argument_to_file_stream<char*>(
+		file_stream_t file_stream, unicode_string_t const& format, char*&& arg)
 	{
-		using namespace _cprintf_;
-		write_variadic_argument_to_file_stream<_cprintf_::unicode_string_t>(
-			file_stream, format, std::forward<_cprintf_::unicode_string_t>(
-				_cprintf_::wconv(std::forward<char*>(arg))));
+		write_variadic_argument_to_file_stream<unicode_string_t>(
+			file_stream, format, std::forward<unicode_string_t>(
+				ascii_to_unicode_string_conversion(std::forward<char*>(arg))));
 	}
 
 	template <>
-	void _cprintf_::write_variadic_argument_to_file_stream<const char*>(
-		_cprintf_::file_stream_t     file_stream,
-		_cprintf_::unicode_string_t const& format,
+	void write_variadic_argument_to_file_stream<const char*>(
+		file_stream_t     file_stream,
+		unicode_string_t const& format,
 		const char*&&           arg)
 	{
-		using namespace _cprintf_;
-		write_variadic_argument_to_file_stream<_cprintf_::unicode_string_t>(
-			file_stream, format, std::forward<_cprintf_::unicode_string_t>(
-				_cprintf_::wconv(std::forward<const char*>(arg))));
+		write_variadic_argument_to_file_stream<unicode_string_t>(
+			file_stream, format, std::forward<unicode_string_t>(
+				ascii_to_unicode_string_conversion(std::forward<const char*>(arg))));
 	}
 
 	template <>
-	void _cprintf_::write_variadic_argument_to_file_stream<signed char*>(
-		_cprintf_::file_stream_t     file_stream,
-		_cprintf_::unicode_string_t const& format,
+	void write_variadic_argument_to_file_stream<signed char*>(
+		file_stream_t     file_stream,
+		unicode_string_t const& format,
 		signed char*&&          arg)
 	{
-		using namespace _cprintf_;
-		write_variadic_argument_to_file_stream<_cprintf_::unicode_string_t>(
-			file_stream, format, std::forward<_cprintf_::unicode_string_t>(
-				_cprintf_::wconv(reinterpret_cast<char*>(arg))));
+		write_variadic_argument_to_file_stream<unicode_string_t>(
+			file_stream, format, std::forward<unicode_string_t>(
+				ascii_to_unicode_string_conversion(reinterpret_cast<char*>(arg))));
 	}
 
 	template <>
-	void _cprintf_::write_variadic_argument_to_file_stream<const signed char*>(
-		_cprintf_::file_stream_t     file_stream,
-		_cprintf_::unicode_string_t const& format,
+	void write_variadic_argument_to_file_stream<const signed char*>(
+		file_stream_t     file_stream,
+		unicode_string_t const& format,
 		const signed char*&&    arg)
 	{
-		using namespace _cprintf_;
-		write_variadic_argument_to_file_stream<_cprintf_::unicode_string_t>(
-			file_stream, format, std::forward<_cprintf_::unicode_string_t>(_cprintf_::wconv(
+		write_variadic_argument_to_file_stream<unicode_string_t>(
+			file_stream, format, std::forward<unicode_string_t>(ascii_to_unicode_string_conversion(
 				reinterpret_cast<const char*>(arg))));
 	}
 
-	CPF_API void _cprintf_::update_file_stream(
-		_cprintf_::file_stream_t                          file_stream,
-		const _cprintf_::format_string_layout_t::const_iterator& end_point_comparator,
-		_cprintf_::format_string_layout_t::const_iterator&       meta_iter,
-		const _cprintf_::unicode_string_t                       printed_string = L"",
+	CPF_API void print_format_string_layout(
+		file_stream_t                          file_stream,
+		const format_string_layout_t::const_iterator& end_point_comparator,
+		format_string_layout_t::const_iterator&       format_string_layout_iterator,
+		const unicode_string_t                       printed_string = L"",
 		const std::int32_t                        search_start_pos = 0)
 	{
-		while (meta_iter != end_point_comparator)
+		while (format_string_layout_iterator != end_point_comparator)
 		{
-			_cprintf_::configure(file_stream, meta_iter->second.first);
+			configure(file_stream, format_string_layout_iterator->second.first);
 
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif
 
-			fwprintf(file_stream, meta_iter->second.second.c_str());
+			fwprintf(file_stream, format_string_layout_iterator->second.second.c_str());
 
 #ifdef CPF_LINUX_BUILD
 #pragma GCC diagnostic pop
 #endif
-			std::advance(meta_iter, 1);
+			std::advance(format_string_layout_iterator, 1);
 		}
 
 		/*restore defaults*/
-		_cprintf_::configure(file_stream, _cprintf_::unicode_string_vector_t({ L"?" }));
+		configure(file_stream, unicode_string_vector_t({ L"?" }));
 	}
 
 }

@@ -5,41 +5,18 @@
 #   cprintf_output_dir - the directory in which the built binary resides.
 #   cprintf_incl_dir - project's include directory
 #
-#   CPF_BUILD_FLAGS: 
-#   [string] variable used to specify more compiler flags than their is defaults
-#
 #   CPF_BUILD_AS_SHARED_LIB: 
 #   [option] that enables project to be built as a shared library file (default 
 #   is static)    
 #   
 #   CPF_BUILD_SAMPLES:
 #   [option] to build cprintf sample use-cases (default is OFF)
-#
-#   CPF_BUILD_TESTS:
-#   [option] to build tests projects (also builds a gtest project)
-#
-#   CPF_CLANG_BUILD (linux only):
-#   [option] to build cprintf with clang instead of default GCC
-#   you probably want to set the following environment varibles prior to invoking
-#   cmake:
-#   export CC=/usr/bin/clang
-#   export CXX=/usr/bin/clang++
-#
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-#
-#   project
-#
-PROJECT (cprintf++)
+PROJECT (cprintf)
 
 MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
-
-SET (cprintf_MAJOR 0)
-SET (cprintf_MINOR 1)
-SET (cprintf_PATCH 0)
-
-# SET (cprintf_VERSION "${cprintf_MAJOR}.${cprintf_MINOR}.${cprintf_PATCH}")
 
 #
 #   default is to build as static library (.lib / .a)
@@ -53,16 +30,6 @@ OPTION (CPF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
 OPTION (CPF_BUILD_SAMPLES "build sample projects" OFF)
 
 #
-#   option to build test project
-#
-OPTION (CPF_BUILD_TESTS "build tests" OFF )
-
-#
-#   option to use clang instead of default GCC on linux
-#
-OPTION (CPF_CLANG_BUILD "build with clang compiler" OFF )
-
-#
 #   TODO
 #
 OPTION (CPF_BUILD_C_API "build c api for python bindings project" OFF)
@@ -72,49 +39,27 @@ IF (CPF_BUILD_AS_SHARED_LIB)
 ENDIF()
 
 #
-# additional compiler flags
-#
-SET (CPF_BUILD_FLAGS    "")
-
-#
-# set compiler flags (note: strictly no warnings)
+# set compiler flags
 #
 IF(WIN32)
+
     SET (CMAKE_CXX_FLAGS    "/WX /EHsc")
-    
     LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
+
 ELSEIF(UNIX)
 
     IF(CPF_BUILD_AS_SHARED_LIB)
+
         SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -fPIC")
+
     ENDIF()
 
-    SET (CMAKE_C_FLAGS                "-Werror -std=c99")
-    SET (CMAKE_C_FLAGS_DEBUG          "-g")
-    SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
-    SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
-
-    #
-    # "-pthread" is necessary for gtest to build
-    #
-    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror -pthread")    
+    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror")    
     SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
     SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
     SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
-    #
-    #   not yet properly setup
-    #
-    IF(CPF_CLANG_BUILD)
-        SET (CMAKE_C_COMPILER   "/usr/bin/clang") 
-        SET (CMAKE_CXX_COMPILER "/usr/bin/clang++")
-
-        IF(NOT EXISTS ${CMAKE_CXX_COMPILER})
-            MESSAGE(FATAL_ERROR "cprintf build configuration failure: clang not found.")
-        ENDIF()
-    ENDIF(CPF_CLANG_BUILD)
 ENDIF()
 
 #
@@ -133,9 +78,6 @@ FILE(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 INCLUDE_DIRECTORIES(${cprintf_incl_dir})
 INCLUDE_DIRECTORIES("incl/${PROJECT_NAME}/internal")
 
-#
-#   add library where type is determined by user option
-#
 IF(CPF_BUILD_AS_SHARED_LIB)
     SET(CPF_LIB_TYPE SHARED)
 ELSE(CPF_BUILD_AS_SHARED_LIB)
@@ -191,30 +133,8 @@ IF(CPF_BUILD_SAMPLES)
 
 ENDIF(CPF_BUILD_SAMPLES)
 
-IF(CPF_BUILD_TESTS)
-
-    ADD_SUBDIRECTORY(test)
-
-    FILE( GLOB test_proj_files "${CMAKE_CURRENT_SOURCE_DIR}/test/src/*")
-    ADD_EXECUTABLE(cpf_test ${test_proj_files})
-
-    SET(cpf_test_includes ${gtest_incl_dir} ${cprintf_incl_dir})
-    SET_TARGET_PROPERTIES(  cpf_test PROPERTIES
-                            INCLUDE_DIRECTORIES "${cpf_test_includes}"
-                            COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}")
-
-    TARGET_LINK_LIBRARIES( cpf_test cprintf gtest)
-
-    IF(CPF_BUILD_AS_SHARED)
-        ADD_CUSTOM_COMMAND( TARGET cpf_test PRE_BUILD
-                            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                            ${cprintf_path} $<TARGET_FILE_DIR:cpf_test>)
-    ENDIF(CPF_BUILD_AS_SHARED)
-
-ENDIF(CPF_BUILD_TESTS)
-
 IF(CPF_BUILD_C_API)
-        ADD_SUBDIRECTORY(python)
+    ADD_SUBDIRECTORY(python)
 ENDIF(CPF_BUILD_C_API)
 
 MESSAGE(STATUS "${PROJECT_NAME} setup done!")

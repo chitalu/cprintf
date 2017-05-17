@@ -14,7 +14,7 @@ namespace _cprintf_
         verifies that the format string contains arguments which
         match the given % sequence(s) in the correct order.
         note that this is only able to test those format specifiers
-        found in "_cprintf_::std_fmt_specs".
+        found in "std_fmt_specs".
 
         We perform runtime checks on the validity of arguments when compared to
         their corresonding format specifiers.
@@ -62,7 +62,7 @@ void format_specifier_correspondence_check(unicode_character_string_ptr_t format
 		case 's':
 		case 'S':
 		{
-			if (!_cprintf_::is_valid_string_type_<T>::value)
+			if (!is_valid_string_type_<T>::value)
 			{
 				throw CPF_ARG_ERR; // expected a value of type[c - string, std::string
 				                   // or std::wstring]

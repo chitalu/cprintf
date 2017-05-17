@@ -68,8 +68,8 @@ CPF_API const std::initializer_list<wchar_t> escape_characters;
         The second element of [value] is a substring of the source format
    string.
         */
-CPF_API _cprintf_::format_string_layout_t
-process_format_string(const unicode_string_t &format_string);
+CPF_API format_string_layout_t
+parse_format_string(const unicode_string_t &format_string);
 }
 
 

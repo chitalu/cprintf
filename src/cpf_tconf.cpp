@@ -22,14 +22,14 @@ namespace _cprintf_
 {
 
 
-	_cprintf_::attribute_group_t crnt_txt_attribs;
+	attribute_group_t crnt_txt_attribs;
 	static bool                glob_terminal_state_restored = true;
 
 #ifdef _WIN32
-	static _cprintf_::system_color_repr_t saved_terminal_colour;
+	static system_color_repr_t saved_terminal_colour;
 #endif
 
-	void _cprintf_::save_stream_state(_cprintf_::file_stream_t user_stream)
+	void save_stream_state(file_stream_t user_stream)
 	{
 #ifdef _WIN32
 		CONSOLE_SCREEN_BUFFER_INFO cbsi;
@@ -47,7 +47,7 @@ namespace _cprintf_
 		glob_terminal_state_restored = false;
 	}
 
-	void _cprintf_::restore_stream_state(_cprintf_::file_stream_t user_stream,
+	void restore_stream_state(file_stream_t user_stream,
 		bool                finished_cpf_exec)
 	{
 		if (!glob_terminal_state_restored)
@@ -76,7 +76,7 @@ namespace _cprintf_
 			std::fflush(user_stream);
 	}
 
-	bool is_fstream(_cprintf_::file_stream_t user_stream)
+	bool is_fstream(file_stream_t user_stream)
 	{
 		bool is_fstream = true;
 		for (auto s : { stdout, stderr })
@@ -91,7 +91,7 @@ namespace _cprintf_
 	}
 
 	// i.e 32f or 200b
-	bool is_bitmap_colour_token(const _cprintf_::unicode_string_t& attrib)
+	bool is_bitmap_colour_token(const unicode_string_t& attrib)
 	{
 		for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
 		{
@@ -104,7 +104,7 @@ namespace _cprintf_
 		return false;
 	}
 
-	bool is_cursor_pos_attrib(const _cprintf_::unicode_string_t& attrib)
+	bool is_cursor_pos_attrib(const unicode_string_t& attrib)
 	{
 		auto asize = attrib.size();
 		auto num_commas = std::count(attrib.begin(), attrib.end(), ',');
@@ -127,10 +127,10 @@ namespace _cprintf_
 		return value;
 	}
 
-	_cprintf_::system_color_repr_t get_token_value(const _cprintf_::unicode_string_t& colour_key)
+	system_color_repr_t get_token_value(const unicode_string_t& colour_key)
 	{
-		auto terminal_value = _cprintf_::std_token_vals.find(colour_key);
-		if (terminal_value == _cprintf_::std_token_vals.end())
+		auto terminal_value = std_token_vals.find(colour_key);
+		if (terminal_value == std_token_vals.end())
 		{
 			throw CPF_TOKEN_ERR; // invalid token
 		}
@@ -138,8 +138,8 @@ namespace _cprintf_
 	}
 
 #ifdef CPF_LINUX_BUILD
-	_cprintf_::unicode_string_t get_terminal_bitmap_colour_value(
-		const _cprintf_::unicode_string_t& attrib_token)
+	unicode_string_t get_terminal_bitmap_colour_value(
+		const unicode_string_t& attrib_token)
 	{
 		auto    at_size = attrib_token.size();
 		wchar_t lst_char = attrib_token[at_size - 1];
@@ -151,7 +151,7 @@ namespace _cprintf_
 			(int_repr > 256 || int_repr < 0))
 			throw CPF_TOKEN_ERR; // invalid attribute token
 
-		_cprintf_::unicode_string_t colour_str;
+		unicode_string_t colour_str;
 
 		if (lst_char == 'f') // foreground
 		{
@@ -171,8 +171,8 @@ namespace _cprintf_
 	}
 #endif
 
-	void set_cursor_position(_cprintf_::file_stream_t     user_stream,
-		const _cprintf_::unicode_string_t& attrib_str)
+	void set_cursor_position(file_stream_t     user_stream,
+		const unicode_string_t& attrib_str)
 	{
 		auto comma_pos = attrib_str.find(',');
 		auto horizontal_pos_str = attrib_str.substr(0, comma_pos);
@@ -198,8 +198,8 @@ namespace _cprintf_
 #endif
 	}
 
-	void clear_terminal(_cprintf_::file_stream_t     user_stream,
-		const _cprintf_::unicode_string_t& attrib)
+	void clear_terminal(file_stream_t     user_stream,
+		const unicode_string_t& attrib)
 	{
 #ifdef _WIN32
 		auto  user_stream_ = user_stream == stdout ? stdout_handle : stderr_handle;
@@ -239,8 +239,8 @@ namespace _cprintf_
 #endif
 	}
 
-	void config_text_attribute(_cprintf_::file_stream_t      user_stream,
-		const _cprintf_::system_color_repr_t& user_colour,
+	void config_text_attribute(file_stream_t      user_stream,
+		const system_color_repr_t& user_colour,
 		std::uint8_t             col_config_type = 255)
 	{
 #ifdef _WIN32
@@ -297,9 +297,9 @@ namespace _cprintf_
 #endif
 	}
 
-	CPF_API void _cprintf_::configure(
-		_cprintf_::file_stream_t               user_stream,
-		const _cprintf_::attribute_group_t& attribute_group)
+	CPF_API void configure(
+		file_stream_t               user_stream,
+		const attribute_group_t& attribute_group)
 	{
 		if (is_fstream(user_stream))
 		{
@@ -325,7 +325,7 @@ namespace _cprintf_
 				}
 				else if (tok == L"?") /*restore colour to system default*/
 				{
-					_cprintf_::restore_stream_state(user_stream);
+					restore_stream_state(user_stream);
 				}
 				else /*set colour attribute(s)*/
 				{
@@ -360,11 +360,11 @@ namespace _cprintf_
 						throw CPF_TOKEN_ERR; // invalid token
 					}
 
-					const _cprintf_::system_color_repr_t colour_value = get_token_value(tok);
+					const system_color_repr_t colour_value = get_token_value(tok);
 					config_text_attribute(user_stream, colour_value, config_type);
 
 #else
-					_cprintf_::unicode_string_t control_sequence;
+					unicode_string_t control_sequence;
 					if (is_bmct)
 					{
 						control_sequence = get_terminal_bitmap_colour_value(tok);

@@ -70,12 +70,12 @@ namespace _cprintf_
         the full standard/ cross platform set of colour tokens
         that may be used to modify text appearance
 */
-CPF_API const _cprintf_::unicode_string_vector_t std_tokens;
+CPF_API const unicode_string_vector_t std_tokens;
 
 /*
         tokens available on both windows and linux
 */
-CPF_API const _cprintf_::token_value_storage_t std_token_vals;
+CPF_API const token_value_storage_t std_token_vals;
 
 }
 

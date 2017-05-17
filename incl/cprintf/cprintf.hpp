@@ -9,7 +9,7 @@
 #endif
 
 template <typename FormatType, typename... ArgumentTypes>
-std::int32_t cprintf(_cprintf_::file_stream_t stream,
+inline int cprintf(decltype(stdout) file_stream,
             FormatType          format,
             ArgumentTypes... arguments)
 {
@@ -18,16 +18,14 @@ std::int32_t cprintf(_cprintf_::file_stream_t stream,
 	              "Error: Invalid format string type.");
 	verify_args_<ArgumentTypes...> verify_args;
 
-	std::lock_guard<std::mutex> lock(cpf::mtx_);
-
-	const int error_code = dispatch(stream, std::forward<FormatType>(format),
+	const int error_code = dispatch(file_stream, std::forward<FormatType>(format),
 	                          std::forward<ArgumentTypes>(arguments)...);
 
 	return error_code;
 }
 
 template <typename FormatType, typename... ArgumentTypes>
-std::int32_t cprintf(FormatType format, ArgumentTypes... arguments)
+inline int cprintf(FormatType format, ArgumentTypes... arguments)
 {
 	return cprintf(stdout, std::forward<FormatType>(format),
 	               std::forward<ArgumentTypes>(arguments)...);
