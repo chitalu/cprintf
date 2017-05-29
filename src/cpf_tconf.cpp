@@ -114,13 +114,13 @@ namespace _cprintf_
 		if (value)
 		{
 			if (num_commas != 1)
-				throw CPF_TOKEN_ERR; // invalid cursor position specifier
+				throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid cursor position specifier
 
 			for (auto c = std::begin(attrib); c != std::end(attrib); ++c)
 			{
 				// if any value in the attribute is not a digit and its not a comma
 				if (!isdigit(*c) && *c != ',')
-					throw CPF_TOKEN_ERR; // invalid character in cursor position specifier
+					throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid character in cursor position specifier
 			}
 		}
 
@@ -132,7 +132,7 @@ namespace _cprintf_
 		auto terminal_value = std_token_vals.find(colour_key);
 		if (terminal_value == std_token_vals.end())
 		{
-			throw CPF_TOKEN_ERR; // invalid token
+			throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid token
 		}
 		return terminal_value->second;
 	}
@@ -149,7 +149,7 @@ namespace _cprintf_
 
 		if ((lst_char != 'f' && lst_char != 'b' && lst_char != '&') || at_size == 1 ||
 			(int_repr > 256 || int_repr < 0))
-			throw CPF_TOKEN_ERR; // invalid attribute token
+			throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid attribute token
 
 		unicode_string_t colour_str;
 
@@ -334,7 +334,7 @@ namespace _cprintf_
 					if (is_bmct)
 					{
 						// because windows does not support that.
-						throw CPF_TOKEN_ERR; // invalid token
+						throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid token
 					}
 
 					std::uint8_t config_type;
@@ -357,7 +357,7 @@ namespace _cprintf_
 					}
 					else
 					{
-						throw CPF_TOKEN_ERR; // invalid token
+						throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid token
 					}
 
 					const system_color_repr_t colour_value = get_token_value(tok);

@@ -54,7 +54,6 @@
 #endif /*#ifdef CPF_WINDOWS_BUILD*/
 
 #include <algorithm>
-#include <stdexcept>
 
 #define CPF_ESC_CHAR ('`')
 
@@ -69,13 +68,13 @@
 */
 
 // no error
-#define CPF_NO_ERR (0)
+#define CPF_SUCCESS (0)
 
 // invalid token(s) encountered in format string
-#define CPF_TOKEN_ERR (-1)
+#define CPF_FORMAT_STRING_TOKEN_ERROR (-1)
 
 // invalid format specifier(s) in format string
-#define CPF_FSPEC_ERR (-2)
+#define CPF_FORMAT_SPECIFIER_ERROR (-2)
 
 // mismatch between a format specifier and its corresponding argument
 #define CPF_ARG_ERR (-3)

@@ -43,7 +43,7 @@ $g@line:$c	$g*%d$c
 			if (pos == obj.size() - 1)
 			{
 				/*this would imply the following: cprintf("foo bar %");*/
-				throw CPF_FSPEC_ERR; // invalid format specifier('%') position.
+				throw CPF_FORMAT_SPECIFIER_ERROR; // invalid format specifier('%') position.
 			}
 			std::int32_t n_ = n;
 
@@ -143,14 +143,14 @@ $g@line:$c	$g*%d$c
 					}
 					else
 					{
-						throw CPF_FSPEC_ERR; // invalid format specifier detail
+						throw CPF_FORMAT_SPECIFIER_ERROR; // invalid format specifier detail
 					}
 
 					// last iteration
 					if (i == (_max - 1) &&
 						!is_in(crnt_char, ext_fmtspec_terms))
 					{
-						throw CPF_FSPEC_ERR; // invalid format specifier
+						throw CPF_FORMAT_SPECIFIER_ERROR; // invalid format specifier
 					}
 				}
 				if (parsed_complete_f_spec)

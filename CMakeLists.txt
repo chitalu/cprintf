@@ -90,12 +90,6 @@ SET_TARGET_PROPERTIES(  ${PROJECT_NAME} PROPERTIES
                         COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
                         COMPILE_FLAGS "${CPF_BUILD_FLAGS}") 
 
-#
-#   caching need for use in gtest cmake file
-#
-SET(CPF_BUILD_FLAGS ${CPF_BUILD_FLAGS} CACHE STRING "adopt same compiler flags.")
-SET(CPF_PREPROC_DEFS ${CPF_PREPROC_DEFS} CACHE STRING "adopt same preproc defs.")
-
 IF(CPF_BUILD_SAMPLES)
 
     MACRO(SUBDIRLIST result curdir)

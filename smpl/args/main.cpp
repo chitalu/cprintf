@@ -6,17 +6,37 @@
 #include <cinttypes>
 
 int main(void) {
-  // see: http://www.cplusplus.com/reference/cstdio/printf/
-  cprintf("Characters: %c %c \n", 'a', 65);
-  cprintf("Decimals: %d %ld\n", 1977, 650000L);
-  cprintf("Preceding with blanks: %10d \n", 1977);
-  cprintf("Preceding with zeros: %010d \n", 1977);
-  cprintf("Some different radices: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
-  cprintf("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
-  cprintf("%s \n", "A string");
-  cprintf("%-5s\n", "ab");
 
-  // see: http://en.cppreference.com/w/cpp/io/c/fprintf
+  /* 
+	ref: http://www.cplusplus.com/reference/cstdio/printf/
+  */
+  cprintf("Characters: %c %c \n", 'a', 65);
+  cprintf("Characters: /R%c %c \n", 'a', 65);
+
+  cprintf("Decimals: %d %ld\n", 1977, 650000L);
+  cprintf("$GDecimals$?: %d %ld\n", 1977, 650000L);
+
+  cprintf("Preceding with blanks: %10d \n", 1977);
+  cprintf("$BPreceding with blanks: %10d \n", 1977);
+
+  cprintf("\nPreceding with zeros: %010d \n", 1977);
+  cprintf("Preceding with zeros: $Y%010d \n", 1977);
+
+  cprintf("Some different radices: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
+  cprintf("Some different radices: %d %x %o $M%#x$W %#o \n", 100, 100, 100, 100, 100);
+
+  cprintf("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
+  cprintf("floats: %4.2f $C%+.0e$? %E \n", 3.1416, 3.1416, 3.1416);
+
+  cprintf("%s \n", "A string");
+  cprintf("$W%s \n", "A string");
+
+  cprintf("%-5s\n", "ab");
+  cprintf("$r%-5s\n", "ab");
+
+  /* 
+	ref: http://en.cppreference.com/w/cpp/io/c/fprintf
+  */
   cprintf("String: %s", "foo");
   cprintf("Strings:\n");
 
@@ -40,14 +60,11 @@ int main(void) {
   cprintf("Largest 32-bit value is %" PRIu32 " or %#" PRIx32 "\n", val, val);
 
   /*
-          The following signatures are not supported:
+          The following are not supported:
 
           cprintf("\t.%10s.\n\t.%-10s.\n\t.%*s.\n", s, s, 10, s);
           cprintf("Special values:\t0/0=%g 1/0=%g\n", 0. / 0, 1. / 0);
           cprintf("right-justified variable width: '%*c'\n", 5, 'x');
-
-          int r = cprintf("left-justified variable width : '%*c'\n", -5, 'x');
-          cprintf("(the last printf printed %d characters)\n", r);
   */
 
   return 0;

@@ -153,6 +153,7 @@ void print_format_string_layout(file_stream_t               file_stream,
 	ArgType0&&                              arg0,
 	RemainingArgTypes&&... args)
 {
+	unicode_string_t printed_string_ = printed_string;
 	// printed string argument-specifier ('%') count
 	const auto pstr_argc = get_num_format_specifiers_in_string(printed_string);
 
@@ -194,7 +195,7 @@ void print_format_string_layout(file_stream_t               file_stream,
 		print_format_string_layout(
 		  file_stream, end_point_comparator, format_string_layout_iterator,
 		  (!more_args_on_iter && !iter_reached_end) ? i_raw_str : printed_string_,
-		  more_args_on_iter, std::forward<Ts>(args)...);
+		  more_args_on_iter, std::forward<RemainingArgTypes>(args)...);
 	}
 	else
 	{
@@ -208,11 +209,17 @@ void print_format_string_layout(file_stream_t               file_stream,
 template <typename FormatType, typename... ArgumentTypes>
 int dispatch(file_stream_t file_stream, FormatType&& raw_format, ArgumentTypes&&... args)
 {
+	using namespace _cprintf_;
+
+	static_assert(is_valid_string_type_<FormatType>::value, "invalid format string type");
+
+	_cprintf_::verify_args_<ArgumentTypes...> _;
+
 	unicode_string_t format;
 
 	try
 	{
-		format = ascii_to_unicode_string_conversion(std::forward<T0>(raw_format));
+		format = ascii_to_unicode_string_conversion(std::forward<FormatType>(raw_format));
 	}
 	catch (...)
 	{
@@ -220,13 +227,13 @@ int dispatch(file_stream_t file_stream, FormatType&& raw_format, ArgumentTypes&&
 		return CPF_NWCONV_ERR;
 	}
 
-	int error_code = CPF_NO_ERR;
+	int error_code = CPF_SUCCESS;
 
 	try
 	{
 
 #if CPF_DBG_CONFIG
-		format_specifier_correspondence_check( std::forward<const wchar_t*>(format.c_str()), std::forward<Ts>(args)...);
+		format_specifier_correspondence_check( std::forward<unicode_character_string_ptr_t>(format.c_str()), std::forward<ArgumentTypes>(args)...);
 #endif
 
 		save_stream_state(file_stream);

@@ -27,51 +27,93 @@ namespace _cprintf_
 	  cprintf("$r`red");
 	*/
 
-	const std::initializer_list<unicode_string_t> attr_esc_seqs = {
-		L"`$", L"`r", L"`g", L"`b", L"`y", L"`m", L"`c", L"`w", L"`.", L"`*",
-		L"``", L"`?", L"`!", L"`~", L"`|", L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
+#define _CPF_TOKEN_PREFIX "$"
+
+	/*
+	these apply in situations where a user may wish to write a string
+	of characters where the first is one which may mistakably be
+	interpreted as part of the attribute specified...
+	i.e cprintf("$rred")
+	in the above case does one wish to apply red to foreground or red to both
+	foregound and background?
+	to resolve this issue the following is used:
+	cprintf("$r`red");
+	*/
+
+	const std::initializer_list<_cprintf_::unicode_string_t> _cprintf_::attr_esc_seqs = {
+		L"`$", L"`r", L"`g",
+		L"`b", L"`y", L"`m",
+		L"`c", L"`w", L"`R",
+		L"`G", L"`B", L"`Y",
+		L"`M", L"`C", L"`W",
+		L"`.", L"``", L"`?",
+		L"`!", L"`~", L"`|",
+		L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
 	};
 
-	const std::initializer_list<wchar_t> std_fmt_specs = {
-		'c', 'd', 'e', 'E', 'f', 'F', 'g', 'G', 'i', 'o',
-		's', 'u', 'x', 'X', 'a', 'A', 'p', 'n', 'b', 'S'
+	const std::initializer_list<wchar_t> _cprintf_::std_fmt_specs = {
+		'c', 'd', 'e',
+		'E', 'f', 'F',
+		'g', 'G', 'i',
+		'o', 's', 'u',
+		'x', 'X', 'a',
+		'A', 'p', 'n',
+		'b', 'S'
 	};
 
 	/*
 	These are characters that terminate a format specifier:
 	Characters typically found at the end of a more complex FS
-
 	%#x
 	%.6i
 	%05.2f
 	*/
-	const std::initializer_list<wchar_t> ext_fmtspec_terms = {
-		'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u', 'S'
+	const std::initializer_list<wchar_t> _cprintf_::ext_fmtspec_terms = {
+		'd', 'f', 's',
+		'e', 'o', 'x',
+		'X', 'i', 'u',
+		'S'
 	};
 
 	/*
 	These are characters that typically contained within i.e. in the middle of more
 	complex format specifiers:
-
 	%.6i
 	%05.2f
 	*/
-	const std::initializer_list<wchar_t> inter_fmt_specs = {
-		'+', '-', '.', '*', '#', 'l'
+	const std::initializer_list<wchar_t> _cprintf_::inter_fmt_specs = {
+		'+', '-', '.',
+		'*', '#', 'l'
 	};
 
-	const std::initializer_list<wchar_t> escape_characters = {
-		'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'
+	const std::initializer_list<wchar_t> _cprintf_::escape_characters = {
+		'\a', '\b', '\f',
+		'\n', '\r', '\t',
+		'\v', '\\', '\"',
+		'\0'
 	};
 
-	auto col_ids = { 'r', 'g', 'b', 'y', 'm', 'c', 'w' };
+	auto col_ids = {
+		'r', 'g', 'b',
+		'y', 'm', 'c',
+		'w', 'R', 'G',
+		'B', 'Y', 'M',
+		'C', 'W'
+	};
 
 	/*characters that may precede colour identifiers (r, g, b...)
 	and '#' in the case of '*'..*/
-	auto col_id_prefs = { '.', '*' };
+	auto col_id_prefs = { '.' };
 
 	/*specialised character identifiers*/
-	auto schar_ids = { '!', '~', 'f', 'b', '&', '#', '*', '.', '?', '|', '^' };
+	auto schar_ids =
+	{
+		'!', '~', 'f',
+		'b', '&', '#',
+		'.', '?',	'|',
+		'^'
+	};
+
 
 	/*
 	  parse-predicate storage type
@@ -119,19 +161,25 @@ namespace _cprintf_
 	  is always the [key]
 	*/
 	const ppred_t parsing_predicates = {
-		{ '!', pred_scrn_clr }, /*screen wipe + reset position to 0,0 in console*/
-		{ '~',
-		  pred_scrn_clr }, /*screen wipe + retain current position -> !~ -> $!~...*/
+		{ '!', pred_scrn_clr },/*screen wipe + reset position to 0,0 in console*/
+		{ '~', pred_scrn_clr },/*screen wipe + retain current position -> !~ -> $!~...*/
 		{ ',', pred_isdigit },
 		{ 'f', pred_isdigit },
 		{ '&', pred_isdigit },
 		{ 'r', pred_colour },
 		{ 'g', pred_colour },
-		/*blue shall use a different predicate*/
+		/*dim blue shall use a different predicate, see below*/
 		{ 'y', pred_colour },
 		{ 'm', pred_colour },
 		{ 'c', pred_colour },
 		{ 'w', pred_colour },
+		{ 'R', pred_colour },
+		{ 'G', pred_colour },
+		{ 'B', pred_colour },
+		{ 'Y', pred_colour },
+		{ 'M', pred_colour },
+		{ 'C', pred_colour },
+		{ 'W', pred_colour },
 		{ '?',
 		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 			return s[p] == '?' || s[p] == '.';
@@ -140,12 +188,12 @@ namespace _cprintf_
 		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 			return s[p] == '|' || s[p] == '.';
 			} },
-		{ '*', /*an asterisk can only be prefixed by colour identifiers*/
-		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
-			return std::find(col_ids.begin(), col_ids.end(), s[p]) !=
-				   col_ids.end(); /*in r, g, b, ...*/
-			;
-			} },
+		//{ '*', /*an asterisk can only be prefixed by colour identifiers*/
+		//  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
+		//	return std::find(col_ids.begin(), col_ids.end(), s[p]) !=
+		//		   col_ids.end(); /*in r, g, b, ...*/
+		//	;
+		//	} },
 		{ '.',
 		  [](unicode_string_t const& s, std::int32_t const& p) -> bool {
 				// s[p] in r, g, b, ... or is digit or b f & etc
@@ -323,7 +371,7 @@ namespace _cprintf_
 		unicode_string_t attribute_string = format_str_.substr(ssp, offset_pos);
 
 		if (attribute_string.size() == 0)
-			throw CPF_TOKEN_ERR; // invalid '$' token encountered on parse
+			throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid '$' token encountered on parse
 
 		attrib_end_pos += offset_pos;
 		return attribute_string;
