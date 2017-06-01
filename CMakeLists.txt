@@ -9,7 +9,7 @@
 #   [option] that enables project to be built as a shared library file (default 
 #   is static)    
 #   
-#   CPF_BUILD_SAMPLES:
+#   CPF_BUILD_EXAMPLE:
 #   [option] to build cprintf sample use-cases (default is OFF)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
@@ -21,114 +21,102 @@ MESSAGE(STATUS "beginning ${PROJECT_NAME} setup...")
 #
 #   default is to build as static library (.lib / .a)
 #
-OPTION (CPF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
+option (CPF_SHARED "build as shared library" OFF)
 
 #
-#   option to build samples, useful if you wish to learn how to use the library's 
-#   interface
+#   option to generate and build the C interface
 #
-OPTION (CPF_BUILD_SAMPLES "build sample projects" OFF)
+option (CPF_BUILD_C_API "build c api for python bindings project" OFF)
+
+if (CPF_SHARED)
+    set (CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT )
+endif()
 
 #
-#   TODO
+# additional compiler flags
 #
-OPTION (CPF_BUILD_C_API "build c api for python bindings project" OFF)
+set (CPF_FLAGS    "")
 
-IF (CPF_BUILD_AS_SHARED_LIB)
-    SET (CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT)
-ENDIF()
+if (NOT ${CPF_SHARED} AND ${CPF_BUILD_C_API})
+   message(STATUS "NOTE: building library as shared for C-API.")
+   set(CPF_SHARED ON CACHE BOOL "build as shared library")
+endif()
 
-#
-# set compiler flags
-#
 IF(WIN32)
 
-    SET (CMAKE_CXX_FLAGS    "/WX /EHsc")
-    LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN)
+    SET (CPF_BUILD_FLAGS    "${CPF_BUILD_FLAGS}  /WX /EHsc")
+    LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
 
 ELSEIF(UNIX)
+	SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -std=c++11 -Werror")
 
-    IF(CPF_BUILD_AS_SHARED_LIB)
-
-        SET (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -fPIC")
-
+    if(CPF_SHARED OR CPF_BUILD_C_API)
+        SET (CPF_FLAGS "${CPF_FLAGS} -fPIC")
     ENDIF()
 
-    SET (CMAKE_CXX_FLAGS                "-std=c++11 -Werror")    
-    SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
-    SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-    SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set (CPF_FLAGS "${CPF_FLAGS} -stdlib=libstdc++")
+    endif()
 
 ENDIF()
 
 #
 #   client user variables
 #
-SET(cprintf_path $<TARGET_FILE:${PROJECT_NAME}> 
-    CACHE STRING "${PROJECT_NAME} output path")
-SET(cprintf_output_dir $<TARGET_FILE_DIR:${PROJECT_NAME}> 
-    CACHE STRING "${PROJECT_NAME} output dir")
-SET(cprintf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/incl" 
-    CACHE STRING "path ${PROJECT_NAME} headers directory")
+SET(cprintf_path $<TARGET_FILE:${PROJECT_NAME}> CACHE STRING "${PROJECT_NAME} output path")
+SET(cprintf_output_dir $<TARGET_FILE_DIR:${PROJECT_NAME}> CACHE STRING "${PROJECT_NAME} output dir")
+SET(cprintf_incl_dir "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}" CACHE STRING "path ${PROJECT_NAME} headers directory")
 
-FILE(GLOB_RECURSE INCL_FILES "${cprintf_incl_dir}/*.hpp" "${cprintf_incl_dir}/*.h")
-FILE(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+if(CPF_SHARED)
+    set(library_type SHARED)
+else()
+     set(library_type STATIC)
+endif()
 
-INCLUDE_DIRECTORIES(${cprintf_incl_dir})
-INCLUDE_DIRECTORIES("incl/${PROJECT_NAME}/internal")
-
-IF(CPF_BUILD_AS_SHARED_LIB)
-    SET(CPF_LIB_TYPE SHARED)
-ELSE(CPF_BUILD_AS_SHARED_LIB)
-     SET(CPF_LIB_TYPE STATIC)
-ENDIF(CPF_BUILD_AS_SHARED_LIB)
-
-ADD_LIBRARY(${PROJECT_NAME} ${CPF_LIB_TYPE} ${INCL_FILES} ${SRC_FILES})
+ADD_LIBRARY(${PROJECT_NAME} 
+			${library_type} 
+			"${cprintf_incl_dir}/cprintf.h" 
+			"${CMAKE_CURRENT_SOURCE_DIR}/cprintf.cpp")
 
 SET_TARGET_PROPERTIES(  ${PROJECT_NAME} PROPERTIES
                         COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
-                        COMPILE_FLAGS "${CPF_BUILD_FLAGS}") 
+                        COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
+						INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}") 
 
-IF(CPF_BUILD_SAMPLES)
-
-    MACRO(SUBDIRLIST result curdir)
-        FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-        SET(dirlist "")
-        FOREACH(child ${children})
-            IF(IS_DIRECTORY ${curdir}/${child})
-                LIST(APPEND dirlist ${child})
-            ENDIF()
-        ENDFOREACH()
-        SET(${result} ${dirlist})
-    ENDMACRO()
-
-    SET (samples_dir "${CMAKE_CURRENT_SOURCE_DIR}/smpl")
-
-    SUBDIRLIST(sample_dirs ${samples_dir})
-
-    FOREACH( sample_dir ${sample_dirs} )
-
-        SET(sample_proj_name "cpf_smpl_${sample_dir}")
-
-        ADD_EXECUTABLE( ${sample_proj_name} "${samples_dir}/${sample_dir}/main.cpp" )
-        TARGET_LINK_LIBRARIES( ${sample_proj_name} ${PROJECT_NAME} )
-
-        SET_TARGET_PROPERTIES(  ${sample_proj_name} PROPERTIES
-                                COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}") 
-
-        IF(CPF_BUILD_AS_SHARED)
-            ADD_CUSTOM_COMMAND( TARGET ${sample_proj_name} PRE_BUILD
-                                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                                ${cprintf_path} $<TARGET_FILE_DIR:${sample_proj_name}>)
-        ENDIF(CPF_BUILD_AS_SHARED)
-
-    ENDFOREACH( sample_dir ${sample_dirs} )
-
-ENDIF(CPF_BUILD_SAMPLES)
+set(cprintf_path $<TARGET_FILE:${target_name_cpp}> CACHE STRING "${target_name_cpp} output path")
 
 IF(CPF_BUILD_C_API)
-    ADD_SUBDIRECTORY(python)
+
+	set (PROJECT_NAME_C cprintf_capi)
+    set (generated_files_dir ${CMAKE_CURRENT_BINARY_DIR}/generated_files/)
+	set (cprintf_capi_incl_dir ${generated_files_dir} CACHE STRING "path ${PROJECT_NAME} headers directory")
+
+	if (NOT EXISTS ${generated_files_dir})
+		file(MAKE_DIRECTORY ${generated_files_dir}) 
+	endif() 
+	
+	execute_process(COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/python/gen/cpf_gen.py" "${generated_files_dir}")
+	
+	add_library(    ${PROJECT_NAME_C} 
+					SHARED 
+					${generated_files_dir}/_cprintf.h
+					${generated_files_dir}/_cprintf.cpp)
+
+	# link to main project
+	target_link_libraries(${PROJECT_NAME_C} ${target_name_cpp})
+
+	set_target_properties(  ${PROJECT_NAME_C} PROPERTIES
+							COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
+							COMPILE_FLAGS "${CPF_FLAGS}"
+							INCLUDE_DIRECTORIES "${cprintf_incl_dir};${generated_files_dir}") 
+
+	add_custom_command( TARGET ${PROJECT_NAME} PRE_BUILD
+								COMMAND ${CMAKE_COMMAND} -E copy_if_different
+								${cprintf_path} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+	set(cprintf_capi_path $<TARGET_FILE:${PROJECT_NAME_C}> 
+		CACHE STRING "${PROJECT_NAME_C} output path")
+
 ENDIF(CPF_BUILD_C_API)
 
 MESSAGE(STATUS "${PROJECT_NAME} setup done!")
