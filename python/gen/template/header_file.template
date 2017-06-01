@@ -1,6 +1,4 @@
 #pragma once
-#ifndef __CPF_GEN_H__
-#define __CPF_GEN_H__
 
 #include <cprintf/cprintf.hpp>
 
@@ -12,5 +10,4 @@ extern "C" {
 $protocals
 };
 
-#endif // __CPF_GEN_H__
 

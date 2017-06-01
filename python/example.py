@@ -12,7 +12,7 @@ import cprintf
 # notify cprintf module that you want to use this lib
 # by default the script expects to find the libcprintf.so/cprintf.dll
 # file in the same directory as itself
-cprintf.lib_path = os.path.join(_module_dir_name, "../build/python/libcprintf.so")
+cprintf.lib_path = os.path.join(_module_dir_name, "../build/libcprintf.so")
 
 from cprintf import cprintf
 
@@ -28,15 +28,17 @@ def basic_samples():
     cprintf({1 : "foo", 2.4 : 2, "bar" : 75}, "cprintf")
 
     # NOTE: This is the "cprintf" way of doing things!
-    cprintf(stderr, u"this IS a format string\n") 
-    cprintf(stdout, u"$y*hello world!\n")
-    cprintf(u"print pi: %f\n", 3.14)
-    cprintf(stderr, u"write to $r*stderr$?`!\n")
-    cprintf(stderr, u"$m*`formatted$? arg: %d!\n", 101)
+    cprintf("this IS a format string\n") 
+    cprintf(stdout, "$y*hello world!\n")
+    cprintf("print pi: %f\n", 3.14)
+    cprintf(stderr, "write to $r*stderr$?`!\n")
+    cprintf(stderr, "$m*`formatted$? arg: %d!\n", 101)
+    binary = 0xB01101001
+    cprintf("print binary: %b\n", binary)
     my_tup = (107, 3.142)
-    cprintf(stderr, u"$m*`formatted$? args: $g*%d$? %f!\n", my_tup)
-    my_list = [u"cprintf", 99, 2.5]
-    cprintf(stderr, u"$w*`formatted$? args: $c%s %d %f!\n", my_list)
+    cprintf(stderr, "$m*`formatted$? args: $g*%d$? %f!\n", my_tup)
+    my_list = ["cprintf", 99, 2.5]
+    cprintf(stderr, "$w*`formatted$? args: $c%s %d %f!\n", my_list)
    
 def display_tokens():
     token_types = (bg, ibg, fg, ifg, fgbg, ifgbg, fgibg, ifgibg) = tuple(range(0, 8))
@@ -64,26 +66,41 @@ def display_tokens():
             elif ct == ifgibg:
                 for t_ in tokens:
                     l.append(t+"*"+t_+"*")
+
+    cprintf(stderr, "\nCROSS-PLATFORM COLOURS\n")
     for token in l:
         frmt = "$" + token + " " + str(l.index(token)) + "$?\t"
-        cprintf(stderr, unicode(frmt, "utf-8")) 
-        if (l.index(token) % 16)+1 == 1:    
-            print("")
-    print("")
+        cprintf(stderr, frmt) 
+        if (l.index(token) % 16) == 1:    
+            cprintf(stderr, "\n")
+    cprintf(stderr, "\n")
 
+    cprintf(stderr, "\n---LINUX-SPECIFIC COLOURS---\n")
+
+    cprintf(stderr, "\nBITMAP FOREGROUND\n")
     for i in range(0, 256):
         frmt =  "$" + str(i) + "f " + str(i) + "$?\t"
-        cprintf(stderr, unicode(frmt, "utf-8"))
+        cprintf(stderr, frmt)
         if (i % 16)+1 == 1:
-            print("")
-    print("")
+            cprintf(stderr, "\n")
+    cprintf(stderr, "\n")
 
+
+    cprintf(stderr, "\nBITMAP BACKGROUND\n")
     for i in range(0, 256):
         frmt =  "$" + str(i) + "b " + str(i) + "$?\t"
-        cprintf(stderr, unicode(frmt, "utf-8"))
+        cprintf(stderr, frmt)
         if (i % 16)+1 == 1:
-            print("")
-    print("")
+            cprintf(stderr, "\n")
+    cprintf(stderr, "\n")
+
+    cprintf(stderr, "\nBITMAP FOREGROUND & BACKGROUND\n")
+    for i in range(0, 256):
+        frmt =  "$" + str(i) + "& " + str(i) + "$?\t"
+        cprintf(stderr, frmt)
+        if (i % 16)+1 == 1:
+            cprintf(stderr, "\n")
+    cprintf(stderr, "\n")
 
 def main():
     basic_samples()
