@@ -204,8 +204,7 @@ typedef std::vector<unicode_string_t> unicode_string_vector_t;
 
 typedef unicode_string_vector_t attribute_group_t;
 
-typedef std::map<int,
-                 std::pair<unicode_string_vector_t, unicode_string_t>>
+typedef std::map<int, std::pair<unicode_string_vector_t, unicode_string_t>>
     format_string_layout_t;
 
 typedef format_string_layout_t::iterator format_string_layout_iterator_t;
@@ -335,7 +334,7 @@ void format_specifier_correspondence_check(
 }
 
 //	the full standard / cross platform set of colour tokens	that may be
-//used to modify text appearance
+// used to modify text appearance
 CPF_API const unicode_string_vector_t std_tokens;
 
 // tokens available on both windows and linux
@@ -386,9 +385,8 @@ CPF_API format_string_layout_t
 parse_format_string(const unicode_string_t &format_string);
 
 CPF_API int search_for(const unicode_string_t &_what,
-                                const unicode_string_t &_where,
-                                const int _offset = 0,
-                                const char &_esc_char = CPF_ESC_CHAR);
+                       const unicode_string_t &_where, const int _offset = 0,
+                       const char &_esc_char = CPF_ESC_CHAR);
 
 CPF_API unicode_string_t
 ascii_to_unicode_string_conversion(ascii_string_t &&src);
@@ -400,17 +398,16 @@ CPF_API int
 get_num_format_specifiers_in_string(const unicode_string_t &unicode_string_t);
 
 CPF_API unicode_string_t write_substring_before_format_specifier(
-    file_stream_t file_stream, unicode_string_t &printed_string_,
-    int &ssp_, const attribute_group_t attr);
+    file_stream_t file_stream, unicode_string_t &printed_string_, int &ssp_,
+    const attribute_group_t attr);
 CPF_API void write_substring_after_format_specifier(
-    file_stream_t file_stream, unicode_string_t &printed_string_,
-    int &ssp_, bool &more_args_on_iter,
+    file_stream_t file_stream, unicode_string_t &printed_string_, int &ssp_,
+    bool &more_args_on_iter,
     format_string_layout_t::const_iterator &format_string_layout_iterator,
     const format_string_layout_t::const_iterator &end_point_comparator);
 
 CPF_API void write_substring_without_format_specifier(
-    file_stream_t file_stream, unicode_string_t &printed_string_,
-    int &ssp_,
+    file_stream_t file_stream, unicode_string_t &printed_string_, int &ssp_,
     format_string_layout_t::const_iterator &format_string_layout_iterator);
 
 CPF_API unicode_string_t
@@ -582,17 +579,18 @@ template <typename... Types> inline int cprintf(Types... arguments) {
 }
 
 template <typename FormatType, unsigned N, typename... Types>
-inline int cprintf_s(FormatType(&format)[N], Types... arguments) {
-	static_assert(N >= 2, "invalid string-literal");
-	return cprintf(format, std::forward<Types>(arguments)...);
+inline int cprintf_s(FormatType (&format)[N], Types... arguments) {
+  static_assert(N >= 2, "invalid string-literal");
+  return cprintf(format, std::forward<Types>(arguments)...);
 }
 
 #if CPF_DBG_CONFIG
 
 #include <cstdarg>
 
-#ifdef CPF_WINDOWS_BUILD 
-#define CPF_FILE_PATH_SEPARATOR(character) (character == '\\' || character == '/');
+#ifdef CPF_WINDOWS_BUILD
+#define CPF_FILE_PATH_SEPARATOR(character)                                     \
+  (character == '\\' || character == '/');
 #else
 #define CPF_FILE_PATH_SEPARATOR(character) (character == '/');
 #endif
@@ -605,7 +603,9 @@ inline int cprintf_s(FormatType(&format)[N], Types... arguments) {
     const _cprintf_::unicode_string_t pname__ =                                \
         CPF_WIDEN_STRING_LITERAL(__FILE__);                                    \
     typedef struct {                                                           \
-      bool operator()(char character) const { return CPF_FILE_PATH_SEPARATOR(character) } \
+      bool operator()(char character) const {                                  \
+        return CPF_FILE_PATH_SEPARATOR(character)                              \
+      }                                                                        \
     } sep__;                                                                   \
     auto fname__ = unicode_string_t(                                           \
         std::find_if(pname__.rbegin(), pname__.rend(), sep__()).base(),        \
@@ -621,22 +621,28 @@ inline int cprintf_s(FormatType(&format)[N], Types... arguments) {
 typedef int c_int32;
 typedef long c_long;
 typedef float c_float;
-typedef const char* c_char_p; 
-typedef const wchar_t* c_wchar_p; 
+typedef const char *c_char_p;
+typedef const wchar_t *c_wchar_p;
 
-#define __CPRINTF_capi_Sig0(_formattype, _argtype) \
-int cprintf_##_formattype##_##_argtype(int stream, _formattype format, _argtype arg)
+#define __CPRINTF_capi_Sig0(_formattype, _argtype)                             \
+  \
+int cprintf_##_formattype##_##_argtype(int stream, _formattype format,         \
+                                       _argtype arg)
 
-#define __CPRINTF_capi_Sig1(_formattype)\
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_int32);\
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_long);\
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_float);\
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_char_p);\
+#define __CPRINTF_capi_Sig1(_formattype)                                       \
+  \
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_int32);                             \
+  \
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_long);                              \
+  \
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_float);                             \
+  \
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_char_p);                            \
+  \
 CPF_API __CPRINTF_capi_Sig0(_formattype, c_wchar_p);
 
 extern "C" {
 
 __CPRINTF_capi_Sig1(c_char_p);
 __CPRINTF_capi_Sig1(c_wchar_p);
-
 };
