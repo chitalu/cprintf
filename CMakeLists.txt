@@ -48,7 +48,7 @@ set_target_properties(  ${PROJECT_NAME} PROPERTIES
 
 set (EXAMPLES_PROJECT_NAME ${PROJECT_NAME}_examples)
 
-add_executable(${EXAMPLES_PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/examples.cpp")
+add_executable(${EXAMPLES_PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}_examples.cpp")
 
 target_link_libraries(  ${EXAMPLES_PROJECT_NAME} ${PROJECT_NAME} )
 

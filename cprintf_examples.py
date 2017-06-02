@@ -1,21 +1,4 @@
-import sys, os
-
-_module_abs_path = os.path.abspath(__file__)
-_module_real_path = os.path.realpath(_module_abs_path)
-_module_dir_name = os.path.dirname(_module_real_path)
-
-# location of cprintf script
-sys.path.insert(0, os.path.join(_module_dir_name, "./interface"))
-
-import cprintf 
-
-# notify cprintf module that you want to use this lib
-# by default the script expects to find the libcprintf.so/cprintf.dll
-# file in the same directory as itself
-cprintf.lib_path = os.path.join(_module_dir_name, "../build/libcprintf.so")
-
 from cprintf import cprintf
-
 from sys import stdout, stderr
 
 def basic_samples(): 
@@ -107,4 +90,17 @@ def main():
     display_tokens()
 
 if __name__ == '__main__':
+    import os
+    _module_abs_path = os.path.abspath(__file__)
+    _module_real_path = os.path.realpath(_module_abs_path)
+    _module_dir_name = os.path.dirname(_module_real_path)
+
+    # location of cprintf script
+    sys.path.insert(0, os.path.join(_module_dir_name, "./interface"))
+
+    # notify cprintf module that you want to use this lib
+    # by default the script expects to find the libcprintf.so/cprintf.dll
+    # file in the same directory as itself
+    cprintf.lib_path = os.path.join(_module_dir_name, "../build/libcprintf.so")
+
     main()
