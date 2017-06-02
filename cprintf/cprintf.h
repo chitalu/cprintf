@@ -204,7 +204,7 @@ typedef std::vector<unicode_string_t> unicode_string_vector_t;
 
 typedef unicode_string_vector_t attribute_group_t;
 
-typedef std::map<std::int32_t,
+typedef std::map<int,
                  std::pair<unicode_string_vector_t, unicode_string_t>>
     format_string_layout_t;
 
@@ -355,7 +355,7 @@ CPF_API void configure(file_stream_t ustream, const attribute_group_t &attr);
 
 CPF_API const unicode_string_t debugging_log_format_string;
 
-CPF_API std::mutex mtx_;
+CPF_API std::mutex mutex_lock;
 
 //	text attribute token escape sequences..
 CPF_API const std::initializer_list<unicode_string_t> attr_esc_seqs;
@@ -387,9 +387,9 @@ CPF_API const std::initializer_list<wchar_t> escape_characters;
 CPF_API format_string_layout_t
 parse_format_string(const unicode_string_t &format_string);
 
-CPF_API std::int32_t search_for(const unicode_string_t &_what,
+CPF_API int search_for(const unicode_string_t &_what,
                                 const unicode_string_t &_where,
-                                const std::int32_t _offset = 0,
+                                const int _offset = 0,
                                 const char &_esc_char = CPF_ESC_CHAR);
 
 CPF_API unicode_string_t
@@ -398,21 +398,21 @@ ascii_to_unicode_string_conversion(ascii_string_t &&src);
 CPF_API unicode_string_t
 ascii_to_unicode_string_conversion(unicode_string_t &&src);
 
-CPF_API std::int32_t
+CPF_API int
 get_num_format_specifiers_in_string(const unicode_string_t &unicode_string_t);
 
 CPF_API unicode_string_t write_substring_before_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_,
-    std::int32_t &ssp_, const attribute_group_t attr);
+    int &ssp_, const attribute_group_t attr);
 CPF_API void write_substring_after_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_,
-    std::int32_t &ssp_, bool &more_args_on_iter,
+    int &ssp_, bool &more_args_on_iter,
     format_string_layout_t::const_iterator &format_string_layout_iterator,
     const format_string_layout_t::const_iterator &end_point_comparator);
 
 CPF_API void write_substring_without_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_,
-    std::int32_t &ssp_,
+    int &ssp_,
     format_string_layout_t::const_iterator &format_string_layout_iterator);
 
 CPF_API unicode_string_t
@@ -459,14 +459,14 @@ CPF_API void print_format_string_layout(
     file_stream_t file_stream,
     const format_string_layout_const_iterator_t &end_point_comparator,
     format_string_layout_const_iterator_t &format_string_layout_iterator,
-    const unicode_string_t printed_string, const std::int32_t search_start_pos);
+    const unicode_string_t printed_string, const int search_start_pos);
 
 template <typename ArgType0, typename... RemainingArgTypes>
 void print_format_string_layout(
     file_stream_t file_stream,
     const format_string_layout_const_iterator_t &end_point_comparator,
     format_string_layout_const_iterator_t &format_string_layout_iterator,
-    const unicode_string_t printed_string, const std::int32_t search_start_pos,
+    const unicode_string_t printed_string, const int search_start_pos,
     ArgType0 &&arg0, RemainingArgTypes &&... args) {
   unicode_string_t printed_string_ = printed_string;
   // printed string argument-specifier ('%') count
@@ -559,7 +559,7 @@ int dispatch(file_stream_t file_stream, FormatType &&raw_format,
     format_string_layout_const_iterator_t format_string_layout_end_iterator =
         format_string_layout.cend();
 
-    std::lock_guard<std::mutex> lock(_cprintf_::mtx_);
+    std::lock_guard<std::mutex> lock(_cprintf_::mutex_lock);
 
     print_format_string_layout(
         file_stream, format_string_layout_end_iterator,
@@ -577,11 +577,11 @@ int dispatch(file_stream_t file_stream, FormatType &&raw_format,
 }
 
 template <typename... Types>
-inline int cprintf(decltype(stdout) stream, Types... arguments) noexcept {
+inline int cprintf(decltype(stdout) stream, Types... arguments) {
   return _cprintf_::dispatch(stream, std::forward<Types>(arguments)...);
 }
 
-template <typename... Types> inline int cprintf(Types... arguments) noexcept {
+template <typename... Types> inline int cprintf(Types... arguments) {
   return cprintf(stdout, std::forward<Types>(arguments)...);
 }
 
@@ -616,11 +616,11 @@ template <typename... Types> inline int cprintf(Types... arguments) noexcept {
 #define cprintf_dbg(format, ...)
 #endif
 
-typedef std::int32_t c_int32;
-typedef std::int64_t c_long;
+typedef int c_int32;
+typedef long c_long;
 typedef float c_float;
-typedef const _cprintf_::ascii_string_t::value_type* c_char_p; 
-typedef const _cprintf_::unicode_string_t::value_type* c_wchar_p; 
+typedef const char* c_char_p; 
+typedef const wchar_t* c_wchar_p; 
 
 #define __CPRINTF_capi_Sig0(_formattype, _argtype) \
 int cprintf_##_formattype##_##_argtype(int stream, _formattype format, _argtype arg)

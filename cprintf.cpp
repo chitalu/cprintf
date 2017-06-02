@@ -32,10 +32,10 @@ THE SOFTWARE.
 
 //#include <cstdint>
 
-//#include <cstdio>
-//#include <functional> //std::function
-//#include <stdlib.h> /* atoi */
-//#include <wchar.h> //wcstol
+#include <cstdio>
+#include <functional> //std::function
+#include <stdlib.h> /* atoi */
+#include <wchar.h> //wcstol
 
 #if _WIN32
 #include <Windows.h>
@@ -47,9 +47,6 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 #define CONFIG_BG (1)
 #define CONFIG_FGBG (2)
 
-#else //
-#include <termios.h>
-#include <unistd.h>
 #endif // _WIN32
 
 #define _CPF_TOKEN_PREFIX "$"
@@ -315,14 +312,14 @@ auto schar_ids = {
         parse-predicate storage type
         */
 typedef std::map<wchar_t, std::function<bool(unicode_string_t const &,
-                                             std::int32_t const &)>>
+                                             int const &)>>
     ppred_t;
 
-bool pred_isdigit(unicode_string_t const &s, std::int32_t const &p) {
+bool pred_isdigit(unicode_string_t const &s, int const &p) {
   return isdigit(s[p]) ? true : false;
 }
 
-bool pred_colour(unicode_string_t const &s, std::int32_t const &p) {
+bool pred_colour(unicode_string_t const &s, int const &p) {
   /*a colour char may only be preceded by another or any char contained in
    * col_id_prefs...*/
   return (std::find(col_ids.begin(), col_ids.end(), s[p]) != col_ids.end()) ||
@@ -366,11 +363,11 @@ const ppred_t parsing_predicates = {
     {'C', pred_colour},
     {'W', pred_colour},
     {'?',
-     [](unicode_string_t const &s, std::int32_t const &p) -> bool {
+     [](unicode_string_t const &s, int const &p) -> bool {
        return s[p] == '?' || s[p] == '.';
      }},
     {'.',
-     [](unicode_string_t const &s, std::int32_t const &p) -> bool {
+     [](unicode_string_t const &s, int const &p) -> bool {
        // s[p] in r, g, b, ... or is digit or b f & etc
        return (std::find(col_ids.begin(), col_ids.end(), s[p]) !=
                col_ids.end()) ||
@@ -379,12 +376,12 @@ const ppred_t parsing_predicates = {
                schar_ids.end());
      }},
     {'#',
-     [](unicode_string_t const &s, std::int32_t const &p) -> bool {
+     [](unicode_string_t const &s, int const &p) -> bool {
        return (std::find(col_ids.begin(), col_ids.end(), s[p]) !=
                col_ids.end()) ||
               s[p] == '*';
      }},
-    {'b', [](unicode_string_t const &s, std::int32_t const &p) -> bool {
+    {'b', [](unicode_string_t const &s, int const &p) -> bool {
        /*note: this covers the colour blue (...$b[*]...) as well as a token
            representing
            a unix bitmap-colour token (...$34b...).
@@ -426,7 +423,7 @@ void purge_meta_esc_sequences(format_string_layout_t &meta) {
 void parse_attribute_specifier(unicode_string_t const &src_string,
                                unicode_string_t::size_type &offset_val,
                                unicode_string_t::size_type &ssp) {
-  std::int32_t offset_counter = 0;
+  int offset_counter = 0;
   wchar_t c = src_string[ssp]; // first character after occurrance of "$"
   bool finished = false,
        checked_if_is_txt_frmt_modifier = false; //$bld $rvs etc..
@@ -533,8 +530,8 @@ parse_fstr_for_attrib_specs(unicode_string_t const &format_str_,
 format_string_layout_t parse_format_string(const unicode_string_t &src_format) {
   format_string_layout_t meta;
 
-  const std::int32_t NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS) {
-    std::int32_t occurrences = 0;
+  const int NUM_C_TAGS = [&]() -> decltype(NUM_C_TAGS) {
+    int occurrences = 0;
     unicode_string_t::size_type start = 0;
 
     while ((start = search_for(L"$", src_format, start)) !=
@@ -545,8 +542,8 @@ format_string_layout_t parse_format_string(const unicode_string_t &src_format) {
     return occurrences;
   }();
 
-  std::int32_t token_occurance_pos = 0;
-  std::int32_t attrib_endpos_p1 = 0;
+  int token_occurance_pos = 0;
+  int attrib_endpos_p1 = 0;
   bool first_iter = true;
   while ((token_occurance_pos = search_for(
               L"$", src_format, attrib_endpos_p1)) != src_format.npos) {
@@ -601,12 +598,12 @@ format_string_layout_t parse_format_string(const unicode_string_t &src_format) {
   return meta;
 }
 
-std::int32_t search_for(const unicode_string_t &_what,
+int search_for(const unicode_string_t &_what,
                         const unicode_string_t &_where,
-                        const std::int32_t _offset, const char &_esc_char) {
+                        const int _offset, const char &_esc_char) {
   bool found = false;
   auto _Off = _offset;
-  std::int32_t position = 0;
+  int position = 0;
 
   while ((position = _where.find(_what, _Off)) != _where.npos) {
     if (position == 0) {
@@ -726,7 +723,7 @@ get_terminal_bitmap_colour_value(const unicode_string_t &attrib_token) {
 
 void config_text_attribute(file_stream_t user_stream,
                            const system_color_repr_t &user_colour,
-                           std::uint8_t col_config_type = 255) {
+                           int col_config_type = 255) {
 #ifdef _WIN32
 
   // interesting:
@@ -796,7 +793,7 @@ CPF_API void configure(file_stream_t user_stream,
           throw CPF_FORMAT_STRING_TOKEN_ERROR; // invalid token
         }
 
-        std::uint8_t config_type;
+        int config_type;
 
         /*configuration type is needed to determine which bitwise
                                 operations to do on setting colour values in
@@ -852,19 +849,20 @@ $g@line:$c	$g*%d$c
 
 #endif // CPF_DBG_CONFIG
 
-std::mutex mtx_;
+std::mutex mutex_lock;
 
 // cprintf("Characters:\t%c %%\n", 65);
-std::int32_t get_num_format_specifiers_in_string(const unicode_string_t &obj) {
-  std::int32_t n = 0u;
-  std::uint32_t pos = 0u;
-  while ((pos = search_for(L"%", obj, pos, '%')) < obj.size()) {
+int get_num_format_specifiers_in_string(const unicode_string_t &obj) {
+  int n = 0;
+  int pos = 0;
+  while ((pos = search_for(L"%", obj, pos, '%')) < (int)obj.size() && pos >= 0)
+  {
     if (pos == obj.size() - 1) {
       /*this would imply the following: cprintf("foo bar %");*/
       throw CPF_FORMAT_SPECIFIER_ERROR; // invalid format specifier('%')
                                         // position.
     }
-    std::int32_t n_ = n;
+    int n_ = n;
 
     /*entering the while loop implies that a '%' was found successfully
                     which means we check whether the proceeding character is a
@@ -873,7 +871,7 @@ std::int32_t get_num_format_specifiers_in_string(const unicode_string_t &obj) {
     if (obj[(pos + 1)] != '%') {
       /*implies a case when you have %%%_ where "_" is a format specifier such
        * as d -> %%%d*/
-      std::int32_t p_2 = (pos - 2);
+      int p_2 = (pos - 2);
       if (p_2 >= 0) {
         if (obj[(pos - 2)] == '%') {
           n_ = ++n;
@@ -890,7 +888,7 @@ std::int32_t get_num_format_specifiers_in_string(const unicode_string_t &obj) {
 
 unicode_string_t write_substring_before_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_,
-    std::int32_t &ssp_, const attribute_group_t attr) {
+    int &ssp_, const attribute_group_t attr) {
   configure(file_stream, attr);
 
   ssp_ = search_for(L"%", printed_string_, ssp_, '%');
@@ -917,7 +915,7 @@ unicode_string_t write_substring_before_format_specifier(
 
   /* format specifiers beging with % and end with a space*/
   auto space_pos = printed_string_.find(' ', ssp_);
-  std::int32_t offset = 0;
+  int offset = 0;
   for (const auto &bfs : std_fmt_specs) {
     if (printed_string_[ssp_ + 1] == bfs) {
       offset = 2;
@@ -968,7 +966,7 @@ unicode_string_t write_substring_before_format_specifier(
 
 void write_substring_after_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_,
-    std::int32_t &ssp_, bool &more_args_on_iter,
+    int &ssp_, bool &more_args_on_iter,
     format_string_layout_t::const_iterator &format_string_layout_iterator,
     const format_string_layout_t::const_iterator &end_point_comparator) {
   printed_string_ = printed_string_.substr(ssp_);
@@ -994,7 +992,7 @@ void write_substring_after_format_specifier(
 
 void write_substring_without_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_,
-    std::int32_t &ssp_,
+    int &ssp_,
     format_string_layout_t::const_iterator &format_string_layout_iterator) {
   configure(file_stream, format_string_layout_iterator->second.first);
 
@@ -1046,7 +1044,7 @@ unicode_string_t ascii_to_unicode_string_conversion(ascii_string_t &&mbstr) {
   const char *_mbstr = &mbstr[0];
   // Converts a null-terminated multibyte character sequence, which begins in
   // the conversion state
-  std::int32_t len = 1 + std::mbsrtowcs(NULL, &_mbstr, 0, &state);
+  int len = 1 + std::mbsrtowcs(NULL, &_mbstr, 0, &state);
   unicode_string_t wstr(len, 0);
   std::mbsrtowcs(&wstr[0], &_mbstr, wstr.size(), &state);
   return wstr;
@@ -1146,7 +1144,7 @@ CPF_API void print_format_string_layout(
     const format_string_layout_t::const_iterator &end_point_comparator,
     format_string_layout_t::const_iterator &format_string_layout_iterator,
     const unicode_string_t printed_string = L"",
-    const std::int32_t search_start_pos = 0) {
+    const int search_start_pos = 0) {
   while (format_string_layout_iterator != end_point_comparator) {
     configure(file_stream, format_string_layout_iterator->second.first);
 

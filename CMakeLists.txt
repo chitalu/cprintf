@@ -48,3 +48,13 @@ set_target_properties(  ${PROJECT_NAME} PROPERTIES
                         COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
                         COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
 						INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set (EXAMPLES_PROJECT_NAME ${PROJECT_NAME}_examples)
+
+add_executable(${EXAMPLES_PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/examples.cpp")
+
+target_link_libraries(  ${EXAMPLES_PROJECT_NAME} ${PROJECT_NAME} )
+
+set_target_properties(  ${EXAMPLES_PROJECT_NAME} PROPERTIES
+                        COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
+                        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
