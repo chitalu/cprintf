@@ -2,13 +2,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT (cprintf)
 
-option (CPRINTF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
+option (CPRINTF_BUILD_AS_SHARED_LIB "build as shared library" ON)
 
 SET(cprintf_include_directory "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING " ${PROJECT_NAME} include")
 
 if (CPRINTF_BUILD_AS_SHARED_LIB)
-    set (CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT )
-    set(library_type SHARED)
+    list (APPEND CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT )
+    set (library_type SHARED)
 else()
      set(library_type STATIC)
 endif()
@@ -21,7 +21,7 @@ set (CPF_FLAGS    "")
 if(WIN32)
 
     set (CPF_BUILD_FLAGS    "${CPF_BUILD_FLAGS}  /WX /EHsc")
-    LIST (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
+    list (APPEND CPF_PREPROC_DEFS VC_EXTRALEAN WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
 
 elseif(UNIX)
 	set (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -std=c++11 -Werror")
@@ -35,6 +35,8 @@ elseif(UNIX)
     endif()
 
 endif()
+
+MESSAGE(STATUS "${CPF_PREPROC_DEFS}")
 
 add_library(${PROJECT_NAME} 
 			${library_type} 
@@ -53,6 +55,7 @@ add_executable(${EXAMPLES_PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_N
 target_link_libraries(  ${EXAMPLES_PROJECT_NAME} ${PROJECT_NAME} )
 
 set_target_properties(  ${EXAMPLES_PROJECT_NAME} PROPERTIES
+						COMPILE_DEFINITIONS "${CPF_PREPROC_DEFS}"
                         COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
                         INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
 

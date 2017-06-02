@@ -355,8 +355,6 @@ CPF_API void configure(file_stream_t ustream, const attribute_group_t &attr);
 
 CPF_API const unicode_string_t debugging_log_format_string;
 
-CPF_API std::mutex mutex_lock;
-
 //	text attribute token escape sequences..
 CPF_API const std::initializer_list<unicode_string_t> attr_esc_seqs;
 
@@ -427,31 +425,31 @@ void write_variadic_argument_to_file_stream(file_stream_t file_stream,
 }
 
 template <>
-void write_variadic_argument_to_file_stream<unicode_string_t>(
+CPF_API void write_variadic_argument_to_file_stream<unicode_string_t>(
     file_stream_t file_stream, unicode_string_t const &format,
     unicode_string_t &&arg);
 
 template <>
-void write_variadic_argument_to_file_stream<ascii_string_t>(
+CPF_API void write_variadic_argument_to_file_stream<ascii_string_t>(
     file_stream_t file_stream, unicode_string_t const &format,
     ascii_string_t &&arg);
 
 template <>
-void write_variadic_argument_to_file_stream<char *>(
+CPF_API void write_variadic_argument_to_file_stream<char *>(
     file_stream_t file_stream, unicode_string_t const &format, char *&&arg);
 
 template <>
-void write_variadic_argument_to_file_stream<signed char *>(
+CPF_API void write_variadic_argument_to_file_stream<signed char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     signed char *&&arg);
 
 template <>
-void write_variadic_argument_to_file_stream<const char *>(
+CPF_API void write_variadic_argument_to_file_stream<const char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     const char *&&arg);
 
 template <>
-void write_variadic_argument_to_file_stream<const signed char *>(
+CPF_API void write_variadic_argument_to_file_stream<const signed char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     const signed char *&&arg);
 
@@ -559,8 +557,6 @@ int dispatch(file_stream_t file_stream, FormatType &&raw_format,
     format_string_layout_const_iterator_t format_string_layout_end_iterator =
         format_string_layout.cend();
 
-    std::lock_guard<std::mutex> lock(_cprintf_::mutex_lock);
-
     print_format_string_layout(
         file_stream, format_string_layout_end_iterator,
         format_string_layout_begin_iterator,
@@ -583,6 +579,12 @@ inline int cprintf(decltype(stdout) stream, Types... arguments) {
 
 template <typename... Types> inline int cprintf(Types... arguments) {
   return cprintf(stdout, std::forward<Types>(arguments)...);
+}
+
+template <typename FormatType, unsigned N, typename... Types>
+inline int cprintf_s(FormatType(&format)[N], Types... arguments) {
+	static_assert(N >= 2, "invalid string-literal");
+	return cprintf(format, std::forward<Types>(arguments)...);
 }
 
 #if CPF_DBG_CONFIG
@@ -626,11 +628,11 @@ typedef const wchar_t* c_wchar_p;
 int cprintf_##_formattype##_##_argtype(int stream, _formattype format, _argtype arg)
 
 #define __CPRINTF_capi_Sig1(_formattype)\
-__CPRINTF_capi_Sig0(_formattype, c_int32);\
-__CPRINTF_capi_Sig0(_formattype, c_long);\
-__CPRINTF_capi_Sig0(_formattype, c_float);\
-__CPRINTF_capi_Sig0(_formattype, c_char_p);\
-__CPRINTF_capi_Sig0(_formattype, c_wchar_p);
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_int32);\
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_long);\
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_float);\
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_char_p);\
+CPF_API __CPRINTF_capi_Sig0(_formattype, c_wchar_p);
 
 extern "C" {
 

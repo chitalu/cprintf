@@ -849,8 +849,6 @@ $g@line:$c	$g*%d$c
 
 #endif // CPF_DBG_CONFIG
 
-std::mutex mutex_lock;
-
 // cprintf("Characters:\t%c %%\n", 65);
 int get_num_format_specifiers_in_string(const unicode_string_t &obj) {
   int n = 0;
