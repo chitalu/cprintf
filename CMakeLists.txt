@@ -2,14 +2,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT (cprintf)
 
-#
-#   default is to build as static library
-#
-option (CPF_SHARED "build as shared library" OFF)
+option (CPRINTF_BUILD_AS_SHARED_LIB "build as shared library" OFF)
 
 SET(cprintf_include_directory "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING " ${PROJECT_NAME} include")
 
-if (CPF_SHARED)
+if (CPRINTF_BUILD_AS_SHARED_LIB)
     set (CPF_PREPROC_DEFS CPF_BUILD_AS_SHARED CPF_FUNC_EXPORT )
     set(library_type SHARED)
 else()
@@ -29,7 +26,7 @@ if(WIN32)
 elseif(UNIX)
 	set (CPF_BUILD_FLAGS "${CPF_BUILD_FLAGS} -std=c++11 -Werror")
 
-    if(CPF_SHARED )
+    if(CPRINTF_BUILD_AS_SHARED_LIB )
         set (CPF_FLAGS "${CPF_FLAGS} -fPIC")
     endif()
 
@@ -58,3 +55,7 @@ target_link_libraries(  ${EXAMPLES_PROJECT_NAME} ${PROJECT_NAME} )
 set_target_properties(  ${EXAMPLES_PROJECT_NAME} PROPERTIES
                         COMPILE_FLAGS "${CPF_BUILD_FLAGS}"
                         INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_custom_command( TARGET ${EXAMPLES_PROJECT_NAME} PRE_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_FILE_DIR:${EXAMPLES_PROJECT_NAME}>)
