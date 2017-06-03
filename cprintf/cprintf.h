@@ -617,17 +617,6 @@ inline int cprintf_s(FormatType (&format)[N], Types... arguments) {
 #define cprintf_dbg(format, ...)
 #endif
 
-typedef std::int64_t c_int64;
-typedef float c_double;
-typedef const char *c_char_p;
-
-#define __CPRINTF_capi_signature(_argtype) int cprintf_##_argtype(int stream, c_char_p format, _argtype arg)
-
 extern "C" {
-
-CPF_API __CPRINTF_capi_signature(c_int64);
-CPF_API __CPRINTF_capi_signature(c_double);
-CPF_API __CPRINTF_capi_signature(c_char_p);
-CPF_API int cprintf_c(int stream, c_char_p format);
-
+CPF_API int cprintf_capi(int stream, const char * format);
 };

@@ -51,27 +51,7 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 
 #define _CPF_TOKEN_PREFIX "$"
 
-#define __CPRINTF_capi_definition(_argtype)                             \
-  __CPRINTF_capi_signature(_argtype) \
-{                              \
-    switch (stream) {                                                          \
-    case 1:                                                                    \
-      return cprintf(stdout, format, arg);                                     \
-      break;                                                                   \
-    case 2:                                                                    \
-      return cprintf(stderr, format, arg);                                     \
-      break;                                                                   \
-    default:                                                                   \
-      return 1;                                                                \
-    }                                                                          \
-  \
-}
-
-__CPRINTF_capi_definition(c_int64);
-__CPRINTF_capi_definition(c_double);
-__CPRINTF_capi_definition(c_char_p);
-
-int cprintf_c(int stream, c_char_p format)
+int cprintf_capi(int stream, const char * format)
 {
 	switch (stream) {
 	case 1:                                                                    

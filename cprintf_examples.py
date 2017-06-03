@@ -22,6 +22,8 @@ from cprintf import cprintf
 from sys import stdout, stderr
 
 def main():
+    cprintf("$Yhello world!!\n")
+    sys.exit(1)
     #cprintf(stdout, "Characters: $R%c %c \n", 'a', 65)
     #cprintf(stderr, "$GDecimals$?: %d %ld\n", 1977, 650000L)
     cprintf("$BPreceding with blanks: %10d \n", 1977)

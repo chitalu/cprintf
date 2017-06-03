@@ -1,7 +1,5 @@
 #include <cprintf/cprintf.h>
-
 #include <cinttypes> // PRIu32
-
 int main(void) {
   cprintf(stdout, "Characters: $R%c %c \n", 'a', 65);
   cprintf(stderr, "$GDecimals$?: %d %ld\n", 1977, 650000L);
@@ -56,17 +54,14 @@ int main(void) {
   cprintf("quux$r.B blue\n");
 #ifdef CPF_WINDOWS_BUILD
   cprintf("note that $bld this text is blue\n");
-#else
-  // bitmap colour tokens available on XTERM (0 - 255)
+#else // (0 - 255)
   cprintf("quux $128f xterm bitmap colour foreground\n");
   cprintf("quux $24b xterm bitmap colour background\n");
   cprintf("quux $128f.94b xterm bitmap colour foreground & background\n");
   cprintf("quux $128f$64b xterm bitmap colour foreground & background\n");
-  // applies bitmap colour to both foreground and background
   cprintf("quux $64& xterm bitmap colour block\n");
   cprintf("note that $bld this text is bold\n");
   cprintf("note that $b`ld this text is blue\n");
-  // reverting text format token effects mid format string
   cprintf("drive forward and $rvs reverse $?rvsand the back to normal\n");
 #endif
   std::vector<std::string> xplat_tokens = {
@@ -89,7 +84,6 @@ int main(void) {
       "BY", "BM", "BC", "BW", "YY", "YB", "YG", "YR", "YM", "YC", "YW", "MM",
       "MR", "MG", "MY", "MB", "MC", "MW", "CC", "CR", "CG", "CY", "CM", "CB",
       "CW", "WW", "WR", "WG", "WY", "WM", "WC", "WB"};
-
   for (std::vector<std::string>::const_iterator tokenIter =
            xplat_tokens.cbegin();
        tokenIter != xplat_tokens.cend(); ++tokenIter) {
@@ -99,10 +93,8 @@ int main(void) {
     if ((i % 7) == 0) 
       cprintf("%s", i == xplat_tokens.size() - 1 ? "\n\n" : "\n");
   }
-
   cprintf("`$? `$r `$g `$b `$y `$m `$c `$w `$rg `$gB `$By `$YM `$m ...\n");
   cprintf("$? $r`r $g`g $b`b $y`y $m`m $c`c $w`w $rg`rg $gB`gB $By`By $YM`YM "
           "$m`m ...\n");
-
   return 0;
 }
