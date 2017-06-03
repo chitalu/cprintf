@@ -3,7 +3,6 @@ from __future__ import print_function
 import sys
 import os
 import ctypes
-import types
 import collections
 import fnmatch
 
@@ -19,37 +18,44 @@ _MAX_ARGS_COUNT = 2
 # path to the shared library with exported cprintf symbols 
 # client scripts may change this variable to indicate a different directory 
 # The default search path is within the script's directory
-lib_path = None
+_binary_filepath = None
 
-# names for some object types that are used by the standard 
-# Python interpreter, but not for the types defined by 
-# various extension modules
-import types
-import ctypes
+def set_library_path(fpath):
+    global _binary_filepath
+
+    _binary_filepath = fpath
 
 # given a particular variable this function returns the variable's ctypes' 
 # equivalent type for caller to correctly convert arguments before invoking
 # "C" shared library's symbols
 def _ctype_get(var):
 
-    if isinstance(var, types.IntType): return ctypes.c_int32
-    elif isinstance(var, types.LongType): return ctypes.c_long
-    elif isinstance(var, types.BooleanType): return ctypes.c_bool
-    elif isinstance(var, types.FloatType): return ctypes.c_float
-    elif isinstance(var, types.StringType): return ctypes.c_char_p
-    elif isinstance(var, types.UnicodeType): return ctypes.c_wchar_p
-    elif isinstance(var, file): return ctypes.c_uint8
+    if isinstance(var, int): 
+        return ctypes.c_int64
+    elif isinstance(var, float): 
+        return ctypes.c_double
+    elif isinstance(var, str): 
+        return ctypes.c_char_p
     
     raise TypeError("cprintf error: Invalid Type -->", type(var).__name__)
 
-def _promote_args(*args):
-    return tuple(_ctype_get(a)(a) for a in args) 
+def _promote_va_arg(a):
+    T = _ctype_get(a)
+    casted = None
+    if isinstance(a, str):
+        casted = T(a.encode('utf-8'))
+    else:
+        casted = T(a)
+    return casted
     
 def invoke(lib_hndl, *args):
-    # convert user args to their ctypes equivalents
-    promoted_form = _promote_args(*args)
     # deduce API name to call based on argument types
-    API_name = "cprintf_{0}".format(promoted_form)
+    va_arg_ctype = _ctype_get(args[-1])
+    typename = va_arg_ctype.__name__
+    if typename == "c_longlong":
+        typename = "c_int64"
+
+    API_name = "cprintf_{0}".format(typename if len(args) > 2 else "c")
 
     if not hasattr(lib_hndl, API_name):
         raise ValueError("cprintf error: Unsupported Type combination")
@@ -57,23 +63,30 @@ def invoke(lib_hndl, *args):
     # get specific API handle
     lib_func = getattr(lib_hndl, API_name)
     lib_func.restype = ctypes.c_int
-    lib_func.argtypes = [type(arg) for arg in promoted_form]
-    return lib_func(*promoted_form)
+    if len(args) > 2:
+        lib_func.argtypes = [ctypes.c_int32, ctypes.c_char_p, va_arg_ctype]
+        return lib_func(ctypes.c_int32(args[0]), 
+                        ctypes.c_char_p(args[1].encode('utf-8')), 
+                        _promote_va_arg(args[-1]))
+    else:
+        lib_func.argtypes = [ctypes.c_int32, ctypes.c_char_p]
+        return lib_func(ctypes.c_int32(args[0]), 
+                        ctypes.c_char_p(args[1].encode('utf-8')))
 
 # handle to the shared library
 _lib = None
 
 def _init_once():
     global _lib
-    global lib_path
+    global _binary_filepath
 
     if _lib is not None:
         return
     
     if (_lib is None):
-        if not os.path.exists(lib_path):
+        if not os.path.exists(_binary_filepath):
             raise RuntimeError("cprintf error: library path does not exist")
-        _lib = ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+        _lib = ctypes.CDLL(_binary_filepath, mode=ctypes.RTLD_GLOBAL)
 
 def _validate(status):    
     if status != 0:
@@ -95,7 +108,7 @@ def cprintf(*VA_ARGS):
     if not (arg_cnt >= _MIN_ARGS_COUNT and arg_cnt <= _MAX_ARGS_COUNT):
         raise ValueError("cprintf error: Invalid argument count: {0}".format(arg_cnt))
  
-    is_str = lambda e: isinstance(e, types.StringType) or isinstance(e, types.UnicodeType) 
+    is_str = lambda e: isinstance(e, str) 
     arg0 = VA_ARGS[0]
 
     # emulate standard "print" function

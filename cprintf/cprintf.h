@@ -55,11 +55,10 @@ THE SOFTWARE.
 #include <map>
 #include <mutex>
 #include <vector>
+#include <cstdint>
 
 #ifdef CPF_WINDOWS_BUILD
-
 #include <Windows.h>
-
 #ifndef CPF_BUILD_AS_SHARED
 
 #define CPF_API extern
@@ -618,31 +617,17 @@ inline int cprintf_s(FormatType (&format)[N], Types... arguments) {
 #define cprintf_dbg(format, ...)
 #endif
 
-typedef int c_int32;
-typedef long c_long;
-typedef float c_float;
+typedef std::int64_t c_int64;
+typedef float c_double;
 typedef const char *c_char_p;
-typedef const wchar_t *c_wchar_p;
 
-#define __CPRINTF_capi_Sig0(_formattype, _argtype)                             \
-  \
-int cprintf_##_formattype##_##_argtype(int stream, _formattype format,         \
-                                       _argtype arg)
-
-#define __CPRINTF_capi_Sig1(_formattype)                                       \
-  \
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_int32);                             \
-  \
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_long);                              \
-  \
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_float);                             \
-  \
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_char_p);                            \
-  \
-CPF_API __CPRINTF_capi_Sig0(_formattype, c_wchar_p);
+#define __CPRINTF_capi_signature(_argtype) int cprintf_##_argtype(int stream, c_char_p format, _argtype arg)
 
 extern "C" {
 
-__CPRINTF_capi_Sig1(c_char_p);
-__CPRINTF_capi_Sig1(c_wchar_p);
+CPF_API __CPRINTF_capi_signature(c_int64);
+CPF_API __CPRINTF_capi_signature(c_double);
+CPF_API __CPRINTF_capi_signature(c_char_p);
+CPF_API int cprintf_c(int stream, c_char_p format);
+
 };

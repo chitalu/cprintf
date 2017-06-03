@@ -51,8 +51,8 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 
 #define _CPF_TOKEN_PREFIX "$"
 
-#define __CPRINTF_capi_Def0(_formattype, _argtype)                             \
-  __CPRINTF_capi_Sig0(_formattype, _argtype) \
+#define __CPRINTF_capi_definition(_argtype)                             \
+  __CPRINTF_capi_signature(_argtype) \
 {                              \
     switch (stream) {                                                          \
     case 1:                                                                    \
@@ -67,19 +67,23 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
   \
 }
 
-#define __CPRINTF_capi_Def1(_formattype)                                       \
-  \
-__CPRINTF_capi_Def0(_formattype, c_int32);                                     \
-  \
-__CPRINTF_capi_Def0(_formattype, c_long);                                      \
-  \
-__CPRINTF_capi_Def0(_formattype, c_float);                                     \
-  \
-__CPRINTF_capi_Def0(_formattype, c_char_p);                                    \
-  \
-__CPRINTF_capi_Def0(_formattype, c_wchar_p);
+__CPRINTF_capi_definition(c_int64);
+__CPRINTF_capi_definition(c_double);
+__CPRINTF_capi_definition(c_char_p);
 
-__CPRINTF_capi_Def1(c_char_p) __CPRINTF_capi_Def1(c_wchar_p)
+int cprintf_c(int stream, c_char_p format)
+{
+	switch (stream) {
+	case 1:                                                                    
+		return cprintf(stdout, format);                                     
+		break;                                                                   
+	case 2:                                                                    
+		return cprintf(stderr, format);                                     
+		break;                                                                   
+	default:                                                                   
+		return 1;                                                                
+	}
+}
 
     namespace _cprintf_ {
   CPF_API const _cprintf_::unicode_string_vector_t _cprintf_::std_tokens = {
@@ -803,7 +807,7 @@ __CPRINTF_capi_Def1(c_char_p) __CPRINTF_capi_Def1(c_wchar_p)
 
     if (!ret_okay) {
       throw CPF_SYSTEM_ERR; // system call failed to retrieve terminal
-                            // attributes
+                            // attributes (make sure a console is attached to your process)
     }
     saved_terminal_colour = cbsi.wAttributes;
 #else
