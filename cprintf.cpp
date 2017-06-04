@@ -53,6 +53,11 @@ HANDLE stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
 
 int cprintf_capi(int stream, const char * format)
 {
+	if (_cprintf_::get_num_format_specifiers_in_string(_cprintf_::ascii_to_unicode_string_conversion(format)))
+	{
+		return 2;
+	}
+
 	switch (stream) {
 	case 1:                                                                    
 		return cprintf(stdout, format);                                     

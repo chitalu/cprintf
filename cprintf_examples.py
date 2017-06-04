@@ -22,11 +22,10 @@ from cprintf import cprintf
 from sys import stdout, stderr
 
 def main():
-    cprintf("$Yhello world!!\n")
-    sys.exit(1)
-    #cprintf(stdout, "Characters: $R%c %c \n", 'a', 65)
-    #cprintf(stderr, "$GDecimals$?: %d %ld\n", 1977, 650000L)
-    cprintf("$BPreceding with blanks: %10d \n", 1977)
+    cprintf(stdout, "Characters: $R{} {:c} \n".format('a', 65))
+    cprintf(stderr, "$GDecimals$?: {} {}\n".format(1977, 650000))
+    cprintf("$BPreceding with blanks: {0:{width}{base}} \n".format(1977, width=4, base=10))
+    sys.exit(0)
     cprintf("Preceding with zeros: $Y%010d \n", 1977)
     #cprintf("Some different radices: %d %x %o $M%#x$W %#o \n", 100, 100, 100, 100, 100)
 	#cprintf("floats: %4.2f $C%+.0e$? %E \n", 3.1416, 3.1416, 3.1416)

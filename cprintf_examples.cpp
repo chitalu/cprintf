@@ -1,5 +1,6 @@
 #include <cprintf/cprintf.h>
 #include <cinttypes> // PRIu32
+
 int main(void) {
   cprintf(stdout, "Characters: $R%c %c \n", 'a', 65);
   cprintf(stderr, "$GDecimals$?: %d %ld\n", 1977, 650000L);

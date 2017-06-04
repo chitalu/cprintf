@@ -41,7 +41,7 @@ def _promote_va_arg(a):
     return casted
     
 def invoke(lib_hndl, *args):
-    API_name = "cprintf_c"
+    API_name = "cprintf_capi"
     if not hasattr(lib_hndl, API_name):
         raise ValueError("cprintf error: Unsupported Type combination")
     lib_func = getattr(lib_hndl, API_name)
