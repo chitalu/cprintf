@@ -2,7 +2,7 @@
 
 ### Examples: ###
 
-```
+```cpp
 cprintf(stdout, "Characters: $R%c %c \n", 'a', 65);
 cprintf(stderr, "$GDecimals$?: %d %ld\n", 1977, 650000L);
 cprintf("$BPreceding with blanks: %10d \n", 1977);
