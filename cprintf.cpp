@@ -24,9 +24,9 @@ THE SOFTWARE.
 
 #include <cprintf/cprintf.h>
 
-//#include <algorithm>
-//#include <clocale>
-//#include <cwctype>
+#include <algorithm>
+#include <clocale>
+#include <cwctype>
 //#include <memory>
 //#include <type_traits>
 
@@ -71,7 +71,7 @@ int cprintf_capi(int stream, const char * format)
 }
 
     namespace _cprintf_ {
-  CPF_API const _cprintf_::unicode_string_vector_t _cprintf_::std_tokens = {
+  const _cprintf_::unicode_string_vector_t std_tokens = {
     L"r",
     L"g",
     L"b",
@@ -400,8 +400,8 @@ int cprintf_capi(int stream, const char * format)
     L"" #C "W", L"\x1B[0;9" #i ";107m"                                         \
   }
 
-  extern const std::map<const cpf::type::str_t, cpf::type::colour>
-      cpf::intern::std_token_vals{
+  extern const std::map<const _cprintf_::unicode_string_t, _cprintf_::system_color_repr_t>
+      std_token_vals{
 
           /*attributes specifiers*/
           {L"bld", L"\x1B[1m"},       {L"dim", L"\x1B[2m"},
@@ -427,27 +427,27 @@ int cprintf_capi(int stream, const char * format)
           */
 
   const std::initializer_list<_cprintf_::unicode_string_t>
-      _cprintf_::attr_esc_seqs = {
+      attr_esc_seqs = {
           L"`$", L"`r", L"`g", L"`b", L"`y", L"`m", L"`c",
           L"`w", L"`R", L"`G", L"`B", L"`Y", L"`M", L"`C",
           L"`W", L"`.", L"``", L"`?", L"`f", L"`#", L"`l", /*...$bld -> $b`ld*/
       };
 
-  const std::initializer_list<wchar_t> _cprintf_::std_fmt_specs = {
+  const std::initializer_list<wchar_t> std_fmt_specs = {
       'c', 'd', 'e', 'E', 'f', 'F', 'g', 'G', 'i', 'o',
       's', 'u', 'x', 'X', 'a', 'A', 'p', 'n', 'b', 'S'};
 
   // These are characters that terminate a format specifier: Characters
   // typically found at the end of a more complex FS %#x %.6i %05.2f
-  const std::initializer_list<wchar_t> _cprintf_::ext_fmtspec_terms = {
+  const std::initializer_list<wchar_t> ext_fmtspec_terms = {
       'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u', 'S'};
 
   // These are characters that typically contained within i.e. in the middle of
   // more complex format specifiers e.g. %.6i, %05.2f
-  const std::initializer_list<wchar_t> _cprintf_::inter_fmt_specs = {
+  const std::initializer_list<wchar_t> inter_fmt_specs = {
       '+', '-', '.', '*', '#', 'l'};
 
-  const std::initializer_list<wchar_t> _cprintf_::escape_characters = {
+  const std::initializer_list<wchar_t> escape_characters = {
       '\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'};
 
   auto col_ids = {'r', 'g', 'b', 'y', 'm', 'c', 'w',

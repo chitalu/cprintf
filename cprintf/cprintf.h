@@ -56,6 +56,7 @@ THE SOFTWARE.
 #include <mutex>
 #include <vector>
 #include <cstdint>
+#include <string>
 
 #ifdef CPF_WINDOWS_BUILD
 #include <Windows.h>
@@ -184,6 +185,9 @@ and aid in readability
 #endif /*	#ifdef _WIN32	*/
 
 namespace _cprintf_ {
+typedef std::wstring unicode_string_t;
+
+typedef std::string ascii_string_t;
 
 #ifdef CPF_WINDOWS_BUILD
 typedef WORD system_color_repr_t;
@@ -191,9 +195,6 @@ typedef WORD system_color_repr_t;
 typedef unicode_string_t system_color_repr_t;
 #endif
 
-typedef std::wstring unicode_string_t;
-
-typedef std::string ascii_string_t;
 
 typedef const wchar_t *unicode_character_string_ptr_t;
 
@@ -421,31 +422,31 @@ void write_variadic_argument_to_file_stream(file_stream_t file_stream,
 }
 
 template <>
-CPF_API void write_variadic_argument_to_file_stream<unicode_string_t>(
+void write_variadic_argument_to_file_stream<unicode_string_t>(
     file_stream_t file_stream, unicode_string_t const &format,
     unicode_string_t &&arg);
 
 template <>
-CPF_API void write_variadic_argument_to_file_stream<ascii_string_t>(
+void write_variadic_argument_to_file_stream<ascii_string_t>(
     file_stream_t file_stream, unicode_string_t const &format,
     ascii_string_t &&arg);
 
 template <>
-CPF_API void write_variadic_argument_to_file_stream<char *>(
+void write_variadic_argument_to_file_stream<char *>(
     file_stream_t file_stream, unicode_string_t const &format, char *&&arg);
 
 template <>
-CPF_API void write_variadic_argument_to_file_stream<signed char *>(
+void write_variadic_argument_to_file_stream<signed char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     signed char *&&arg);
 
 template <>
-CPF_API void write_variadic_argument_to_file_stream<const char *>(
+void write_variadic_argument_to_file_stream<const char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     const char *&&arg);
 
 template <>
-CPF_API void write_variadic_argument_to_file_stream<const signed char *>(
+void write_variadic_argument_to_file_stream<const signed char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     const signed char *&&arg);
 
@@ -523,7 +524,7 @@ int dispatch(file_stream_t file_stream, FormatType &&raw_format,
   static_assert(is_valid_string_type_<FormatType>::value,
                 "invalid format string type");
 
-  verify_args_<ArgumentTypes...>::current::value;
+  static_assert(verify_args_<ArgumentTypes...>::current::value, "invalid args");
 
   unicode_string_t format;
 
