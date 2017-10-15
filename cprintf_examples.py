@@ -24,6 +24,7 @@ from sys import stdout, stderr
 def main():
     cprintf(stdout, "Characters: $R{} {:c} \n".format('a', 65))
     cprintf(stderr, "$GDecimals$?: {} {}\n".format(1977, 650000))
+    print("hello")
     cprintf("$BPreceding with blanks: {0:{width}{base}} \n".format(1977, width=4, base=10))
     sys.exit(0)
     cprintf("Preceding with zeros: $Y%010d \n", 1977)

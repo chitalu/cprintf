@@ -77,68 +77,61 @@ int cprintf_capi(int stream, const char* format)
 namespace _cprintf_
 {
 const _cprintf_::unicode_string_vector_t std_tokens = {
-	"r", "g", "b", "y", "m", "c", "w", "r#", "g#", "b#", "y#", "m#",
-	"c#", "w#", "R", "G", "B", "Y", "M", "C", "W", "R#", "G#", "B#",
-	"Y#", "M#", "C#", "W#", "rr", "rb", "rg", "ry", "rm", "rc", "rw",
-	"gg", "gb", "gr", "gy", "gm", "gc", "gw", "bb", "br", "bg", "by",
-	"bm", "bc", "bw", "yy", "yb", "yg", "yr", "ym", "yc", "yw", "mm",
-	"mr", "mg", "my", "mb", "mc", "mw", "cc", "cr", "cg", "cy", "cm",
-	"cb", "cw", "ww", "wr", "wg", "wy", "wm", "wc", "wb", "Rr", "Rb",
-	"Rg", "Ry", "Rm", "Rc", "Rw", "Gg", "Gb", "Gr", "Gy", "Gm", "Gc",
-	"Gw", "Bb", "Br", "Bg", "By", "Bm", "Bc", "Bw", "Yy", "Yb", "Yg",
-	"Yr", "Ym", "Yc", "Yw", "Mm", "Mr", "Mg", "My", "Mb", "Mc", "Mw",
-	"Cc", "Cr", "Cg", "Cy", "Cm", "Cb", "Cw", "Ww", "Wr", "Wg", "Wy",
-	"Wm", "Wc", "Wb", "rR", "rB", "rG", "rY", "rM", "rC", "rW", "gG",
-	"gB", "gR", "gY", "gM", "gC", "gW", "bB", "bR", "bG", "bY", "bM",
-	"bC", "bW", "yY", "yB", "yG", "yR", "yM", "yC", "yW", "mM", "mR",
-	"mG", "mY", "mB", "mC", "mW", "cC", "cR", "cG", "cY", "cM", "cB",
-	"cW", "wW", "wR", "wG", "wY", "wM", "wC", "wB", "RR", "RB", "RG",
-	"RY", "RM", "RC", "RW", "GG", "GB", "GR", "GY", "GM", "GC", "GW",
-	"BB", "BR", "BG", "BY", "BM", "BC", "BW", "YY", "YB", "YG", "YR",
-	"YM", "YC", "YW", "MM", "MR", "MG", "MY", "MB", "MC", "MW", "CC",
-	"CR", "CG", "CY", "CM", "CB", "CW", "WW", "WR", "WG", "WY", "WM",
-	"WC", "WB"
+	"r", "g", "b", "y", "m", "c", "w", "r#", "g#", "b#", "y#", "m#", "c#", "w#",
+	"R", "G", "B", "Y", "M", "C", "W", "R#", "G#", "B#", "Y#", "M#", "C#", "W#",
+	"rr", "rb", "rg", "ry", "rm", "rc", "rw", "gg", "gb", "gr", "gy", "gm", "gc",
+	"gw", "bb", "br", "bg", "by", "bm", "bc", "bw", "yy", "yb", "yg", "yr", "ym",
+	"yc", "yw", "mm", "mr", "mg", "my", "mb", "mc", "mw", "cc", "cr", "cg", "cy",
+	"cm", "cb", "cw", "ww", "wr", "wg", "wy", "wm", "wc", "wb", "Rr", "Rb", "Rg",
+	"Ry", "Rm", "Rc", "Rw", "Gg", "Gb", "Gr", "Gy", "Gm", "Gc", "Gw", "Bb", "Br",
+	"Bg", "By", "Bm", "Bc", "Bw", "Yy", "Yb", "Yg", "Yr", "Ym", "Yc", "Yw", "Mm",
+	"Mr", "Mg", "My", "Mb", "Mc", "Mw", "Cc", "Cr", "Cg", "Cy", "Cm", "Cb", "Cw",
+	"Ww", "Wr", "Wg", "Wy", "Wm", "Wc", "Wb", "rR", "rB", "rG", "rY", "rM", "rC",
+	"rW", "gG", "gB", "gR", "gY", "gM", "gC", "gW", "bB", "bR", "bG", "bY", "bM",
+	"bC", "bW", "yY", "yB", "yG", "yR", "yM", "yC", "yW", "mM", "mR", "mG", "mY",
+	"mB", "mC", "mW", "cC", "cR", "cG", "cY", "cM", "cB", "cW", "wW", "wR", "wG",
+	"wY", "wM", "wC", "wB", "RR", "RB", "RG", "RY", "RM", "RC", "RW", "GG", "GB",
+	"GR", "GY", "GM", "GC", "GW", "BB", "BR", "BG", "BY", "BM", "BC", "BW", "YY",
+	"YB", "YG", "YR", "YM", "YC", "YW", "MM", "MR", "MG", "MY", "MB", "MC", "MW",
+	"CC", "CR", "CG", "CY", "CM", "CB", "CW", "WW", "WR", "WG", "WY", "WM", "WC",
+	"WB"
 
 #if !defined(CPF_WINDOWS_BUILD)
 	// bold, dim, blink, reverse, hidden
 	,
-	"bld", "dim", "uln", "blk", "rvs", "hid", "?bld", "?dim", "?uln",
-	"?blk", "?rvs", "?hid",
+	"bld", "dim", "uln", "blk", "rvs", "hid", "?bld", "?dim", "?uln", "?blk",
+	"?rvs", "?hid",
 #endif // #if !defined(CPF_WINDOWS_BUILD)
 };
 
 #if defined(CPF_WINDOWS_BUILD)
 
-#define REG_COLOUR_VALUES(c, C, val_f, val_b)                                 \
-	{ "" ##c "#", (val_b) }, { "" ##C "#", (val_b | CPF_bgi) },           \
-	  { "" ##c, (val_f) }, { "" ##c "r", (val_f | CPF_Rb) },               \
-	  { "" ##c "b", (val_f | CPF_Bb) }, { "" ##c "g", (val_f | CPF_Gb) }, \
-	  { "" ##c "y", (val_f | CPF_Yb) }, { "" ##c "m", (val_f | CPF_Mb) }, \
-	  { "" ##c "c", (val_f | CPF_Cb) }, { "" ##c "w", (val_f | CPF_Wb) }, \
-	  { "" ##C, (val_f | CPF_fgi) },                                          \
-	  { "" ##C "r", ((val_f | CPF_fgi) | CPF_Rb) },                          \
-	  { "" ##C "b", ((val_f | CPF_fgi) | CPF_Bb) },                          \
-	  { "" ##C "g", ((val_f | CPF_fgi) | CPF_Gb) },                          \
-	  { "" ##C "y", ((val_f | CPF_fgi) | CPF_Yb) },                          \
-	  { "" ##C "m", ((val_f | CPF_fgi) | CPF_Mb) },                          \
-	  { "" ##C "c", ((val_f | CPF_fgi) | CPF_Cb) },                          \
-	  { "" ##C "w", ((val_f | CPF_fgi) | CPF_Wb) },                          \
-	  { "" ##c "R", (val_f | CPF_Rbi) },                                     \
-	  { "" ##c "B", (val_f | CPF_Bbi) },                                     \
-	  { "" ##c "G", (val_f | CPF_Gbi) },                                     \
-	  { "" ##c "Y", (val_f | CPF_Ybi) },                                     \
-	  { "" ##c "M", (val_f | CPF_Mbi) },                                     \
-	  { "" ##c "C", (val_f | CPF_Cbi) },                                     \
-	  { "" ##c "W", (val_f | CPF_Wbi) },                                     \
-	  { "" ##C "R", ((val_f | CPF_fgi) | CPF_Rbi) },                         \
-	  { "" ##C "B", ((val_f | CPF_fgi) | CPF_Bbi) },                         \
-	  { "" ##C "G", ((val_f | CPF_fgi) | CPF_Gbi) },                         \
-	  { "" ##C "Y", ((val_f | CPF_fgi) | CPF_Ybi) },                         \
-	  { "" ##C "M", ((val_f | CPF_fgi) | CPF_Mbi) },                         \
-	  { "" ##C "M", ((val_f | CPF_fgi) | CPF_Mbi) },                         \
-	  { "" ##C "C", ((val_f | CPF_fgi) | CPF_Cbi) },                         \
-	{                                                                           \
-		"" ##C "W", ((val_f | CPF_fgi) | CPF_Wbi)                              \
+#define REG_COLOUR_VALUES(c, C, val_f, val_b)                                  \
+	{ ""##c "#", (val_b) }, { ""##C "#", (val_b | CPF_bgi) },                    \
+	  { ""##c, (val_f) }, { ""##c "r", (val_f | CPF_Rb) },                       \
+	  { ""##c "b", (val_f | CPF_Bb) }, { ""##c "g", (val_f | CPF_Gb) },          \
+	  { ""##c "y", (val_f | CPF_Yb) }, { ""##c "m", (val_f | CPF_Mb) },          \
+	  { ""##c "c", (val_f | CPF_Cb) }, { ""##c "w", (val_f | CPF_Wb) },          \
+	  { ""##C, (val_f | CPF_fgi) }, { ""##C "r", ((val_f | CPF_fgi) | CPF_Rb) }, \
+	  { ""##C "b", ((val_f | CPF_fgi) | CPF_Bb) },                               \
+	  { ""##C "g", ((val_f | CPF_fgi) | CPF_Gb) },                               \
+	  { ""##C "y", ((val_f | CPF_fgi) | CPF_Yb) },                               \
+	  { ""##C "m", ((val_f | CPF_fgi) | CPF_Mb) },                               \
+	  { ""##C "c", ((val_f | CPF_fgi) | CPF_Cb) },                               \
+	  { ""##C "w", ((val_f | CPF_fgi) | CPF_Wb) },                               \
+	  { ""##c "R", (val_f | CPF_Rbi) }, { ""##c "B", (val_f | CPF_Bbi) },        \
+	  { ""##c "G", (val_f | CPF_Gbi) }, { ""##c "Y", (val_f | CPF_Ybi) },        \
+	  { ""##c "M", (val_f | CPF_Mbi) }, { ""##c "C", (val_f | CPF_Cbi) },        \
+	  { ""##c "W", (val_f | CPF_Wbi) },                                          \
+	  { ""##C "R", ((val_f | CPF_fgi) | CPF_Rbi) },                              \
+	  { ""##C "B", ((val_f | CPF_fgi) | CPF_Bbi) },                              \
+	  { ""##C "G", ((val_f | CPF_fgi) | CPF_Gbi) },                              \
+	  { ""##C "Y", ((val_f | CPF_fgi) | CPF_Ybi) },                              \
+	  { ""##C "M", ((val_f | CPF_fgi) | CPF_Mbi) },                              \
+	  { ""##C "M", ((val_f | CPF_fgi) | CPF_Mbi) },                              \
+	  { ""##C "C", ((val_f | CPF_fgi) | CPF_Cbi) },                              \
+	{                                                                            \
+		""##C "W", ((val_f | CPF_fgi) | CPF_Wbi)                                   \
 	}
 
 const std::map<const _cprintf_::unicode_string_t,
@@ -163,38 +156,31 @@ const std::map<const _cprintf_::unicode_string_t,
 // http://ispltd.org/mini_howto:ansi_terminal_codes
 
 /*<ESC>[{attr};{fg};{bg}m*/
-#define REG_COLOUR_VALUES(c, C, i)                                           \
-	{ "" #c, "\x1B[0;0;3" #i "m" }, { "" #C "r", "\x1B[0;9" #i ";41m" },   \
-	  { "" #c "#", "\x1B[0;0;4" #i "m" },                                    \
-	  { "" #C "#", "\x1B[0;30;10" #i "m" },                                  \
-	  { "" #c "r", "\x1B[0;3" #i ";41m" },                                   \
-	  { "" #c "g", "\x1B[0;3" #i ";42m" },                                   \
-	  { "" #c "b", "\x1B[0;3" #i ";44m" },                                   \
-	  { "" #c "y", "\x1B[0;3" #i ";43m" },                                   \
-	  { "" #c "m", "\x1B[0;3" #i ";45m" },                                   \
-	  { "" #c "c", "\x1B[0;3" #i ";46m" },                                   \
-	  { "" #c "w", "\x1B[0;3" #i ";47m" }, { "" #C, "\x1B[0;0;9" #i "m" }, \
-	  { "" #C "g", "\x1B[0;9" #i ";42m" },                                   \
-	  { "" #C "b", "\x1B[0;9" #i ";44m" },                                   \
-	  { "" #C "y", "\x1B[0;9" #i ";43m" },                                   \
-	  { "" #C "m", "\x1B[0;9" #i ";45m" },                                   \
-	  { "" #C "c", "\x1B[0;9" #i ";46m" },                                   \
-	  { "" #C "w", "\x1B[0;9" #i ";47m" },                                   \
-	  { "" #c "R", "\x1B[0;3" #i ";101m" },                                  \
-	  { "" #c "G", "\x1B[0;3" #i ";102m" },                                  \
-	  { "" #c "B", "\x1B[0;3" #i ";104m" },                                  \
-	  { "" #c "Y", "\x1B[0;3" #i ";103m" },                                  \
-	  { "" #c "M", "\x1B[0;3" #i ";105m" },                                  \
-	  { "" #c "C", "\x1B[0;3" #i ";106m" },                                  \
-	  { "" #c "W", "\x1B[0;3" #i ";107m" },                                  \
-	  { "" #C "R", "\x1B[0;9" #i ";101m" },                                  \
-	  { "" #C "G", "\x1B[0;9" #i ";102m" },                                  \
-	  { "" #C "B", "\x1B[0;9" #i ";104m" },                                  \
-	  { "" #C "Y", "\x1B[0;9" #i ";103m" },                                  \
-	  { "" #C "M", "\x1B[0;9" #i ";105m" },                                  \
-	  { "" #C "C", "\x1B[0;9" #i ";106m" },                                  \
-	{                                                                          \
-		"" #C "W", "\x1B[0;9" #i ";107m"                                       \
+#define REG_COLOUR_VALUES(c, C, i)                                            \
+	{ "" #c, "\x1B[0;0;3" #i "m" }, { "" #C "r", "\x1B[0;9" #i ";41m" },        \
+	  { "" #c "#", "\x1B[0;0;4" #i "m" }, { "" #C "#", "\x1B[0;30;10" #i "m" }, \
+	  { "" #c "r", "\x1B[0;3" #i ";41m" }, { "" #c "g", "\x1B[0;3" #i ";42m" }, \
+	  { "" #c "b", "\x1B[0;3" #i ";44m" }, { "" #c "y", "\x1B[0;3" #i ";43m" }, \
+	  { "" #c "m", "\x1B[0;3" #i ";45m" }, { "" #c "c", "\x1B[0;3" #i ";46m" }, \
+	  { "" #c "w", "\x1B[0;3" #i ";47m" }, { "" #C, "\x1B[0;0;9" #i "m" },      \
+	  { "" #C "g", "\x1B[0;9" #i ";42m" }, { "" #C "b", "\x1B[0;9" #i ";44m" }, \
+	  { "" #C "y", "\x1B[0;9" #i ";43m" }, { "" #C "m", "\x1B[0;9" #i ";45m" }, \
+	  { "" #C "c", "\x1B[0;9" #i ";46m" }, { "" #C "w", "\x1B[0;9" #i ";47m" }, \
+	  { "" #c "R", "\x1B[0;3" #i ";101m" },                                     \
+	  { "" #c "G", "\x1B[0;3" #i ";102m" },                                     \
+	  { "" #c "B", "\x1B[0;3" #i ";104m" },                                     \
+	  { "" #c "Y", "\x1B[0;3" #i ";103m" },                                     \
+	  { "" #c "M", "\x1B[0;3" #i ";105m" },                                     \
+	  { "" #c "C", "\x1B[0;3" #i ";106m" },                                     \
+	  { "" #c "W", "\x1B[0;3" #i ";107m" },                                     \
+	  { "" #C "R", "\x1B[0;9" #i ";101m" },                                     \
+	  { "" #C "G", "\x1B[0;9" #i ";102m" },                                     \
+	  { "" #C "B", "\x1B[0;9" #i ";104m" },                                     \
+	  { "" #C "Y", "\x1B[0;9" #i ";103m" },                                     \
+	  { "" #C "M", "\x1B[0;9" #i ";105m" },                                     \
+	  { "" #C "C", "\x1B[0;9" #i ";106m" },                                     \
+	{                                                                           \
+		"" #C "W", "\x1B[0;9" #i ";107m"                                          \
 	}
 
 extern const std::map<const _cprintf_::unicode_string_t,
@@ -202,12 +188,12 @@ extern const std::map<const _cprintf_::unicode_string_t,
   std_token_vals{
 
 	  /*attributes specifiers*/
-	  { "bld", "\x1B[1m" },     { "dim", "\x1B[2m" },
-	  { "uln", "\x1B[4m" },     { "blk", "\x1B[5m" },
-	  { "rvs", "\x1B[7m" },     { "hid", "\x1B[8m" },
-	  { "?bld", "\x1B[21m" },   { "?dim", "\x1B[22m" },
-	  { "?uln", "\x1B[24m" },   { "?blk", "\x1B[25m" },
-	  { "?rvs", "\x1B[27m" },   { "?hid", "\x1B[28m" },
+	  { "bld", "\x1B[1m" },       { "dim", "\x1B[2m" },
+	  { "uln", "\x1B[4m" },       { "blk", "\x1B[5m" },
+	  { "rvs", "\x1B[7m" },       { "hid", "\x1B[8m" },
+	  { "?bld", "\x1B[21m" },     { "?dim", "\x1B[22m" },
+	  { "?uln", "\x1B[24m" },     { "?blk", "\x1B[25m" },
+	  { "?rvs", "\x1B[27m" },     { "?hid", "\x1B[28m" },
 	  REG_COLOUR_VALUES(r, R, 1), REG_COLOUR_VALUES(g, G, 2),
 	  REG_COLOUR_VALUES(b, B, 4), REG_COLOUR_VALUES(y, Y, 3),
 	  REG_COLOUR_VALUES(m, M, 5), REG_COLOUR_VALUES(c, C, 6),
@@ -225,33 +211,31 @@ extern const std::map<const _cprintf_::unicode_string_t,
         cprintf("$r`red");
         */
 
-const std::initializer_list<_cprintf_::unicode_string_t>
-  attr_esc_seqs =
-    {
-	    "`$", "`r", "`g", "`b", "`y", "`m", "`c",
-	    "`w", "`R", "`G", "`B", "`Y", "`M", "`C",
-	    "`W", "`.", "``", "`?", "`f", "`#", "`l", /*...$bld -> $b`ld*/
-	  };
-
-const std::initializer_list<char> std_fmt_specs = {
-	'c', 'd', 'e', 'E', 'f', 'F', 'g', 'G', 'i', 'o',
-	's', 'u', 'x', 'X', 'a', 'A', 'p', 'n', 'b', 'S'
+const std::initializer_list<_cprintf_::unicode_string_t> attr_esc_seqs = {
+	"`$", "`r", "`g", "`b", "`y", "`m", "`c", "`w", "`R", "`G", "`B",
+	"`Y", "`M", "`C", "`W", "`.", "``", "`?", "`f", "`#", "`l", /*...$bld ->
+                                                                 $b`ld*/
 };
+
+const std::initializer_list<char> std_fmt_specs = { 'c', 'd', 'e', 'E', 'f',
+	                                                  'F', 'g', 'G', 'i', 'o',
+	                                                  's', 'u', 'x', 'X', 'a',
+	                                                  'A', 'p', 'n', 'b', 'S' };
 
 // These are characters that terminate a format specifier: Characters
 // typically found at the end of a more complex FS %#x %.6i %05.2f
-const std::initializer_list<char> ext_fmtspec_terms = { 'd', 'f', 's', 'e',
-	                                                         'o', 'x', 'X', 'i',
-	                                                         'u', 'S' };
+const std::initializer_list<char> ext_fmtspec_terms = {
+	'd', 'f', 's', 'e', 'o', 'x', 'X', 'i', 'u', 'S'
+};
 
 // These are characters that typically contained within i.e. in the middle of
 // more complex format specifiers e.g. %.6i, %05.2f
 const std::initializer_list<char> inter_fmt_specs = { '+', '-', '.',
-	                                                       '*', '#', 'l' };
+	                                                    '*', '#', 'l' };
 
-const std::initializer_list<char> escape_characters = {
-	'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\"', '\0'
-};
+const std::initializer_list<char> escape_characters = { '\a', '\b', '\f', '\n',
+	                                                      '\r', '\t', '\v', '\\',
+	                                                      '\"', '\0' };
 
 auto col_ids = { 'r', 'g', 'b', 'y', 'm', 'c', 'w',
 	               'R', 'G', 'B', 'Y', 'M', 'C', 'W' };
@@ -268,8 +252,7 @@ auto schar_ids = {
 /*
         parse-predicate storage type
         */
-typedef std::map<char,
-                 std::function<bool(unicode_string_t const&, int const&)>>
+typedef std::map<char, std::function<bool(unicode_string_t const&, int const&)>>
   ppred_t;
 
 bool pred_isdigit(unicode_string_t const& s, int const& p)
@@ -405,9 +388,9 @@ void parse_attribute_specifier(unicode_string_t const&      src_string,
                                unicode_string_t::size_type& offset_val,
                                unicode_string_t::size_type& ssp)
 {
-	int     offset_counter = 0;
+	int  offset_counter = 0;
 	char c        = src_string[ssp]; // first character after occurrance of "$"
-	bool    finished = false,
+	bool finished = false,
 	     checked_if_is_txt_frmt_modifier = false; //$bld $rvs etc..
 	ppred_t::const_iterator
 	  pred_iter; // colour and screen wipe parsing predicates iterator
@@ -672,7 +655,7 @@ void save_stream_state(file_stream_t user_stream)
 void restore_stream_state(file_stream_t user_stream, bool finished_cpf_exec)
 {
 
-	if (!glob_terminal_state_restored &&  runningInSystemTerminal() )
+	if (!glob_terminal_state_restored && runningInSystemTerminal())
 	{
 #ifdef _WIN32
 		auto s        = user_stream == stdout ? stdout_handle : stderr_handle;
@@ -694,8 +677,7 @@ void restore_stream_state(file_stream_t user_stream, bool finished_cpf_exec)
 	/*
 	            make note of this!
 	            */
-	if (glob_terminal_state_restored)
-		std::fflush(user_stream);
+	std::fflush(user_stream);
 }
 
 // i.e 32f or 200b
@@ -726,9 +708,9 @@ system_color_repr_t get_token_value(const unicode_string_t& colour_key)
 unicode_string_t get_terminal_bitmap_colour_value(
   const unicode_string_t& attrib_token)
 {
-	auto    at_size    = attrib_token.size();
+	auto at_size    = attrib_token.size();
 	char lst_char   = attrib_token[at_size - 1];
-	auto    colour_num = attrib_token.substr(0, at_size - 2);
+	auto colour_num = attrib_token.substr(0, at_size - 2);
 
 	auto int_repr = strtol(colour_num.c_str(), nullptr, 0);
 
@@ -748,8 +730,7 @@ unicode_string_t get_terminal_bitmap_colour_value(
 	}
 	else // "43&"
 	{
-		colour_str =
-		  ("\x1B[38;5;" + colour_num + "m\x1B[48;5;" + colour_num + "m");
+		colour_str = ("\x1B[38;5;" + colour_num + "m\x1B[48;5;" + colour_num + "m");
 	}
 
 	return colour_str;
@@ -1113,7 +1094,6 @@ void write_substring_without_format_specifier(
 	}
 }
 
-
 CPF_API void format_specifier_correspondence_check(
   unicode_character_string_ptr_t format)
 {
@@ -1146,8 +1126,7 @@ unicode_string_t resolve_string_type_format_specifier(
 		f.clear();
 		for (std::wint_t i(0); i < fs.size(); ++i)
 		{
-			f.append(
-			  { std::isalpha(fs[i]) ? (char)std::toupper(fs[i]) : fs[i] });
+			f.append({ std::isalpha(fs[i]) ? (char)std::toupper(fs[i]) : fs[i] });
 		}
 	}
 #endif
@@ -1183,7 +1162,6 @@ void write_variadic_argument_to_file_stream<signed char*>(
 	  std::forward<unicode_string_t>(
 	    ascii_to_unicode_string_conversion(reinterpret_cast<char*>(arg))));
 }
-
 
 CPF_API void print_format_string_layout(
   file_stream_t                                 file_stream,
