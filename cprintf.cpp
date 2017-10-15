@@ -1112,27 +1112,6 @@ unicode_string_t ascii_to_unicode_string_conversion(unicode_string_t&& src)
 	return std::move(src);
 }
 
-// printing strings with lower case 's' as format specifier leads
-// to undefined behaviour when using wide character strings .
-unicode_string_t resolve_string_type_format_specifier(
-  const unicode_string_t& fs)
-{
-	unicode_string_t f = fs;
-// seems like msvc does not conform to wide character
-// format specifier rules
-#ifndef CPF_WINDOWS_BUILD
-	if (fs.find('s') != unicode_string_t::npos)
-	{
-		f.clear();
-		for (std::wint_t i(0); i < fs.size(); ++i)
-		{
-			f.append({ std::isalpha(fs[i]) ? (char)std::toupper(fs[i]) : fs[i] });
-		}
-	}
-#endif
-	return f;
-}
-
 template <>
 void write_variadic_argument_to_file_stream<unicode_string_t>(
   file_stream_t           file_stream,

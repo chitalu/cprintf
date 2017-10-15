@@ -408,15 +408,11 @@ CPF_API void write_substring_without_format_specifier(
     file_stream_t file_stream, unicode_string_t &printed_string_, int &ssp_,
     format_string_layout_t::const_iterator &format_string_layout_iterator);
 
-CPF_API unicode_string_t
-resolve_string_type_format_specifier(const unicode_string_t &fs);
-
 template <typename T>
 void write_variadic_argument_to_file_stream(file_stream_t file_stream,
                                             unicode_string_t const &format,
                                             T &&arg) {
-  const unicode_string_t f = resolve_string_type_format_specifier(format);
-  std::fprintf(file_stream, f.c_str(), arg);
+  std::fprintf(file_stream, format.c_str(), arg);
 }
 
 template <>
