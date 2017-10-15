@@ -5,7 +5,7 @@ int main(void) {
   cprintf(stdout, "Characters: $R%c %c \n", 'a', 65);
   cprintf(stderr, "$GDecimals$?: %d %ld\n", 1977, 650000L);
   cprintf("$BPreceding with blanks: %10d \n", 1977);
-  cprintf(L"Preceding with zeros: $Y%010d \n", 1977);
+  cprintf("Preceding with zeros: $Y%010d \n", 1977);
   cprintf("Some different radices: %d %x %o $M%#x$W %#o \n", 100, 100, 100, 100,
           100);
   cprintf("floats: %4.2f $C%+.0e$? %E \n", 3.1416, 3.1416, 3.1416);
@@ -39,7 +39,6 @@ int main(void) {
 	cprintf("right-justified variable width: '%*c'\n", 5, 'x');
 #endif
   cprintf("std::string: %s\n", std::string("hello"));
-  cprintf("std::string: %S\n", std::wstring(L"hello"));
   cprintf_s("string literal API\n");
 #if 0
 #error "Unsupported argument combinations"

@@ -185,7 +185,7 @@ and aid in readability
 #endif /*	#ifdef _WIN32	*/
 
 namespace _cprintf_ {
-typedef std::wstring unicode_string_t;
+typedef std::string unicode_string_t;
 
 typedef std::string ascii_string_t;
 
@@ -196,7 +196,7 @@ typedef unicode_string_t system_color_repr_t;
 #endif
 
 
-typedef const wchar_t *unicode_character_string_ptr_t;
+typedef const char *unicode_character_string_ptr_t;
 
 typedef std::pair<unicode_string_t, unicode_string_t> unicode_string_pair_t;
 
@@ -251,8 +251,7 @@ struct is_unicode_string_type
 
 template <typename T = stub_t>
 struct is_valid_string_type_
-    : infer_boolean_type_<is_unicode_string_type<T>::value ||
-                          is_ascii_string_type<T>::value>::type {};
+    : infer_boolean_type_<is_ascii_string_type<T>::value>::type {};
 
 template <typename T = stub_t>
 struct is_STL_string_type_
@@ -289,7 +288,7 @@ void format_specifier_correspondence_check(
     if (*format != '%' || *++format == '%')
       continue;
 
-    wchar_t f = *format;
+    char f = *format;
 
     switch (f) {
     case 'f':
@@ -340,6 +339,8 @@ CPF_API const unicode_string_vector_t std_tokens;
 // tokens available on both windows and linux
 CPF_API const token_value_storage_t std_token_vals;
 
+CPF_API bool runningInSystemTerminal();
+
 CPF_API void save_stream_state(file_stream_t ustream);
 
 // boolean finished_cpf_exec is to indicate whether this is the last call to
@@ -369,17 +370,17 @@ CPF_API const std::initializer_list<unicode_string_t> attr_esc_seqs;
 //%u print an unsigned decimal (base 10) number
 //%x print a number in hex idecimal (base 16)
 //%% print a percent sign (\% also works)
-CPF_API const std::initializer_list<wchar_t> std_fmt_specs;
+CPF_API const std::initializer_list<char> std_fmt_specs;
 
 // extended format specifier terminators	'd', 'f', 's', 'e', 'o', 'x'
-CPF_API const std::initializer_list<wchar_t> ext_fmtspec_terms;
+CPF_API const std::initializer_list<char> ext_fmtspec_terms;
 
 // 	intermediate format specifiers	'+', '-', '.', '*', '#', 'l'
-CPF_API const std::initializer_list<wchar_t> inter_fmt_specs;
+CPF_API const std::initializer_list<char> inter_fmt_specs;
 
 // \a audible alert (bell) \b backspace	\f form feed \n newline (linefeed)
 // \r carriage return \t tab \v vertical tab
-CPF_API const std::initializer_list<wchar_t> escape_characters;
+CPF_API const std::initializer_list<char> escape_characters;
 
 CPF_API format_string_layout_t
 parse_format_string(const unicode_string_t &format_string);
@@ -387,9 +388,6 @@ parse_format_string(const unicode_string_t &format_string);
 CPF_API int search_for(const unicode_string_t &_what,
                        const unicode_string_t &_where, const int _offset = 0,
                        const char &_esc_char = CPF_ESC_CHAR);
-
-CPF_API unicode_string_t
-ascii_to_unicode_string_conversion(ascii_string_t &&src);
 
 CPF_API unicode_string_t
 ascii_to_unicode_string_conversion(unicode_string_t &&src);
@@ -418,18 +416,13 @@ void write_variadic_argument_to_file_stream(file_stream_t file_stream,
                                             unicode_string_t const &format,
                                             T &&arg) {
   const unicode_string_t f = resolve_string_type_format_specifier(format);
-  std::fwprintf(file_stream, f.c_str(), arg);
+  std::fprintf(file_stream, f.c_str(), arg);
 }
 
 template <>
 void write_variadic_argument_to_file_stream<unicode_string_t>(
     file_stream_t file_stream, unicode_string_t const &format,
     unicode_string_t &&arg);
-
-template <>
-void write_variadic_argument_to_file_stream<ascii_string_t>(
-    file_stream_t file_stream, unicode_string_t const &format,
-    ascii_string_t &&arg);
 
 template <>
 void write_variadic_argument_to_file_stream<char *>(
@@ -440,15 +433,6 @@ void write_variadic_argument_to_file_stream<signed char *>(
     file_stream_t file_stream, unicode_string_t const &format,
     signed char *&&arg);
 
-template <>
-void write_variadic_argument_to_file_stream<const char *>(
-    file_stream_t file_stream, unicode_string_t const &format,
-    const char *&&arg);
-
-template <>
-void write_variadic_argument_to_file_stream<const signed char *>(
-    file_stream_t file_stream, unicode_string_t const &format,
-    const signed char *&&arg);
 
 CPF_API void print_format_string_layout(
     file_stream_t file_stream,
@@ -470,7 +454,7 @@ void print_format_string_layout(
   // more variadic args to write using "printed_string_" as format string.
   bool more_args_on_iter = false,
        // boolean used to signify whether variadic "arg0" has been passed to
-      // std::fwprintf as an argument yet
+      // std::fprintf as an argument yet
       printed_arg0 = false;
 
   // string parsing start position...
@@ -497,9 +481,9 @@ void print_format_string_layout(
   const bool iter_reached_end =
       (format_string_layout_iterator == end_point_comparator);
   const unicode_string_t i_raw_str =
-      iter_reached_end ? L"" : format_string_layout_iterator->second.second;
+      iter_reached_end ? "" : format_string_layout_iterator->second.second;
 
-  // only when "arg0" has been passed to std::fwprintf does variadic-argument
+  // only when "arg0" has been passed to std::fprintf does variadic-argument
   // based recursion proceed onto the next one subsequently after arg0. Else
   // recurse back into this function with the same arguments.
   if (printed_arg0) {
@@ -517,7 +501,7 @@ void print_format_string_layout(
 }
 
 template <typename FormatType, typename... ArgumentTypes>
-int dispatch(file_stream_t file_stream, FormatType &&raw_format,
+int dispatch(file_stream_t file_stream, FormatType &&format,
              ArgumentTypes &&... args) {
   using namespace _cprintf_;
 
@@ -526,23 +510,13 @@ int dispatch(file_stream_t file_stream, FormatType &&raw_format,
 
   static_assert(verify_args_<ArgumentTypes...>::current::value, "invalid args");
 
-  unicode_string_t format;
-
-  try {
-    format = ascii_to_unicode_string_conversion(
-        std::forward<FormatType>(raw_format));
-  } catch (...) {
-    // runtime string conversion error
-    return CPF_NWCONV_ERR;
-  }
-
   int error_code = CPF_SUCCESS;
 
   try {
 
 #if CPF_DBG_CONFIG
     format_specifier_correspondence_check(
-        std::forward<unicode_character_string_ptr_t>(format.c_str()),
+        std::forward<unicode_character_string_ptr_t>(unicode_string_t(format).c_str()),
         std::forward<ArgumentTypes>(args)...);
 #endif
 

@@ -8,15 +8,15 @@ _module_dir_name = os.path.dirname(_module_real_path)
 # location of cprintf script
 sys.path.insert(0, _module_dir_name)
 
-import _cprintf
+import cprintf
 
 # notify cprintf module that you want to use this lib
 # by default the script expects to find the libcprintf.so/cprintf.dll
 # file in the same directory as itself
 if sys.platform.startswith('linux'):
-    _cprintf.set_library_path(os.path.join(_module_dir_name, "build/libcprintf.so"))
+    cprintf.set_library_path(os.path.join(_module_dir_name, "build/libcprintf.so"))
 elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
-    _cprintf.set_library_path(os.path.join(_module_dir_name, "build/Debug/cprintf.dll"))
+    cprintf.set_library_path(os.path.join(_module_dir_name, "build/Debug/cprintf.dll"))
 
 from cprintf import cprintf
 from sys import stdout, stderr
