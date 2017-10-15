@@ -1143,26 +1143,6 @@ void write_variadic_argument_to_file_stream<unicode_string_t>(
 	  file_stream, format, std::forward<const char*>(arg.c_str()));
 }
 
-template <>
-void write_variadic_argument_to_file_stream<char*>(
-  file_stream_t file_stream, unicode_string_t const& format, char*&& arg)
-{
-	write_variadic_argument_to_file_stream<unicode_string_t>(
-	  file_stream, format,
-	  std::forward<unicode_string_t>(
-	    ascii_to_unicode_string_conversion(std::forward<char*>(arg))));
-}
-
-template <>
-void write_variadic_argument_to_file_stream<signed char*>(
-  file_stream_t file_stream, unicode_string_t const& format, signed char*&& arg)
-{
-	write_variadic_argument_to_file_stream<unicode_string_t>(
-	  file_stream, format,
-	  std::forward<unicode_string_t>(
-	    ascii_to_unicode_string_conversion(reinterpret_cast<char*>(arg))));
-}
-
 CPF_API void print_format_string_layout(
   file_stream_t                                 file_stream,
   const format_string_layout_t::const_iterator& end_point_comparator,

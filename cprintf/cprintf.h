@@ -424,16 +424,6 @@ void write_variadic_argument_to_file_stream<unicode_string_t>(
     file_stream_t file_stream, unicode_string_t const &format,
     unicode_string_t &&arg);
 
-template <>
-void write_variadic_argument_to_file_stream<char *>(
-    file_stream_t file_stream, unicode_string_t const &format, char *&&arg);
-
-template <>
-void write_variadic_argument_to_file_stream<signed char *>(
-    file_stream_t file_stream, unicode_string_t const &format,
-    signed char *&&arg);
-
-
 CPF_API void print_format_string_layout(
     file_stream_t file_stream,
     const format_string_layout_const_iterator_t &end_point_comparator,
